@@ -11,23 +11,30 @@ export const enum TokenType {
 
     Identifier,
 
+    /// single character token
+    LeftBracket,
+    RightBracket,
+    LeftParen,
+    RightParen,
+    LeftCurly,
+    RightCurly,
+    
+    Equal,
+    Dot,
+    Comma,
+
+    BasicString,
+
+
     STRING,
     WHITESPACE,
     NEWLINE,
     // operators and punctuation
     HASH,
-    COMMA,
     COLON,
     SEMICOLON,
     Q_MARK,
     AT,
-    DOT,
-    L_PAREN,
-    R_PAREN,
-    L_BRACKET,
-    R_BRACKET,
-    L_CURLY,
-    R_CURLY,
     IS,
     ISNT,
     MATCH,
@@ -173,6 +180,19 @@ export class Lexer {
         return isAdvanced
     }
 
+    private advanceUntil(callback) : boolean {
+        const until = x => callback(x) === false
+        return this.advanceWhile(until)
+    }
+
+    /// consume current character 
+    private expect(expectedCh: Char) {
+        let ch = this.advance()
+        if(ch != expectedCh){
+            throw "Expect character '" + expectedCh + "' but got '" + ch + "' instead"
+        }
+    }
+
     /**
      * Get next token 
      */
@@ -189,7 +209,7 @@ export class Lexer {
         const ch = this.peek()
         if(this.isDigit(ch)){
             return this.consumeNumber()
-        }else if(this.isAlpha(ch)){
+        }else if(this.isAlpha(ch) || ch === '_'){
             return this.consumeIdentifier()
         }else if(ch === '+' || ch === '-'){
             const _   = this.advance()
@@ -201,8 +221,27 @@ export class Lexer {
             }
         }else if(ch === '#'){
             return this.consumeComment()
+        }else if(ch === '"'){
+            return this.consumeBasicString()
         }else{
-            throw "not implemented yet"
+            /// single character token
+            this.advance()
+            let tt = TokenType.Invalid
+            switch(ch){
+                case '[': tt = TokenType.LeftBracket; break
+                case ']': tt = TokenType.RightBracket; break
+                case '(': tt = TokenType.LeftParen; break
+                case ')': tt = TokenType.RightParen; break
+                case '{': tt = TokenType.LeftCurly; break
+                case '}': tt = TokenType.RightCurly; break
+                case '=': tt = TokenType.Equal; break
+                case '.': tt = TokenType.Dot; break
+                case ',': tt = TokenType.Comma; break
+                default:
+                    throw "expected single char token but got " + ch + " instead"
+            }
+
+            return this.token(tt)
         }
     }
 
@@ -233,10 +272,7 @@ export class Lexer {
 
     /// consume comment 
     private consumeComment() : Token {
-        const ch = this.advance()
-        if(ch !== '#'){
-            throw 'expected # for comment token but got ' + ch + 'instead'
-        }
+        this.expect('#')
 
         /// consume until new line
         const isNotNewLine = x => x !== '\n'
@@ -258,26 +294,61 @@ export class Lexer {
 
     /// return Integer or Float
     private consumeNumber(): Token {
+        const isDigit = this.isDigit.bind(this)
+        const isDigitOrUnderscore = (x:Char) =>  isDigit(x) || x === '_'
+
         // first char must be digit [0-9]
         this.advanceIf(this.isDigit)
 
         // next char must be [0-9_]
-        const isDigit = this.isDigit.bind(this)
-        const isDigitOrUnderscore = (x:Char) =>  isDigit(x) || x === '_'
         this.advanceWhile(isDigitOrUnderscore)
 
         return this.token(TokenType.Integer)
     }
 
+    /// return token Identifier
     private consumeIdentifier(): Token {
-        while(this.offset < this.input.length){
-            const nextCh = this.advance()
-            if(this.isAlpha(nextCh) == false){
-                break
+        const isAlpha = this.isAlpha.bind(this)
+        const isAlphaOrUnderscore = (x:Char) => isAlpha(x) || x === '_'
+        const isAlphaOrUnderscoreOrDash = (x:Char) => isAlphaOrUnderscore(x) || x === '-'
+
+        // first char must be alpha or _ [a-zA-Z_]
+        this.advanceIf(isAlphaOrUnderscore)
+        
+        /// next char must [a-zA-Z_-]
+        this.advanceWhile(isAlphaOrUnderscoreOrDash)
+
+        return this.token(TokenType.Identifier)
+    }
+
+    /// consume basic string
+    private consumeBasicString(): Token {
+        this.expect('"')
+
+        /// next character must be UTF8
+        let endOfString = false
+        while(endOfString === false && this.offset < this.input.length){
+            let ch = this.peek()
+            switch(ch){
+                case '"': 
+                    this.advance()
+                    endOfString = true
+                    break
+                case '\\':
+                    this.consumeEscape()
+                    break
+                case '\n':
+                    throw "newline is not allowed"
+                default:
+                    this.advance()
             }
         }
 
-        return this.token(TokenType.Identifier)
+        return this.token(TokenType.BasicString)
+    }
+
+    private consumeEscape(){
+
     }
 
     private isDigit(ch: Char): boolean {
@@ -285,7 +356,7 @@ export class Lexer {
     }
 
     private isAlpha(ch: Char): boolean {
-        return (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') || ch === '_' || ch === '$'
+        return (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z')
     }
    
 }

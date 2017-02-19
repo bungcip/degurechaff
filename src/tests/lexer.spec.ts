@@ -11,7 +11,7 @@ export class LexerTest {
     @TestCase("   5555", "5555")
     @TestCase("+22", "+22")
     @TestCase("-75", "-75")
-    @TestCase("+34_55", "+34_55")
+    @TestCase("+44_55_66", "+44_55_66")
     public integerTest(input: string, expected: string) {
         let lexer = new Lexer(input)
         let token = lexer.next()
@@ -37,9 +37,47 @@ export class LexerTest {
         let lexer = new Lexer(input)
         /// discard first token
         lexer.next()
-        
+
         let token = lexer.next()
         Expect(token.type).toBe(TokenType.Comment)
+        Expect(token.value).toBe(expected)
+    }
+
+
+    @Test("lexer simple token")
+    @TestCase("([{}])", [
+        TokenType.LeftParen, TokenType.LeftBracket, TokenType.LeftCurly,
+        TokenType.RightCurly, TokenType.RightBracket, TokenType.RightParen
+    ])
+    @TestCase("= . ,", [TokenType.Equal, TokenType.Dot, TokenType.Comma])
+    public simpleToken(input: string, expecteds: [TokenType]){
+        let lexer = new Lexer(input)
+        for(let expected of expecteds){
+            let token = lexer.next()
+            Expect(token.type).toBe(expected)
+        }
+    }
+
+    @Test("lexer identifier token")
+    @TestCase("name", "name")
+    @TestCase("some_name", "some_name")
+    @TestCase("min-size", "min-size")
+    @TestCase("_leading_underscore", "_leading_underscore")
+    @TestCase("SCREAMING", "SCREAMING")
+    public identifierTest(input: string, expected: string){
+        let lexer = new Lexer(input)
+        let token = lexer.next()
+        Expect(token.type).toBe(TokenType.Identifier)
+        Expect(token.value).toBe(expected)
+    }
+
+    @Test("lexer basic string token")
+    @TestCase('"name"', '"name"')
+    @TestCase('"complex string and number (0-9_)+ [{}]"', '"complex string and number (0-9_)+ [{}]"')
+    public basicStringTest(input: string, expected: string){
+        let lexer = new Lexer(input)
+        let token = lexer.next()
+        Expect(token.type).toBe(TokenType.BasicString)
         Expect(token.value).toBe(expected)
     }
 }
