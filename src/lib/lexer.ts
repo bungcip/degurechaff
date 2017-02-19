@@ -4,6 +4,8 @@ export const enum TokenType {
     Invalid,
     EndOfFile,
     
+    Comment,
+
     Integer,
     Float,
 
@@ -11,7 +13,6 @@ export const enum TokenType {
 
     STRING,
     WHITESPACE,
-    COMMENT,
     NEWLINE,
     // operators and punctuation
     HASH,
@@ -118,12 +119,34 @@ export class Lexer {
     }
 
     /**
+     * Get next character from input buffer without advancing current position
+     */
+    private peek(): Char {
+        return this.input[this.offset]        
+    }
+ 
+    /**
+     * Get previous character from input buffer without changing current offset.
+     * Make sure the function is not called when offset is zero
+     */
+    private prev(): Char {
+        return this.input[this.offset-1]
+    }
+
+    /**
      * Advance current position and return the character
      */
     private advance(): Char {
         let ch = this.input[this.offset]
         this.offset += 1
         return ch
+    }
+
+    /**
+     * Move current offset to previous position
+     */
+    private backward(){
+        this.offset -= 1
     }
 
     /**
@@ -151,13 +174,6 @@ export class Lexer {
     }
 
     /**
-     * Get next character from input buffer without advancing current position
-     */
-    private peek(): Char {
-        return this.input[this.offset]        
-    }
- 
-    /**
      * Get next token 
      */
     next(): Token {
@@ -183,6 +199,8 @@ export class Lexer {
             }else{
                 throw "expected digit but got '" + ch2 + "' instead"
             }
+        }else if(ch === '#'){
+            return this.consumeComment()
         }else{
             throw "not implemented yet"
         }
@@ -211,6 +229,31 @@ export class Lexer {
                     return
             }
         }
+    }
+
+    /// consume comment 
+    private consumeComment() : Token {
+        const ch = this.advance()
+        if(ch !== '#'){
+            throw 'expected # for comment token but got ' + ch + 'instead'
+        }
+
+        /// consume until new line
+        const isNotNewLine = x => x !== '\n'
+        this.advanceWhile(isNotNewLine)
+
+        /// value \r in last character is discarded
+        if(this.prev() === '\r'){
+            this.backward()
+        }
+
+        /// generate token without newline
+        const token = this.token(TokenType.Comment)
+
+        /// discard newline character
+        this.skipWhitespace()
+
+        return token
     }
 
     /// return Integer or Float
@@ -244,5 +287,6 @@ export class Lexer {
     private isAlpha(ch: Char): boolean {
         return (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') || ch === '_' || ch === '$'
     }
+   
 }
 

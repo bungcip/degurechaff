@@ -18,4 +18,28 @@ export class LexerTest {
         Expect(token.type).toBe(TokenType.Integer)
         Expect(token.value).toBe(expected)
     }
+
+
+    @Test("lexer single token comment")
+    @TestCase("# Just Comment #", "# Just Comment #")
+    @TestCase("   #####\nhello", "#####")
+    @TestCase("   #####\r\nhello", "#####")
+    public commentTest(input: string, expected: string) {
+        let lexer = new Lexer(input)
+        let token = lexer.next()
+        Expect(token.type).toBe(TokenType.Comment)
+        Expect(token.value).toBe(expected)
+    }
+
+    @Test("lexer comment token on second")
+    @TestCase("4000 # Just Comment\n400", "# Just Comment")
+    public commentOnSecondToken(input: string, expected: string){
+        let lexer = new Lexer(input)
+        /// discard first token
+        lexer.next()
+        
+        let token = lexer.next()
+        Expect(token.type).toBe(TokenType.Comment)
+        Expect(token.value).toBe(expected)
+    }
 }

@@ -7,7 +7,7 @@ Lexer:
 - [DONE] integer
 - float
 - support exponent syntax
-- comment
+- [DONE] comment
 - bool
 - string
 - Offset Date-Time
