@@ -10,9 +10,16 @@ Lexer:
 - [DONE] comment
 - bool
 - string
-- Offset Date-Time
-- Local Date-Time
-- Local Date
+  - Basic string
+    - [DONE] Single
+    - Multiline
+  - Literal string
+    - [DONE] Single
+    - Multiline
+- Date
+  - Offset Date-Time
+  - Local Date-Time
+  - Local Date
 
 Parser
 - Key

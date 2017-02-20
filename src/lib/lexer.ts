@@ -23,7 +23,9 @@ export const enum TokenType {
     Dot,
     Comma,
 
+    /// string
     BasicString,
+    LiteralString,
 
 
     STRING,
@@ -223,6 +225,8 @@ export class Lexer {
             return this.consumeComment()
         }else if(ch === '"'){
             return this.consumeBasicString()
+        }else if(ch === '\''){
+            return this.consumeLiteralString()
         }else{
             /// single character token
             this.advance()
@@ -348,7 +352,60 @@ export class Lexer {
     }
 
     private consumeEscape(){
+        this.expect("\\")
 
+        let code: Char[] = []
+        let ch = this.advance()
+        switch(ch){
+            case 'b':
+            case 't':
+            case 'n':
+            case 'f':
+            case 'r':
+            case '"':
+            case '\\':
+                code.push(ch)
+                return
+            case 'u':
+                /// get 4 char code
+                code.push(this.advance())
+                code.push(this.advance())
+                code.push(this.advance())
+                code.push(this.advance())
+                break
+            case 'U':
+                /// get 7 char code
+                code.push(this.advance())
+                code.push(this.advance())
+                code.push(this.advance())
+                code.push(this.advance())
+                code.push(this.advance())
+                code.push(this.advance())
+                code.push(this.advance())
+                break
+            default:
+                throw 'not yet implemented'
+        }
+    }
+
+    private consumeLiteralString(){
+        this.expect('\'')
+
+        /// next character must be UTF8
+        let endOfString = false
+        while(endOfString === false && this.offset < this.input.length){
+            let ch = this.peek()
+            switch(ch){
+                case '\'': 
+                    this.advance()
+                    endOfString = true
+                    break
+                default:
+                    this.advance()
+            }
+        }
+
+        return this.token(TokenType.LiteralString)
     }
 
     private isDigit(ch: Char): boolean {

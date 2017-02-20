@@ -80,4 +80,25 @@ export class LexerTest {
         Expect(token.type).toBe(TokenType.BasicString)
         Expect(token.value).toBe(expected)
     }
+
+    @Test("lexer basic string escape")
+    @TestCase(`"\\b\\t\\f\\r\\"\\"`, `"\\b\\t\\f\\r\\"\\"`)
+    @TestCase(`"\\n"`, `"\\n"`)
+    public basicStringEscapeTest(input: string, expected: string){
+        let lexer = new Lexer(input)
+        let token = lexer.next()
+        Expect(token.type).toBe(TokenType.BasicString)
+        Expect(token.value).toBe(expected)
+    }
+
+    @Test("lexer literal string token")
+    @TestCase("'C:\\Users\\nodejs\\templates'","'C:\\Users\\nodejs\\templates'")
+    public literalStringTest(input: string, expected: string){
+        let lexer = new Lexer(input)
+        let token = lexer.next()
+        Expect(token.type).toBe(TokenType.LiteralString)
+        Expect(token.value).toBe(expected)
+    }
+
+    
 }
