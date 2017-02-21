@@ -3,11 +3,18 @@
 import test from 'ava';
 import { Lexer, TokenType } from '../lib/lexer'
 import { Parser } from '../lib/parser'
+import { ValueKind } from '../lib/ast'
 
 function setup(input: string){
     let parser = new Parser(input)
     let root = parser.parse()
     return root
+}
+
+function setupForTestingValue(value: string){
+    let input = `key = ${value}`
+    let root = setup(input)
+    return root.pairs[0].value
 }
 
 test('parse pair', t => {
@@ -59,3 +66,15 @@ test('parse table with single pair', t => {
     t.deepEqual(table.pairs[0].key.toString(), 'age')
     t.deepEqual(table.pairs[0].value.toString(), '20')
 });
+
+
+test('parse key boolean', t => {
+    let trueValue = setupForTestingValue("true")
+    t.deepEqual(trueValue.kind, ValueKind.Boolean)
+    t.deepEqual(trueValue.toString(), "true")
+
+    let falseValue = setupForTestingValue("false")
+    t.deepEqual(falseValue.kind, ValueKind.Boolean)
+    t.deepEqual(falseValue.toString(), "false")
+    
+})

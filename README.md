@@ -22,11 +22,20 @@ Lexer:
   - Local Date
 
 Parser
-- Key
+- [DONE] Key
+  - [DONE] BasicString
+  - 
 - Value
   - Array
   - Primitive
-- Table
+    - [DONE] BasicString
+    - [DONE] Integer
+    - [DONE] Boolean
+    - Date
+- [DONE] Table
+  - [DONE] single name
+  - Nested Name
+- Array of Table
 
 Emitter
 - JSON

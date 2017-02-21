@@ -74,6 +74,7 @@ export class Value {
                 const data = (this.content.value as string)
                 return data.slice(1, data.length - 1)
             case TokenType.Integer:
+            case TokenType.Identifier:
                 return this.content.value
             default:
                 throw "Value: not yet implemented"

@@ -80,7 +80,7 @@ export class Parser {
     }
 
 
-    protected parseKey(): ast.Key {
+    private parseKey(): ast.Key {
         let token = this.advance()
         let allowedTokens = [
             TokenType.Identifier,
@@ -89,7 +89,7 @@ export class Parser {
             TokenType.Integer
         ]
         if( allowedTokens.includes(token.type) === false ){
-            throw "unexpected token found"
+            throw "parseKey(): unexpected token found"
         }
         let node = new ast.Key(token)
         return node
@@ -106,8 +106,16 @@ export class Parser {
             case TokenType.LiteralString:
                 kind = ast.ValueKind.String
                 break
+            case TokenType.Identifier:
+                /// check for boolean value
+                let text = token.value
+                if(text == 'true' || text == 'false'){
+                    kind = ast.ValueKind.Boolean
+                    break
+                }
+                throw "parseValue() 1: not yet implemented"
             default:
-                throw "parseValue(): not yet implemented"
+                throw "parseValue() 2: not yet implemented"
         }
 
         let node = new ast.Value(kind, token)
