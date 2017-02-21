@@ -1,9 +1,9 @@
 type Char = string
 
-export const enum TokenType {
+export enum TokenType {
     Invalid,
     EndOfFile,
-    
+
     Comment,
 
     Integer,
@@ -18,7 +18,7 @@ export const enum TokenType {
     RightParen,
     LeftCurly,
     RightCurly,
-    
+
     Equal,
     Dot,
     Comma,
@@ -27,65 +27,18 @@ export const enum TokenType {
     BasicString,
     LiteralString,
 
-
-    STRING,
-    WHITESPACE,
-    NEWLINE,
-    // operators and punctuation
-    HASH,
-    COLON,
-    SEMICOLON,
-    Q_MARK,
-    AT,
-    IS,
-    ISNT,
-    MATCH,
-    MATCHNOT,
-    LT,
-    LTE,
-    GT,
-    GTE,
-    ADD,
-    SUB,
-    CAT,
-    MUL,
-    DIV,
-    MOD,
-    LSHIFT,
-    RSHIFT,
-    BITOR,
-    BITAND,
-    BITXOR,
-    NOT,
-    INC,
-    DEC,
-    BITNOT,
-    EQ,
-    ADDEQ,
-    SUBEQ,
-    CATEQ,
-    MULEQ,
-    DIVEQ,
-    MODEQ,
-    LSHIFTEQ,
-    RSHIFTEQ,
-    BITOREQ,
-    BITANDEQ,
-    BITXOREQ,
-    RANGETO,
-    RANGELEN,
 }
 
 export class SourcePosition {
-    constructor(public line: number, public column: number){}
+    constructor(public line: number, public column: number) { }
 }
 
-export class SourceLocation {
-    constructor(public begin: SourcePosition, public end: SourcePosition) {}
+export class SourceRange {
+    constructor(public begin: SourcePosition, public end: SourcePosition) { }
 }
 
 export class Token {
-    constructor(public type: TokenType, public location: SourceLocation, public value: any = null) { }
+    constructor(public type: TokenType, public location: SourceRange, public value: any = null) { }
 }
 
 
@@ -110,7 +63,7 @@ export class Lexer {
     /**
      * Mark current position
      */
-    private mark(){
+    private mark() {
         this.beginPosition = new SourcePosition(this.line, this.column)
         this.beginOffset = this.offset
     }
@@ -121,7 +74,7 @@ export class Lexer {
     private token(type: TokenType): Token {
         const begin = this.beginPosition
         const end = new SourcePosition(this.line, this.column)
-        const location = new SourceLocation(begin, end)
+        const location = new SourceRange(begin, end)
         const value = this.input.slice(this.beginOffset, this.offset)
         const token = new Token(type, location, value)
         return token
@@ -131,15 +84,15 @@ export class Lexer {
      * Get next character from input buffer without advancing current position
      */
     private peek(): Char {
-        return this.input[this.offset]        
+        return this.input[this.offset]
     }
- 
+
     /**
      * Get previous character from input buffer without changing current offset.
      * Make sure the function is not called when offset is zero
      */
     private prev(): Char {
-        return this.input[this.offset-1]
+        return this.input[this.offset - 1]
     }
 
     /**
@@ -154,7 +107,7 @@ export class Lexer {
     /**
      * Move current offset to previous position
      */
-    private backward(){
+    private backward() {
         this.offset -= 1
     }
 
@@ -163,7 +116,7 @@ export class Lexer {
      */
     private advanceIf(callback): boolean {
         let ch = this.peek()
-        if(callback(ch)){
+        if (callback(ch)) {
             this.offset++
             this.column++
             return true
@@ -171,18 +124,18 @@ export class Lexer {
         return false
     }
 
-    private advanceWhile(callback) : boolean {
+    private advanceWhile(callback): boolean {
         let isAdvanced = false
-        while(this.offset < this.input.length){
+        while (this.offset < this.input.length) {
             isAdvanced = this.advanceIf(callback)
-            if(isAdvanced === false){
+            if (isAdvanced === false) {
                 break
             }
         }
         return isAdvanced
     }
 
-    private advanceUntil(callback) : boolean {
+    private advanceUntil(callback): boolean {
         const until = x => callback(x) === false
         return this.advanceWhile(until)
     }
@@ -190,7 +143,7 @@ export class Lexer {
     /// consume current character 
     private expect(expectedCh: Char) {
         let ch = this.advance()
-        if(ch != expectedCh){
+        if (ch != expectedCh) {
             throw "Expect character '" + expectedCh + "' but got '" + ch + "' instead"
         }
     }
@@ -199,70 +152,54 @@ export class Lexer {
      * Get next token 
      */
     next(): Token {
-        if(this.offset >= this.input.length){
-            throw "eof"
-        }
-
         /// skip whitespace
         this.skipWhitespace()
+
+        if (this.offset >= this.input.length) {
+            this.mark()
+            return this.token(TokenType.EndOfFile)
+        }
 
         this.mark()
 
         const ch = this.peek()
-        if(this.isDigit(ch)){
+        if (this.isDigit(ch)) {
             return this.consumeNumber()
-        }else if(this.isAlpha(ch) || ch === '_'){
+        } else if (this.isAlpha(ch) || ch === '_') {
             return this.consumeIdentifier()
-        }else if(ch === '+' || ch === '-'){
-            const _   = this.advance()
+        } else if (ch === '+' || ch === '-') {
+            const _ = this.advance()
             const ch2 = this.peek()
-            if(this.isDigit(ch2)){
+            if (this.isDigit(ch2)) {
                 return this.consumeNumber()
-            }else{
+            } else {
                 throw "expected digit but got '" + ch2 + "' instead"
             }
-        }else if(ch === '#'){
+        } else if (ch === '#') {
             return this.consumeComment()
-        }else if(ch === '"'){
+        } else if (ch === '"') {
             return this.consumeBasicString()
-        }else if(ch === '\''){
+        } else if (ch === '\'') {
             return this.consumeLiteralString()
-        }else{
-            /// single character token
-            this.advance()
-            let tt = TokenType.Invalid
-            switch(ch){
-                case '[': tt = TokenType.LeftBracket; break
-                case ']': tt = TokenType.RightBracket; break
-                case '(': tt = TokenType.LeftParen; break
-                case ')': tt = TokenType.RightParen; break
-                case '{': tt = TokenType.LeftCurly; break
-                case '}': tt = TokenType.RightCurly; break
-                case '=': tt = TokenType.Equal; break
-                case '.': tt = TokenType.Dot; break
-                case ',': tt = TokenType.Comma; break
-                default:
-                    throw "expected single char token but got " + ch + " instead"
-            }
-
-            return this.token(tt)
+        } else {
+            return this.consumeSimpleToken()
         }
     }
 
     /// skip whitespace
-    private skipWhitespace(){
-        while(this.offset < this.input.length){
+    private skipWhitespace() {
+        while (this.offset < this.input.length) {
             let nextCh = this.peek()
-            switch(nextCh){
+            switch (nextCh) {
                 case ' ':
-                case '\t': 
+                case '\t':
                     this.offset++
                     this.column++
                     break
                 case '\r':
                     this.offset++
                     this.column++
-                    /// fallthrough
+                /// fallthrough
                 case '\n':
                     this.offset++
                     this.line++
@@ -275,7 +212,7 @@ export class Lexer {
     }
 
     /// consume comment 
-    private consumeComment() : Token {
+    private consumeComment(): Token {
         this.expect('#')
 
         /// consume until new line
@@ -283,7 +220,7 @@ export class Lexer {
         this.advanceWhile(isNotNewLine)
 
         /// value \r in last character is discarded
-        if(this.prev() === '\r'){
+        if (this.prev() === '\r') {
             this.backward()
         }
 
@@ -299,7 +236,7 @@ export class Lexer {
     /// return Integer or Float
     private consumeNumber(): Token {
         const isDigit = this.isDigit.bind(this)
-        const isDigitOrUnderscore = (x:Char) =>  isDigit(x) || x === '_'
+        const isDigitOrUnderscore = (x: Char) => isDigit(x) || x === '_'
 
         // first char must be digit [0-9]
         this.advanceIf(this.isDigit)
@@ -313,12 +250,12 @@ export class Lexer {
     /// return token Identifier
     private consumeIdentifier(): Token {
         const isAlpha = this.isAlpha.bind(this)
-        const isAlphaOrUnderscore = (x:Char) => isAlpha(x) || x === '_'
-        const isAlphaOrUnderscoreOrDash = (x:Char) => isAlphaOrUnderscore(x) || x === '-'
+        const isAlphaOrUnderscore = (x: Char) => isAlpha(x) || x === '_'
+        const isAlphaOrUnderscoreOrDash = (x: Char) => isAlphaOrUnderscore(x) || x === '-'
 
         // first char must be alpha or _ [a-zA-Z_]
         this.advanceIf(isAlphaOrUnderscore)
-        
+
         /// next char must [a-zA-Z_-]
         this.advanceWhile(isAlphaOrUnderscoreOrDash)
 
@@ -331,10 +268,10 @@ export class Lexer {
 
         /// next character must be UTF8
         let endOfString = false
-        while(endOfString === false && this.offset < this.input.length){
+        while (endOfString === false && this.offset < this.input.length) {
             let ch = this.peek()
-            switch(ch){
-                case '"': 
+            switch (ch) {
+                case '"':
                     this.advance()
                     endOfString = true
                     break
@@ -351,12 +288,12 @@ export class Lexer {
         return this.token(TokenType.BasicString)
     }
 
-    private consumeEscape(){
+    private consumeEscape() {
         this.expect("\\")
 
         let code: Char[] = []
         let ch = this.advance()
-        switch(ch){
+        switch (ch) {
             case 'b':
             case 't':
             case 'n':
@@ -388,15 +325,15 @@ export class Lexer {
         }
     }
 
-    private consumeLiteralString(){
+    private consumeLiteralString(): Token {
         this.expect('\'')
 
         /// next character must be UTF8
         let endOfString = false
-        while(endOfString === false && this.offset < this.input.length){
+        while (endOfString === false && this.offset < this.input.length) {
             let ch = this.peek()
-            switch(ch){
-                case '\'': 
+            switch (ch) {
+                case '\'':
                     this.advance()
                     endOfString = true
                     break
@@ -408,6 +345,29 @@ export class Lexer {
         return this.token(TokenType.LiteralString)
     }
 
+    private consumeSimpleToken(): Token {
+        /// single character token
+        let ch = this.advance()
+        let tt = TokenType.Invalid
+        switch (ch) {
+            case '[': tt = TokenType.LeftBracket; break
+            case ']': tt = TokenType.RightBracket; break
+            case '(': tt = TokenType.LeftParen; break
+            case ')': tt = TokenType.RightParen; break
+            case '{': tt = TokenType.LeftCurly; break
+            case '}': tt = TokenType.RightCurly; break
+            case '=': tt = TokenType.Equal; break
+            case '.': tt = TokenType.Dot; break
+            case ',': tt = TokenType.Comma; break
+            default:
+                console.log("input:", this.input)
+                console.log("offset:", this.offset)
+                throw "expected single char token but got " + ch + " instead"
+        }
+        return this.token(tt)
+
+    }
+
     private isDigit(ch: Char): boolean {
         return ch >= '0' && ch <= '9'
     }
@@ -415,6 +375,6 @@ export class Lexer {
     private isAlpha(ch: Char): boolean {
         return (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z')
     }
-   
+
 }
 

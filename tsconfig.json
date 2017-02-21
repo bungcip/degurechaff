@@ -14,7 +14,7 @@
     "traceResolution": false,
     "pretty": true,
     "lib" : [
-      "es6"
+      "es6", "es2016"
     ],
     "types" : [
       "node"

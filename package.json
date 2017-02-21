@@ -10,11 +10,12 @@
   "license": "MIT",
   "scripts": {
     "info": "npm-scripts-info",
-    "build": "trash build && tsc -p tsconfig.json && tsc -p config/tsconfig.module.json",
+    "build": "tsc -p tsconfig.json && tsc -p config/tsconfig.module.json",
     "lint": "tslint src/**/*.ts",
     "unit": "yarn build && alsatian build/main/tests/**/*.spec.js",
     "check-coverage": "nyc check-coverage --lines 100 --functions 100 --branches 100",
     "test": "yarn unit && yarn check-coverage",
+    "ava": "yarn build && ava build/main/ava-tests/**/*.js",
     "cov": "yarn unit && yarn html-coverage && opn coverage/index.html",
     "html-coverage": "nyc report --reporter=html",
     "send-coverage": "nyc report --reporter=lcov > coverage.lcov && codecov",
@@ -41,6 +42,7 @@
   "devDependencies": {
     "@types/node": "^7.0.5",
     "alsatian": "^1.2.1",
+    "ava": "^0.18.2",
     "codecov": "^1.0.1",
     "npm-scripts-info": "^0.3.6",
     "nyc": "^10.1.2",
