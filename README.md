@@ -32,10 +32,11 @@ Parser
     - [DONE] Boolean
     - [DONE] Float
     - Date
+  - Inline Table
 - [DONE] Table
   - [DONE] single name
   - Nested Name
-- Array of Table
+- [DONE] Array of Table
 
 Emitter
 - JSON

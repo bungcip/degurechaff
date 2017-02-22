@@ -17,16 +17,24 @@ export class Parser {
         this.root = new ast.Root()
 
         while(this.eof() === false){
-            let token = this.peek()
-            // console.log("token = ", token)
-            switch(token.type){
-                case TokenType.LeftBracket:
+            let firstToken = this.peek(1)
+            let secondToken = this.peek(2)
+
+            if(firstToken.type == TokenType.LeftBracket){
+                // console.log("tokens", this.tokens)
+                // console.log("first token:", firstToken)
+                // console.log("second token:", secondToken)
+
+                if(secondToken.type == TokenType.LeftBracket){
+                    let aot = this.parseArrayOfTable()
+                    this.root.arrayOfTables.push(aot)
+                }else{
                     let table = this.parseTable()
                     this.root.tables.push(table)
-                    break
-                default:
-                    let pair = this.parsePair()
-                    this.root.pairs.push(pair)
+                }
+            }else{
+                let pair = this.parsePair()
+                this.root.pairs.push(pair)
             }
         }
 
@@ -42,8 +50,11 @@ export class Parser {
         return token
     }
 
+    /**
+     * Get next token without advancing current position
+     */
     private peek(n: number = 1): Token {
-        if(this.tokens.length == 0){
+        if(this.tokens.length < n){
             for(let i=0; i < n; i++){
                 const token = this.lexer.next()
                 this.tokens.push(token)
@@ -79,6 +90,21 @@ export class Parser {
         return node
     }
 
+    private parsePairs(): ast.Pair[] {
+        let nodes: ast.Pair[] = []
+
+        while(this.eof() === false){
+            let nextToken = this.peek()
+            if(nextToken.type == TokenType.LeftBracket){
+                break
+            }
+
+            let pair = this.parsePair()
+            nodes.push(pair)
+        }
+
+        return nodes
+    }
 
     private parseKey(): ast.Key {
         let token = this.advance()
@@ -130,26 +156,33 @@ export class Parser {
         let name = this.parseName()
         this.expect(TokenType.RightBracket)
 
-        let table = new ast.Table()
-        table.name = name
+        let node = new ast.Table()
+        node.name = name
+        node.pairs = this.parsePairs()
 
-        while(this.eof() === false){
-            let nextToken = this.peek()
-            if(nextToken.type == TokenType.LeftBracket){
-                break
-            }
-
-            let pair = this.parsePair()
-            table.pairs.push(pair)
-        }
-
-        return table
+        return node
     }
 
     private parseName(): ast.Name {
         /// TODO: nested name 
         let token = this.expect(TokenType.Identifier)
         let node = new ast.Name([token])
+        return node
+    }
+
+    private parseArrayOfTable(): ast.ArrayOfTable {
+        this.expect(TokenType.LeftBracket)
+        this.expect(TokenType.LeftBracket)
+        
+        let name = this.parseName()
+
+        this.expect(TokenType.RightBracket)
+        this.expect(TokenType.RightBracket)
+
+        let node = new ast.ArrayOfTable()
+        node.name = name
+        node.pairs = this.parsePairs()
+
         return node
     }
 

@@ -7,9 +7,11 @@ export class Node {
 export class Root {
     public pairs: Pair[]
     public tables: Table[]
+    public arrayOfTables: ArrayOfTable[]
     constructor(){
         this.pairs = []
         this.tables = []
+        this.arrayOfTables = []
     }
 }
 
@@ -20,6 +22,8 @@ export class Table {
         this.pairs = []
     }
 }
+
+export class ArrayOfTable extends Table {}
 
 export class Name {
     public segments: Token[]
@@ -32,23 +36,13 @@ export class Pair {
     constructor(public key: Key, public value: Value){}
 }
 
-/// get content between quote
-function extractStringBetweenQuote(input: string): string{
-    return input.slice(1, input.length - 1)
-}
-
 export class Key {
     constructor(public content: Token){}
 
     /// return key representation in string
     toString(): string {
-        if(this.content.type == TokenType.Identifier){
-            return this.content.data
-        }else if(this.content.type == TokenType.BasicString){
-            return extractStringBetweenQuote(this.content.data as string)
-        }
-
-        throw "Key: not yet implemented"
+        let value = this.content.jsValue()
+        return value.toString()
     }
 }
 
@@ -77,18 +71,26 @@ export class Value {
             case TokenType.Identifier:
                 return this.content.data
             default:
-                throw "Value: not yet implemented"
+                throw "Value::toString() not yet implemented"
         }
     }
 
     /// return a javascript type which represent the value
-    jsValue(): any {
+    jsValue(): string | number | Date | boolean {
         switch(this.kind){
             case ValueKind.Integer:
             case ValueKind.Float:
+            case ValueKind.String:
                 return this.content.jsValue()
+            case ValueKind.Boolean:
+                if( this.content.jsValue() === 'true'){
+                    return true
+                }else{
+                    return false
+                }
             default:
                 throw "jsValue(): not yet implemented"
         }
     }
 }
+

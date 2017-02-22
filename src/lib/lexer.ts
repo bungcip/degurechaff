@@ -58,7 +58,12 @@ export class Token {
             case TokenType.Integer:
             case TokenType.Float:
                 return this.extractFloat(this.data)
-            default: throw "jsValue(): not yet implemented"
+            case TokenType.BasicString:
+                return this.extractString(this.data)
+            case TokenType.Identifier:
+                return this.data
+            default: 
+                throw "jsValue(): not yet implemented"
         }
     }
 
@@ -66,6 +71,13 @@ export class Token {
         let value = input.replace(/_/g, '')
         return parseFloat(value)
     }
+
+    /// get content between quote
+    private extractString(input: string): string{
+        return input.slice(1, input.length - 1)
+    }
+
+
 }
 
 

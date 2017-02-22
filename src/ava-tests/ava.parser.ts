@@ -67,6 +67,28 @@ test('parse table with single pair', t => {
     t.deepEqual(table.pairs[0].value.toString(), '20')
 });
 
+test('parse empty array of table', t => {
+    let root = setup('[[array-of-table]]\n[[array-of-table]]\n[[array-of-table]]')
+    t.deepEqual(root.arrayOfTables.length, 3)
+
+    let aot = root.arrayOfTables[0]
+    t.deepEqual(aot.name.segments[0].data, "array-of-table")
+    t.deepEqual(aot.pairs.length, 0)
+});
+
+test('parse array of table with single pair', t => {
+    let input = `
+    [[item]]
+        free = false
+    `
+    let root = setup(input)
+    t.deepEqual(root.arrayOfTables.length, 1)
+
+    let aot = root.arrayOfTables[0]
+    t.deepEqual(aot.name.segments[0].data, "item")
+    t.deepEqual(aot.pairs.length, 1)
+});
+
 
 test('parse value boolean', t => {
     let trueValue = setupForTestingValue("true")
