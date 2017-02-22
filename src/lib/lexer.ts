@@ -59,6 +59,7 @@ export class Token {
             case TokenType.Float:
                 return this.extractFloat(this.data)
             case TokenType.BasicString:
+            case TokenType.LiteralString:
                 return this.extractString(this.data)
             case TokenType.Identifier:
                 return this.data
@@ -307,13 +308,14 @@ export class Lexer {
     private consumeIdentifier(): Token {
         const isAlpha = this.isAlpha.bind(this)
         const isAlphaOrUnderscore = (x: Char) => isAlpha(x) || x === '_'
-        const isAlphaOrUnderscoreOrDash = (x: Char) => isAlphaOrUnderscore(x) || x === '-'
+        const isAlphaOrUnderscoreOrDashOrDigit = (x: Char) => 
+            isAlphaOrUnderscore(x) || this.isDigit(x) || x === '-'
 
         // first char must be alpha or _ [a-zA-Z_]
         this.advanceIf(isAlphaOrUnderscore)
 
-        /// next char must [a-zA-Z_-]
-        this.advanceWhile(isAlphaOrUnderscoreOrDash)
+        /// next char must [a-zA-Z_-0-9]
+        this.advanceWhile(isAlphaOrUnderscoreOrDashOrDigit)
 
         return this.token(TokenType.Identifier)
     }

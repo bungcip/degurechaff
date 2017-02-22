@@ -23,7 +23,7 @@ Lexer:
 Parser
 - [DONE] Key
   - [DONE] BasicString
-  - 
+  - [DONE] Integer
 - Value
   - Array
   - Primitive

@@ -44,7 +44,7 @@ export class Parser {
     private expect(tt: TokenType): Token {
         const token = this.advance()
         if(token.type != tt){
-            throw "unexpected token found"
+            throw "unexpected token found. get " + token.data
         }
 
         return token

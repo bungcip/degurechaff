@@ -89,7 +89,7 @@ export class Value {
                     return false
                 }
             default:
-                throw "jsValue(): not yet implemented"
+                throw "Value::jsValue(): not yet implemented"
         }
     }
 }

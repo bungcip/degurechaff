@@ -17,6 +17,13 @@ function setupForTestingValue(value: string){
     return root.pairs[0].value
 }
 
+function setupForTestingKey(key: string){
+    let input = `${key} = true`
+    let root = setup(input)
+    return root.pairs[0].key
+}
+
+
 test('parse pair', t => {
     let root = setup('name = "value"')
     let pair = root.pairs[0]
@@ -125,3 +132,23 @@ test('parse value integer & float', t => {
     testFloat("6.626e-34", 6.626e-34);
 })
 
+test("parse key",  t=> {
+    const testId = (input, expected) => {
+        let key = setupForTestingKey(input)
+        t.deepEqual(key.toString(), expected)
+    }
+
+    /// bare key
+    testId('abcdefghijklmnopqrstuvwxyz', 'abcdefghijklmnopqrstuvwxyz')
+    testId('1234567890', '1234567890')
+    testId('abc123', 'abc123')
+    testId('bare_key', 'bare_key')
+    testId('bare-key', 'bare-key')
+
+    /// quoted key
+    testId(`"127.0.0.1"`, '127.0.0.1')
+    testId(`"character encoding"`, 'character encoding')
+    testId(`"ʎǝʞ"`, 'ʎǝʞ')
+    testId(`'key2'`, 'key2')
+    testId(`'quoted "value"'`, 'quoted "value"')
+})
