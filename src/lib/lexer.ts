@@ -1,6 +1,6 @@
 type Char = string
 
-export enum TokenType {
+export const enum TokenType {
     Invalid,
     EndOfFile,
 
@@ -38,7 +38,34 @@ export class SourceRange {
 }
 
 export class Token {
-    constructor(public type: TokenType, public location: SourceRange, public value: any = null) { }
+    public type: TokenType
+
+    /**
+     * Contain raw text representation of token.
+     */
+    public data: string
+
+    public location: SourceRange
+
+    constructor(type: TokenType, location: SourceRange, data: string) { 
+        this.type = type
+        this.data = data
+        this.location = location
+    }
+
+    jsValue(): string | number {
+        switch(this.type){
+            case TokenType.Integer:
+            case TokenType.Float:
+                return this.extractFloat(this.data)
+            default: throw "jsValue(): not yet implemented"
+        }
+    }
+
+    private extractFloat(input: string): number {
+        let value = input.replace(/_/g, '')
+        return parseFloat(value)
+    }
 }
 
 
@@ -163,18 +190,10 @@ export class Lexer {
         this.mark()
 
         const ch = this.peek()
-        if (this.isDigit(ch)) {
-            return this.consumeNumber()
+        if (this.isDigit(ch) || ch === '+' || ch === '-') {
+            return this.consumeNumberOrIdentifier()
         } else if (this.isAlpha(ch) || ch === '_') {
             return this.consumeIdentifier()
-        } else if (ch === '+' || ch === '-') {
-            const _ = this.advance()
-            const ch2 = this.peek()
-            if (this.isDigit(ch2)) {
-                return this.consumeNumber()
-            } else {
-                throw "expected digit but got '" + ch2 + "' instead"
-            }
         } else if (ch === '#') {
             return this.consumeComment()
         } else if (ch === '"') {
@@ -233,18 +252,43 @@ export class Lexer {
         return token
     }
 
-    /// return Integer or Float
-    private consumeNumber(): Token {
+    /// return Integer or Float or Identifier
+    private consumeNumberOrIdentifier(): Token {
+        /// 
+        const isPositiveNegative = x => x === '+' || x === '-'
         const isDigit = this.isDigit.bind(this)
         const isDigitOrUnderscore = (x: Char) => isDigit(x) || x === '_'
+        let type = TokenType.Integer
 
-        // first char must be digit [0-9]
+        /// parse decimal Integer
+        this.advanceIf(isPositiveNegative)
         this.advanceIf(this.isDigit)
-
-        // next char must be [0-9_]
         this.advanceWhile(isDigitOrUnderscore)
 
-        return this.token(TokenType.Integer)
+        /// parse fractions
+        const isFraction = this.advanceIf(x => x === '.')
+        if(isFraction){
+            type = TokenType.Float
+            this.advanceWhile(isDigitOrUnderscore)
+        }
+        
+        /// parse exponent
+        const isExponent = this.advanceIf(x => x === 'e' || x === 'E' )
+        if(isExponent){
+            this.advanceIf(isPositiveNegative)
+            this.advanceWhile(isDigitOrUnderscore)
+        }
+
+        /// number can be identifier if next char is a-z
+        const isIdentifier = this.advanceIf(this.isAlpha)
+        if(isIdentifier){
+            type = TokenType.Identifier
+            const isAlphaOrUnderscore = (x: Char) => this.isAlpha(x) || x === '_'
+            this.advanceWhile(isAlphaOrUnderscore)
+        }
+
+
+        return this.token(type)
     }
 
     /// return token Identifier

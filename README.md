@@ -5,10 +5,9 @@ TODO:
 
 Lexer:
 - [DONE] integer
-- float
-- support exponent syntax
+- [DONE] float
+- [DONE] support exponent syntax
 - [DONE] comment
-- bool
 - string
   - Basic string
     - [DONE] Single
@@ -31,6 +30,7 @@ Parser
     - [DONE] BasicString
     - [DONE] Integer
     - [DONE] Boolean
+    - [DONE] Float
     - Date
 - [DONE] Table
   - [DONE] single name

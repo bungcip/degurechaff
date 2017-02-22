@@ -16,7 +16,33 @@ export class LexerTest {
         let lexer = new Lexer(input)
         let token = lexer.next()
         Expect(token.type).toBe(TokenType.Integer)
-        Expect(token.value).toBe(expected)
+        Expect(token.data).toBe(expected)
+    }
+
+// # fractional
+// flt1 = +1.0
+// flt2 = 3.1415
+// flt3 = -0.01
+
+// # exponent
+// flt4 = 5e+22
+// flt5 = 1e6
+// flt6 = -2E-2
+
+// # both
+// flt7 = 6.626e-34
+
+// flt8 = 9_224_617.445_991_228_313
+
+    @Test("lexer token number value")
+    @TestCase("+1.0", TokenType.Float, +1.0)
+    @TestCase("3.1415", TokenType.Float, 3.1415)
+    @TestCase("-0.01", TokenType.Float, -0.01)
+    public numberJsValue(input: string, tt: TokenType, expected: number){
+        let lexer = new Lexer(input)
+        let token = lexer.next()
+        Expect(token.type).toBe(tt)
+        Expect(token.jsValue()).toBe(expected)
     }
 
 
@@ -28,7 +54,7 @@ export class LexerTest {
         let lexer = new Lexer(input)
         let token = lexer.next()
         Expect(token.type).toBe(TokenType.Comment)
-        Expect(token.value).toBe(expected)
+        Expect(token.data).toBe(expected)
     }
 
     @Test("lexer comment token on second")
@@ -40,7 +66,7 @@ export class LexerTest {
 
         let token = lexer.next()
         Expect(token.type).toBe(TokenType.Comment)
-        Expect(token.value).toBe(expected)
+        Expect(token.data).toBe(expected)
     }
 
 
@@ -68,7 +94,7 @@ export class LexerTest {
         let lexer = new Lexer(input)
         let token = lexer.next()
         Expect(token.type).toBe(TokenType.Identifier)
-        Expect(token.value).toBe(expected)
+        Expect(token.data).toBe(expected)
     }
 
     @Test("lexer basic string token")
@@ -78,7 +104,7 @@ export class LexerTest {
         let lexer = new Lexer(input)
         let token = lexer.next()
         Expect(token.type).toBe(TokenType.BasicString)
-        Expect(token.value).toBe(expected)
+        Expect(token.data).toBe(expected)
     }
 
     @Test("lexer basic string escape")
@@ -88,7 +114,7 @@ export class LexerTest {
         let lexer = new Lexer(input)
         let token = lexer.next()
         Expect(token.type).toBe(TokenType.BasicString)
-        Expect(token.value).toBe(expected)
+        Expect(token.data).toBe(expected)
     }
 
     @Test("lexer literal string token")
@@ -97,7 +123,7 @@ export class LexerTest {
         let lexer = new Lexer(input)
         let token = lexer.next()
         Expect(token.type).toBe(TokenType.LiteralString)
-        Expect(token.value).toBe(expected)
+        Expect(token.data).toBe(expected)
     }
 
     

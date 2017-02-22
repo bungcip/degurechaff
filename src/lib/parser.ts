@@ -102,13 +102,16 @@ export class Parser {
             case TokenType.Integer:
                 kind = ast.ValueKind.Integer
                 break
+            case TokenType.Float:
+                kind = ast.ValueKind.Float
+                break
             case TokenType.BasicString:
             case TokenType.LiteralString:
                 kind = ast.ValueKind.String
                 break
             case TokenType.Identifier:
                 /// check for boolean value
-                let text = token.value
+                let text = token.data
                 if(text == 'true' || text == 'false'){
                     kind = ast.ValueKind.Boolean
                     break

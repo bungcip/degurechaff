@@ -43,9 +43,9 @@ export class Key {
     /// return key representation in string
     toString(): string {
         if(this.content.type == TokenType.Identifier){
-            return this.content.value
+            return this.content.data
         }else if(this.content.type == TokenType.BasicString){
-            return extractStringBetweenQuote(this.content.value as string)
+            return extractStringBetweenQuote(this.content.data as string)
         }
 
         throw "Key: not yet implemented"
@@ -71,13 +71,24 @@ export class Value {
             case TokenType.BasicString:
             case TokenType.LiteralString:
                 /// only need string value
-                const data = (this.content.value as string)
+                const data = (this.content.data as string)
                 return data.slice(1, data.length - 1)
             case TokenType.Integer:
             case TokenType.Identifier:
-                return this.content.value
+                return this.content.data
             default:
                 throw "Value: not yet implemented"
+        }
+    }
+
+    /// return a javascript type which represent the value
+    jsValue(): any {
+        switch(this.kind){
+            case ValueKind.Integer:
+            case ValueKind.Float:
+                return this.content.jsValue()
+            default:
+                throw "jsValue(): not yet implemented"
         }
     }
 }
