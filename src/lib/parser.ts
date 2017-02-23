@@ -1,5 +1,6 @@
 import * as ast from './ast'
-import {Lexer, Token, TokenType} from './lexer'
+import {Token, TokenType} from './token'
+import {Lexer} from './lexer'
 
 /// pratt parser
 export class Parser {
@@ -21,10 +22,6 @@ export class Parser {
             let secondToken = this.peek(2)
 
             if(firstToken.type == TokenType.LeftBracket){
-                // console.log("tokens", this.tokens)
-                // console.log("first token:", firstToken)
-                // console.log("second token:", secondToken)
-
                 if(secondToken.type == TokenType.LeftBracket){
                     let aot = this.parseArrayOfTable()
                     this.root.arrayOfTables.push(aot)
@@ -115,13 +112,15 @@ export class Parser {
             TokenType.Integer
         ]
         if( allowedTokens.includes(token.type) === false ){
-            throw "parseKey(): unexpected token found"
+            // console.log(this.root.pairs)
+            // console.trace("HORE")
+            // throw "parseKey(): unexpected token found, " + token.data
         }
         let node = new ast.Key(token)
         return node
     }
 
-    private parseValue(): ast.Value {
+    private parseValue(): ast.AtomicValue | ast.ArrayValue {
         let token = this.advance()
         let kind = ast.ValueKind.String
         switch(token.type){
@@ -143,12 +142,46 @@ export class Parser {
                     break
                 }
                 throw "parseValue() 1: not yet implemented"
+            case TokenType.LeftBracket:
+                return this.parseArray()
+
             default:
                 throw "parseValue() 2: not yet implemented"
         }
 
-        let node = new ast.Value(kind, token)
+        let node = new ast.AtomicValue(kind, token)
         return node
+    }
+
+    private parseArray(): ast.ArrayValue {
+        // this.expect(TokenType.LeftBracket)
+
+        let items: ast.Value[] = []
+
+        while(this.eof() === false){
+            let nextToken = this.peek()
+            switch(nextToken.type){
+                case TokenType.RightBracket:
+                    this.advance()
+                    let node = new ast.ArrayValue(items)
+                    return node
+                default:
+                    let value = this.parseValue()
+                    items.push(value)
+                    nextToken = this.peek()
+                    switch(nextToken.type){
+                        case TokenType.Comma:
+                            this.advance()
+                            continue
+                        case TokenType.RightBracket:
+                            continue
+                        default:
+                            throw 'expected , or ] but got ' + nextToken.data + ' instead'
+                    }
+            }
+        }
+
+        throw "EOF reached before token ] found"
     }
 
     private parseTable(): ast.Table {

@@ -25,7 +25,7 @@ Parser
   - [DONE] BasicString
   - [DONE] Integer
 - Value
-  - Array
+  - [DONE] Array
   - Primitive
     - [DONE] BasicString
     - [DONE] Integer

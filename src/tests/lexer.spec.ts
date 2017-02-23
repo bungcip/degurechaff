@@ -1,5 +1,6 @@
 import { Expect, Test, TestCase } from "alsatian"
-import { Lexer, TokenType } from '../lib/lexer'
+import { TokenType } from '../lib/token'
+import { Lexer } from '../lib/lexer'
 
 export class LexerTest {
 
@@ -7,7 +8,6 @@ export class LexerTest {
     @TestCase("9", "9")
     @TestCase("12345", "12345")
     @TestCase("1234567890", "1234567890")
-    @TestCase("5555abc", "5555")
     @TestCase("   5555", "5555")
     @TestCase("+22", "+22")
     @TestCase("-75", "-75")
@@ -18,21 +18,6 @@ export class LexerTest {
         Expect(token.type).toBe(TokenType.Integer)
         Expect(token.data).toBe(expected)
     }
-
-// # fractional
-// flt1 = +1.0
-// flt2 = 3.1415
-// flt3 = -0.01
-
-// # exponent
-// flt4 = 5e+22
-// flt5 = 1e6
-// flt6 = -2E-2
-
-// # both
-// flt7 = 6.626e-34
-
-// flt8 = 9_224_617.445_991_228_313
 
     @Test("lexer token number value")
     @TestCase("+1.0", TokenType.Float, +1.0)

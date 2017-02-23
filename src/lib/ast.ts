@@ -1,4 +1,4 @@
-import {Token, TokenType, SourcePosition} from './lexer'
+import {Token, TokenType, SourcePosition} from './token'
 
 export class Node {
 
@@ -46,18 +46,33 @@ export class Key {
     }
 }
 
-
+/// atomic value kind
 export const enum ValueKind {
     Boolean,
     String,
     Integer,
     Float,
-    Array,
     Date
 }
 
+
 export class Value {
-    constructor(public kind: ValueKind, public content: Token){}
+    toString(): string {
+        return ""
+    }
+
+    jsValue(): any {
+        return ""
+    }
+}
+
+/**
+ * Value which cannot contain other value
+ */
+export class AtomicValue extends Value {
+    constructor(public kind: ValueKind, public content: Token){
+        super()
+    }
 
     /// return key represantation
     toString(): string {
@@ -91,6 +106,24 @@ export class Value {
             default:
                 throw "Value::jsValue(): not yet implemented"
         }
+    }
+}
+
+/**
+ * ArrayValue class contains other value node
+ */
+export class ArrayValue extends Value {
+    constructor(public items: Value[]){
+        super()
+    }
+
+    jsValue(): any {
+        let result: any[] = []
+        for(let item of this.items){
+            result.push(item.jsValue())
+        }
+
+        return result
     }
 }
 

@@ -1,9 +1,10 @@
 /// using ava because alsatian don't give me stack trace when exception occured...
 
 import test from 'ava';
-import { Lexer, TokenType } from '../lib/lexer'
+import { TokenType } from '../lib/token'
+import { Lexer } from '../lib/lexer'
 import { Parser } from '../lib/parser'
-import { ValueKind } from '../lib/ast'
+import { ValueKind, AtomicValue, ArrayValue } from '../lib/ast'
 
 function setup(input: string){
     let parser = new Parser(input)
@@ -11,11 +12,28 @@ function setup(input: string){
     return root
 }
 
-function setupForTestingValue(value: string){
+function setupForTestingAtomicValue(value: string): AtomicValue {
     let input = `key = ${value}`
     let root = setup(input)
-    return root.pairs[0].value
+    let node = root.pairs[0].value
+    if(node instanceof AtomicValue){
+        return node
+    }
+
+    throw "value is not AtomicValue"
 }
+
+function setupForTestingArrayValue(value: string): ArrayValue {
+    let input = `key = ${value}`
+    let root = setup(input)
+    let node = root.pairs[0].value
+    if(node instanceof ArrayValue){
+        return node
+    }
+
+    throw "value is not ArrayValue"
+}
+
 
 function setupForTestingKey(key: string){
     let input = `${key} = true`
@@ -98,24 +116,24 @@ test('parse array of table with single pair', t => {
 
 
 test('parse value boolean', t => {
-    let trueValue = setupForTestingValue("true")
+    let trueValue = setupForTestingAtomicValue("true")
     t.deepEqual(trueValue.kind, ValueKind.Boolean)
     t.deepEqual(trueValue.toString(), "true")
 
-    let falseValue = setupForTestingValue("false")
+    let falseValue = setupForTestingAtomicValue("false")
     t.deepEqual(falseValue.kind, ValueKind.Boolean)
     t.deepEqual(falseValue.toString(), "false")   
 })
 
 test('parse value integer & float', t => {
     const testInt = (input, expected) => {
-        let value = setupForTestingValue(input)
+        let value = setupForTestingAtomicValue(input)
         t.deepEqual(value.kind, ValueKind.Integer)
         t.deepEqual(value.jsValue(), expected)
     }
 
     const testFloat = (input, expected) => {
-        let value = setupForTestingValue(input)
+        let value = setupForTestingAtomicValue(input)
         t.deepEqual(value.kind, ValueKind.Float)
         t.deepEqual(value.jsValue(), expected)
     }
@@ -131,6 +149,22 @@ test('parse value integer & float', t => {
 
     testFloat("6.626e-34", 6.626e-34);
 })
+
+test('parse value array', t => {
+    const testArray = (input, expected) => {
+        let value = setupForTestingArrayValue(input)
+        t.deepEqual(value.jsValue(), expected)
+    }
+
+    testArray("[]", [])
+    testArray("[1]", [1])
+    testArray("[1,2,3]", [1,2,3])
+    testArray("[1,2,3,]", [1,2,3])
+
+    testArray("[[1],[2],[3],]", [[1],[2],[3]])
+
+})
+
 
 test("parse key",  t=> {
     const testId = (input, expected) => {

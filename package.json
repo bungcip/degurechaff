@@ -1,6 +1,6 @@
 {
   "name": "degurechaff",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "Degurechaff is spec compliant TOML parser",
   "main": "build/main/index.js",
   "typings": "build/main/index.d.ts",
@@ -52,7 +52,7 @@
     "tslint": "^4.4.2",
     "tslint-config-standard": "^4.0.0",
     "typedoc": "^0.5.7",
-    "typescript": "^2.2.0"
+    "typescript": "^2.2.1"
   },
   "keywords": [
     "toml",

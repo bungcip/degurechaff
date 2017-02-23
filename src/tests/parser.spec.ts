@@ -1,5 +1,6 @@
 import { Expect, Test, TestCase } from "alsatian"
-import { Lexer, TokenType } from '../lib/lexer'
+import { TokenType } from '../lib/token'
+import { Lexer } from '../lib/lexer'
 import { Parser } from '../lib/parser'
 
 export class ParserTest extends Parser {
