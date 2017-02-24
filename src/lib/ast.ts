@@ -127,3 +127,18 @@ export class ArrayValue extends Value {
     }
 }
 
+export class InlineTableValue extends Value {
+    constructor(public pairs: Pair[]){
+        super()
+    }
+
+    jsValue(): any {
+        let result = {}
+        for(let pair of this.pairs){
+            let key = pair.key.toString()
+            let value = pair.value.jsValue()
+            result[key] = value
+        }
+        return result
+    }
+}

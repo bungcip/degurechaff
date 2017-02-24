@@ -4,13 +4,17 @@ import test from 'ava';
 import { TokenType } from '../lib/token'
 import { Lexer } from '../lib/lexer'
 import { Parser } from '../lib/parser'
-import { ValueKind, AtomicValue, ArrayValue } from '../lib/ast'
+import { ValueKind, AtomicValue, ArrayValue, Value, InlineTableValue } from '../lib/ast'
 
 function setup(input: string){
     let parser = new Parser(input)
     let root = parser.parse()
     return root
 }
+
+
+/// NOTE: Help needed
+/// how can I merge this three function as generic function in typescript?
 
 function setupForTestingAtomicValue(value: string): AtomicValue {
     let input = `key = ${value}`
@@ -33,6 +37,18 @@ function setupForTestingArrayValue(value: string): ArrayValue {
 
     throw "value is not ArrayValue"
 }
+
+function setupForTestingInlineTableValue(value: string): InlineTableValue {
+    let input = `key = ${value}`
+    let root = setup(input)
+    let node = root.pairs[0].value
+    if(node instanceof InlineTableValue){
+        return node
+    }
+
+    throw "value is not InlineTableValue"
+}
+
 
 
 function setupForTestingKey(key: string){
@@ -165,8 +181,18 @@ test('parse value array', t => {
 
 })
 
+test("parse value inline table", t => {
+    const testTable = (input, expected) => {
+        let value = setupForTestingInlineTableValue(input)
+        t.deepEqual(value.jsValue(), expected)
+    }
 
-test("parse key",  t=> {
+    testTable("{}", {})
+    testTable("{a = 20}", {'a': 20})
+    testTable("{a = 20, b = 30, c = 40}", {'a': 20, 'b': 30, 'c': 40})
+})
+
+test("parse key",  t => {
     const testId = (input, expected) => {
         let key = setupForTestingKey(input)
         t.deepEqual(key.toString(), expected)

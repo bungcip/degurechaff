@@ -41,10 +41,19 @@ export class Parser {
     private expect(tt: TokenType): Token {
         const token = this.advance()
         if(token.type != tt){
-            throw "unexpected token found. get " + token.data
+            console.trace("ok")
+            throw "expect(): unexpected token found. get " + token.data
         }
 
         return token
+    }
+
+    private advanceIf(tt: TokenType): Token | false {
+        let nextToken = this.peek()
+        if(nextToken.type === tt){
+            return this.advance()
+        }
+        return false
     }
 
     /**
@@ -114,13 +123,29 @@ export class Parser {
         if( allowedTokens.includes(token.type) === false ){
             // console.log(this.root.pairs)
             // console.trace("HORE")
-            // throw "parseKey(): unexpected token found, " + token.data
+            throw "parseKey(): unexpected token found, " + token.data
         }
         let node = new ast.Key(token)
         return node
     }
 
-    private parseValue(): ast.AtomicValue | ast.ArrayValue {
+    /**
+     * parse value fragment
+     */
+    private parseValue(): ast.AtomicValue | ast.ArrayValue | ast.InlineTableValue {
+        let token = this.peek()
+        switch(token.type){
+            case TokenType.LeftBracket:
+                return this.parseArray()
+            case TokenType.LeftCurly:
+                return this.parseInlineTable()
+            default:
+                return this.parseAtomic()
+        }
+
+    }
+
+    parseAtomic(): ast.AtomicValue {
         let token = this.advance()
         let kind = ast.ValueKind.String
         switch(token.type){
@@ -141,20 +166,16 @@ export class Parser {
                     kind = ast.ValueKind.Boolean
                     break
                 }
-                throw "parseValue() 1: not yet implemented"
-            case TokenType.LeftBracket:
-                return this.parseArray()
-
+                // fallthrough
             default:
-                throw "parseValue() 2: not yet implemented"
+                throw "parseAtomic(): unexpected token found '" + token.data + "'"
         }
-
         let node = new ast.AtomicValue(kind, token)
         return node
     }
 
     private parseArray(): ast.ArrayValue {
-        // this.expect(TokenType.LeftBracket)
+        this.expect(TokenType.LeftBracket)
 
         let items: ast.Value[] = []
 
@@ -176,7 +197,7 @@ export class Parser {
                         case TokenType.RightBracket:
                             continue
                         default:
-                            throw 'expected , or ] but got ' + nextToken.data + ' instead'
+                            throw 'parseArray(): expected , or ] but got ' + nextToken.data + ' instead'
                     }
             }
         }
@@ -216,6 +237,32 @@ export class Parser {
         node.name = name
         node.pairs = this.parsePairs()
 
+        return node
+    }
+
+    /// helper parser to parse between expression
+    private surround<T>(begin: TokenType, end: TokenType, separator: TokenType, callback: () => T): T[] {
+        this.expect(begin)
+
+        let result: T[] = []
+        while(this.peek().type !== end && this.eof() === false){
+            let item = callback()
+            result.push( item )
+            
+            let advanced = this.advanceIf(separator)
+            if(advanced === false){
+                break
+            }
+        }
+
+        this.expect(end)
+        return result
+    }
+
+    private parseInlineTable(): ast.InlineTableValue {
+        let parsePair : () => ast.Pair = this.parsePair.bind(this)
+        let pairs = this.surround(TokenType.LeftCurly, TokenType.RightCurly, TokenType.Comma, parsePair)
+        let node = new ast.InlineTableValue(pairs)
         return node
     }
 
