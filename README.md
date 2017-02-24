@@ -41,5 +41,5 @@ Parser
 - Error Recovery
 
 Emitter
-- JSON
+- [DONE] JSON
 - AST
