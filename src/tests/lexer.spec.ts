@@ -102,6 +102,18 @@ export class LexerTest {
         Expect(token.data).toBe(expected)
     }
 
+
+    @Test("lexer multi line basic string")
+    @TestCase(`"""Roses are red\nViolets are blue"""`, `"""Roses are red\nViolets are blue"""`)
+    @TestCase(`"""Roses are red\\\n              Violets are blue"""`, `"""Roses are red\\\n              Violets are blue"""`)
+    public multiLineBasicStringTest(input: string, expected: string){
+        let lexer = new Lexer(input)
+        let token = lexer.next()
+        Expect(token.type).toBe(TokenType.MultiLineBasicString)
+        Expect(token.data).toBe(expected)
+    }
+
+
     @Test("lexer literal string token")
     @TestCase("'C:\\Users\\nodejs\\templates'","'C:\\Users\\nodejs\\templates'")
     public literalStringTest(input: string, expected: string){

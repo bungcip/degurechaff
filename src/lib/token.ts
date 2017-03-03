@@ -27,6 +27,8 @@ export const enum TokenType {
     /// string
     BasicString,
     LiteralString,
+    MultiLineBasicString,
+    MultiLineLiteralString,
 
     /// 
     Date,

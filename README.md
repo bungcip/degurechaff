@@ -11,7 +11,7 @@ Lexer:
 - string
   - Basic string
     - [DONE] Single
-    - Multiline
+    - [DONE] Multiline
   - Literal string
     - [DONE] Single
     - Multiline
@@ -29,10 +29,13 @@ Parser
   - [DONE] Array
   - Primitive
     - [DONE] BasicString
+      - Parsing multi line
+    - LiteralString
+      - Parsing multi line
     - [DONE] Integer
     - [DONE] Boolean
     - [DONE] Float
-    - Date
+    - [DONE] Date
   - [DONE] Inline Table
 - [DONE] Table
   - [DONE] single name

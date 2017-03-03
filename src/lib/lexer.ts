@@ -62,6 +62,19 @@ export class Lexer {
     }
 
     /**
+     * Get n next character from input buffer without advancing current position.
+     * When buffer don't have enough character requested. it will return null
+     * @param n
+     */
+    private peekN(n: number): string | null {
+        let result = this.input.slice(this.offset, this.offset + n)
+        if(result.length != n){
+            return null
+        }
+        return result
+    }
+
+    /**
      * Get previous character from input buffer without changing current offset.
      * Make sure the function is not called when offset is zero
      */
@@ -156,7 +169,7 @@ export class Lexer {
         } else if (ch === '#') {
             return this.consumeComment()
         } else if (ch === '"') {
-            return this.consumeBasicString()
+            return this.consumeBasicStringOrMultiLine()
         } else if (ch === '\'') {
             return this.consumeLiteralString()
         } else {
@@ -340,7 +353,15 @@ export class Lexer {
         return this.token(TokenType.Identifier)
     }
 
-    /// consume basic string
+    /// consume basic string or multiline
+    private consumeBasicStringOrMultiLine(): Token {
+        const nextChars = this.peekN(3)
+        if(nextChars && nextChars === '"""'){
+            return this.consumeMultiLineBasicString()
+        }
+        return this.consumeBasicString()
+    }
+
     private consumeBasicString(): Token {
         this.expect('"')
 
@@ -366,19 +387,53 @@ export class Lexer {
         return this.token(TokenType.BasicString)
     }
 
-    private consumeEscape() {
+    private consumeMultiLineBasicString(): Token {
+        this.expect('"')
+        this.expect('"')
+        this.expect('"')
+
+        /// next character must be UTF8
+        let endOfString = false
+        while (endOfString === false && this.offset < this.input.length) {
+            let ch = this.peek()
+            switch (ch) {
+                case '"':
+                    const chars = this.peekN(3)               
+                    if(chars === '"""'){
+                        this.advance()
+                        this.advance()
+                        this.advance()
+                        endOfString = true
+                    }else{
+                        this.advance()
+                    }
+                    break
+                case '\\':
+                    this.consumeEscape(true)
+                    break
+                default:
+                    this.advance()
+            }
+        }
+        
+
+
+        return this.token(TokenType.MultiLineBasicString)
+    }
+
+    private consumeEscape(allowedNewLine=false) {
         this.expect("\\")
 
         let code: Char[] = []
         let ch = this.advance()
         switch (ch) {
-            case 'b':
-            case 't':
             case 'n':
-            case 'f':
-            case 'r':
             case '"':
             case '\\':
+            case 'b':
+            case 't':
+            case 'f':
+            case 'r':
                 code.push(ch)
                 return
             case 'u':
@@ -397,6 +452,11 @@ export class Lexer {
                 code.push(this.advance())
                 code.push(this.advance())
                 code.push(this.advance())
+                break
+            case '\n':
+                if(allowedNewLine == false){
+                    throw "consumeEscape(): newline is not allowed"
+                }
                 break
             default:
                 throw 'not yet implemented'
