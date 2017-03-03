@@ -16,7 +16,7 @@ Lexer:
     - [DONE] Single
     - [DONE] Multiline
 - Date
-  - Offset Date-Time
+  - [DONE] Offset Date-Time
   - [DONE] Local Date-Time
   - [DONE] Local Date
 - Unicode Escape Code

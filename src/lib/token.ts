@@ -55,7 +55,7 @@ export class Token {
 
     public location: SourceRange
 
-    constructor(type: TokenType, location: SourceRange, data: string) { 
+    constructor(type: TokenType, location: SourceRange, data: string) {
         this.type = type
         this.data = data
         this.location = location
@@ -63,7 +63,7 @@ export class Token {
 
     /// return javascript builtin type representation
     jsValue(): string | number | dt.Date | dt.Time | dt.DateTime {
-        switch(this.type){
+        switch (this.type) {
             case TokenType.Integer:
             case TokenType.Float:
                 return this.extractFloat(this.data)
@@ -78,7 +78,7 @@ export class Token {
                 return this.extractTime(this.data)
             case TokenType.DateTime:
                 return this.extractDateTime(this.data)
-            default: 
+            default:
                 throw "jsValue(): not yet implemented"
         }
     }
@@ -89,7 +89,7 @@ export class Token {
     }
 
     /// get content between quote
-    private extractString(input: string): string{
+    private extractString(input: string): string {
         return input.slice(1, input.length - 1)
     }
 
@@ -109,13 +109,64 @@ export class Token {
         return date
     }
 
+    /// NOTE: simplify this code!!!
     private extractTime(input: string): dt.Time {
-        let [time, fraction] = input.split('.')
-        let items = time.split(':').map(x => parseInt(x, 10))
+        const items = input.substr(0, 8).split(':').map(x => parseInt(x, 10))
         const [hours, minutes, seconds] = items
-        const fractions = fraction === undefined ? null : parseInt(fraction, 10)
-        const date = new dt.Time(hours, minutes, seconds, fractions)
-        return date
+
+        input = input.substr(8)
+
+        let fractions: null | number = null
+        let tzOffset: null | dt.TimeOffset = null
+
+        if (input[0] === '.') {
+            /// fractions
+            input = input.substr(1)
+
+            if (input.endsWith('Z')) {
+                input = input.substr(0, input.length - 1)
+
+                tzOffset = new dt.TimeOffset()
+                fractions = parseInt(input, 10)
+            } else {
+                const plusIndex = input.indexOf('+')
+                const minusIndex = input.indexOf('-')
+                const partitionIndex = Math.max(plusIndex, minusIndex)
+
+                if(partitionIndex === -1){
+                    fractions = parseInt(input, 10)
+                }else{
+                    let fractionInput = input.substr(0, partitionIndex)
+                    let tzInput = input.substr(partitionIndex)
+
+                    fractions = parseInt(fractionInput, 10)
+
+                    const pattern = /^([+-])(\d{2}):(\d{2})$/;
+                    // console.log(tzInput)
+                    const exprs = pattern.exec(tzInput)
+                    // console.log("exprs:", exprs)
+                    // console.log('part')
+                    if(exprs === null){
+                        throw "extractTime(): unexpected null"
+                    }
+
+                    const sign = exprs[1] as dt.TimeOffsetSign
+                    const tzHour = parseInt(exprs[2], 10)
+                    const tzMin  = parseInt(exprs[3], 10);
+                    tzOffset = new dt.TimeOffset(sign, tzHour, tzMin)
+                }
+            }
+        }else if(input[0] === '+' || input[0] === '-'){
+            /// only offset
+            const sign = input[0] as dt.TimeOffsetSign
+            const [tzHours, tzMinutes] = input.substr(1).split(':').map( x => parseInt(x, 10))
+            tzOffset = new dt.TimeOffset(sign, tzHours, tzMinutes)
+        }else if(input[0] === 'Z'){
+            tzOffset = new dt.TimeOffset()
+        }
+
+        const time = new dt.Time(hours, minutes, seconds, fractions, tzOffset)
+        return time
     }
 
 

@@ -310,11 +310,11 @@ export class Lexer {
     private consumeDateTime(){
         let type = TokenType.Date
 
-        this.advanceExact(this.isDigit, 4, "consumeDateTime(): yearDigit must be 4")
+        this.advanceExact(this.isDigit, 4, "consumeDateTime(): yearDigit must be 4 digits")
         this.expect('-')
-        this.advanceExact(this.isDigit, 2, "consumeDateTime(): monthDigit must be 2")
+        this.advanceExact(this.isDigit, 2, "consumeDateTime(): monthDigit must be 2 digits")
         this.expect('-')
-        this.advanceExact(this.isDigit, 2, "consumeDateTime(): dateDigit must be 2")
+        this.advanceExact(this.isDigit, 2, "consumeDateTime(): dateDigit must be 2 digits")
 
         /// optional parts, time
         let isTime = this.advanceIf('T')
@@ -338,6 +338,19 @@ export class Lexer {
                 throw "consumeTime(): fractions digit need minimum 1 digit"
             }
         }
+
+        /// time offset
+        if(this.advanceIf('Z')){
+            return this.token(TokenType.Time)
+        }
+
+        const isSign = x => x === '+' || x === '-'
+        if(this.advanceIf(isSign)){
+            this.advanceExact(this.isDigit, 2, "consumeTime(): offset hours must be 2")
+            this.expect(':')
+            this.advanceExact(this.isDigit, 2, "consumeTime(): offset minutes must be 2")
+        }
+
 
         return this.token(TokenType.Time)
     }

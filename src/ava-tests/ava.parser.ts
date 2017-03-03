@@ -194,6 +194,20 @@ test('parse value date', t => {
     testDate("11:30:05", new dt.Time(11, 30, 5))
     testDate("1979-05-27T11:30:05", dt.DateTime.fromNumber(1979, 5, 27, 11, 30, 5))
     testDate("1979-05-27T11:30:05.999999", dt.DateTime.fromNumber(1979, 5, 27, 11, 30, 5, 999999))
+
+    const testDateWithOffset = (input, expected) => {
+        let [years, month, day, hours, minutes, seconds, fractions, tzOffset] = expected
+        let instant = new dt.DateTime(
+            new dt.Date(years, month, day),
+            new dt.Time(hours, minutes, seconds, fractions, tzOffset)
+        )
+        testDate(input, instant)
+    }
+
+    ///
+    testDateWithOffset("1979-05-27T11:30:05Z", [1979, 5, 27, 11, 30, 5, null, new dt.TimeOffset()])
+    testDateWithOffset("1979-05-27T00:32:00-07:00", [1979, 5, 27, 0, 32, 0, null, new dt.TimeOffset('-', 7, 0)])
+    testDateWithOffset("1979-05-27T11:30:05.999999+11:00", [1979, 5, 27, 11, 30, 5, 999999, new dt.TimeOffset('+', 11, 0)])
 })
 
 
