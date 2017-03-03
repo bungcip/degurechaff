@@ -17,8 +17,9 @@ Lexer:
     - Multiline
 - Date
   - Offset Date-Time
-  - Local Date-Time
-  - Local Date
+  - [DONE] Local Date-Time
+  - [DONE] Local Date
+- Unicode Escape Code
 
 Parser
 - [DONE] Key

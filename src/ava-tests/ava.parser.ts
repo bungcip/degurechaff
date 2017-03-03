@@ -5,6 +5,7 @@ import { TokenType } from '../lib/token'
 import { Lexer } from '../lib/lexer'
 import { Parser } from '../lib/parser'
 import { ValueKind, AtomicValue, ArrayValue, Value, InlineTableValue } from '../lib/ast'
+import * as dt from '../lib/dt'
 
 function setup(input: string){
     let parser = new Parser(input)
@@ -180,6 +181,21 @@ test('parse value array', t => {
     testArray("[[1],[2],[3],]", [[1],[2],[3]])
 
 })
+
+
+test('parse value date', t => {
+    const testDate = (input, expected) => {
+        let value = setupForTestingAtomicValue(input)
+        t.deepEqual(value.kind, ValueKind.Date)
+        t.deepEqual(value.jsValue(), expected)
+    }
+
+    testDate("1979-05-27", new dt.Date(1979, 5, 27))
+    testDate("11:30:05", new dt.Time(11, 30, 5))
+    testDate("1979-05-27T11:30:05", dt.DateTime.fromNumber(1979, 5, 27, 11, 30, 5))
+    testDate("1979-05-27T11:30:05.999999", dt.DateTime.fromNumber(1979, 5, 27, 11, 30, 5, 999999))
+})
+
 
 test("parse value inline table", t => {
     const testTable = (input, expected) => {

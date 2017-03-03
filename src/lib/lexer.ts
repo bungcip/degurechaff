@@ -1,6 +1,7 @@
 import {Token, TokenType, SourcePosition, SourceRange} from './token'
 
 type Char = string
+type LexerCallback = (Char) => boolean
 
 export class Lexer {
     private input: string
@@ -8,8 +9,10 @@ export class Lexer {
     private column: number
     private offset: number
 
-    private beginPosition: SourcePosition
-    private beginOffset: number
+    private markedPosition: SourcePosition
+    private markedOffset: number
+    private markedLine: number
+    private marketColumn: number
 
     constructor(input: string) {
         this.input = input
@@ -24,18 +27,29 @@ export class Lexer {
      * Mark current position
      */
     private mark() {
-        this.beginPosition = new SourcePosition(this.line, this.column)
-        this.beginOffset = this.offset
+        this.markedPosition = new SourcePosition(this.line, this.column)
+        this.markedOffset = this.offset
+        this.markedLine = this.line
+        this.marketColumn = this.column
+    }
+
+    /**
+     * rewind offset to last marked position
+     */
+    private rewind(){
+        this.offset = this.markedOffset
+        this.line = this.markedLine
+        this.column = this.marketColumn
     }
 
     /**
      * Generate new token 
      */
     private token(type: TokenType): Token {
-        const begin = this.beginPosition
+        const begin = this.markedPosition
         const end = new SourcePosition(this.line, this.column)
         const location = new SourceRange(begin, end)
-        const value = this.input.slice(this.beginOffset, this.offset)
+        const value = this.input.slice(this.markedOffset, this.offset)
         const token = new Token(type, location, value)
         return token
     }
@@ -74,9 +88,17 @@ export class Lexer {
     /**
      * Advance
      */
-    private advanceIf(callback): boolean {
+    private advanceIf(callback: Char | LexerCallback): boolean {
         let ch = this.peek()
-        if (callback(ch)) {
+        let advanced: boolean
+
+        if(typeof callback === 'string'){
+            advanced = callback === ch
+        }else{
+            advanced = callback(ch)
+        }
+
+        if (advanced) {
             this.offset++
             this.column++
             return true
@@ -84,7 +106,9 @@ export class Lexer {
         return false
     }
 
-    private advanceWhile(callback): boolean {
+    /// return how many character advanced. 0 if not advanced
+    private advanceWhile(callback): number {
+        let beginOffset = this.offset
         let isAdvanced = false
         while (this.offset < this.input.length) {
             isAdvanced = this.advanceIf(callback)
@@ -92,12 +116,14 @@ export class Lexer {
                 break
             }
         }
-        return isAdvanced
+
+        let count = this.offset - beginOffset
+        return count
     }
 
     private advanceUntil(callback): boolean {
         const until = x => callback(x) === false
-        return this.advanceWhile(until)
+        return this.advanceWhile(until) > 0
     }
 
     /// consume current character 
@@ -134,7 +160,8 @@ export class Lexer {
         } else if (ch === '\'') {
             return this.consumeLiteralString()
         } else {
-            return this.consumeSimpleToken()
+            let token = this.consumeSimpleToken()
+            return token
         }
     }
 
@@ -207,8 +234,16 @@ export class Lexer {
         
         /// parse exponent
         const isExponent = this.advanceIf(x => x === 'e' || x === 'E' )
+        let isExponentPositive = false
         if(isExponent){
-            this.advanceIf(isPositiveNegative)
+            let nextCh = this.peek()
+            if(nextCh === '+'){
+                this.advance()
+                isExponentPositive = true
+            }else if(nextCh === '-'){
+                this.advance()
+            }
+
             this.advanceWhile(isDigitOrUnderscore)
         }
 
@@ -216,12 +251,77 @@ export class Lexer {
         const isIdentifier = this.advanceIf(this.isAlpha)
         if(isIdentifier){
             type = TokenType.Identifier
+
             const isAlphaOrUnderscore = (x: Char) => this.isAlpha(x) || x === '_'
             this.advanceWhile(isAlphaOrUnderscore)
+
+            /// identifier cannot contain '.'  or '+'
+            /// so we must mark this token as invalid
+            if(isFraction || isExponentPositive){
+                throw "consumeNumberOrIdentifier(): identifier cannot contain '.' or '+'"
+            }
+        }
+
+        /// maybe this is date?
+        /// example of date: 1979-05-27T00:32:00.999999
+        if(type === TokenType.Integer && isExponent === false){
+            const nextCh = this.peek()
+
+            switch(nextCh){
+                case '-':
+                    /// back to previous marker
+                    this.rewind()
+                    return this.consumeDateTime()
+                case ':':
+                    this.rewind()
+                    return this.consumeTime()
+            }
         }
 
 
         return this.token(type)
+    }
+
+    private advanceExact(callback, count, errorMessage){
+        let n = this.advanceWhile(callback)
+        if(n !== count){
+            throw errorMessage
+        }
+    }
+
+    private consumeDateTime(){
+        let type = TokenType.Date
+
+        this.advanceExact(this.isDigit, 4, "consumeDateTime(): yearDigit must be 4")
+        this.expect('-')
+        this.advanceExact(this.isDigit, 2, "consumeDateTime(): monthDigit must be 2")
+        this.expect('-')
+        this.advanceExact(this.isDigit, 2, "consumeDateTime(): dateDigit must be 2")
+
+        /// optional parts, time
+        let isTime = this.advanceIf('T')
+        if(isTime){
+            type = TokenType.DateTime
+            this.consumeTime()
+        }
+
+        return this.token(type)
+    }
+
+    private consumeTime(){
+        this.advanceExact(this.isDigit, 2, "consumeTime(): hours must be 2")
+        this.expect(':')
+        this.advanceExact(this.isDigit, 2, "consumeTime(): minute must be 2")
+        this.expect(':')
+        this.advanceExact(this.isDigit, 2, "consumeTime(): seconds must be 2")
+        if(this.advanceIf('.')){
+            const fracDigit = this.advanceWhile(this.isDigit)
+            if(fracDigit == 0){
+                throw "consumeTime(): fractions digit need minimum 1 digit"
+            }
+        }
+
+        return this.token(TokenType.Time)
     }
 
     /// return token Identifier
@@ -337,6 +437,7 @@ export class Lexer {
             case '=': tt = TokenType.Equal; break
             case '.': tt = TokenType.Dot; break
             case ',': tt = TokenType.Comma; break
+            case ':': tt = TokenType.Colon; break
             default:
                 console.log("input:", this.input)
                 console.log("offset:", this.offset)

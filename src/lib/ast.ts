@@ -1,4 +1,5 @@
 import {Token, TokenType, SourcePosition} from './token'
+import * as dt from './dt'
 
 export class Node {
 
@@ -91,11 +92,12 @@ export class AtomicValue extends Value {
     }
 
     /// return a javascript type which represent the value
-    jsValue(): string | number | Date | boolean {
+    jsValue(): string | number | boolean| dt.Date | dt.Time | dt.DateTime  {
         switch(this.kind){
             case ValueKind.Integer:
             case ValueKind.Float:
             case ValueKind.String:
+            case ValueKind.Date:
                 return this.content.jsValue()
             case ValueKind.Boolean:
                 if( this.content.jsValue() === 'true'){
