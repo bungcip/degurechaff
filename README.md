@@ -14,7 +14,7 @@ Lexer:
     - [DONE] Multiline
   - Literal string
     - [DONE] Single
-    - Multiline
+    - [DONE] Multiline
 - Date
   - Offset Date-Time
   - [DONE] Local Date-Time

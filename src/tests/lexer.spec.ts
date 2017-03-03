@@ -70,57 +70,67 @@ export class LexerTest {
     }
 
     @Test("lexer identifier token")
-    @TestCase("name", "name")
-    @TestCase("some_name", "some_name")
-    @TestCase("min-size", "min-size")
-    @TestCase("_leading_underscore", "_leading_underscore")
-    @TestCase("SCREAMING", "SCREAMING")
-    public identifierTest(input: string, expected: string){
+    @TestCase("name")
+    @TestCase("some_name")
+    @TestCase("min-size")
+    @TestCase("_leading_underscore")
+    @TestCase("SCREAMING")
+    public identifierTest(input: string){
         let lexer = new Lexer(input)
         let token = lexer.next()
         Expect(token.type).toBe(TokenType.Identifier)
-        Expect(token.data).toBe(expected)
+        Expect(token.data).toBe(input)
     }
 
     @Test("lexer basic string token")
-    @TestCase('"name"', '"name"')
-    @TestCase('"complex string and number (0-9_)+ [{}]"', '"complex string and number (0-9_)+ [{}]"')
-    public basicStringTest(input: string, expected: string){
+    @TestCase('"name"')
+    @TestCase('"complex string and number (0-9_)+ [{}]"')
+    public basicStringTest(input: string){
         let lexer = new Lexer(input)
         let token = lexer.next()
         Expect(token.type).toBe(TokenType.BasicString)
-        Expect(token.data).toBe(expected)
+        Expect(token.data).toBe(input)
     }
 
     @Test("lexer basic string escape")
-    @TestCase(`"\\b\\t\\f\\r\\"\\"`, `"\\b\\t\\f\\r\\"\\"`)
-    @TestCase(`"\\n"`, `"\\n"`)
-    public basicStringEscapeTest(input: string, expected: string){
+    @TestCase(`"\\b\\t\\f\\r\\"\\"`)
+    @TestCase(`"\\n"`)
+    public basicStringEscapeTest(input: string){
         let lexer = new Lexer(input)
         let token = lexer.next()
         Expect(token.type).toBe(TokenType.BasicString)
-        Expect(token.data).toBe(expected)
+        Expect(token.data).toBe(input)
     }
 
 
     @Test("lexer multi line basic string")
-    @TestCase(`"""Roses are red\nViolets are blue"""`, `"""Roses are red\nViolets are blue"""`)
-    @TestCase(`"""Roses are red\\\n              Violets are blue"""`, `"""Roses are red\\\n              Violets are blue"""`)
-    public multiLineBasicStringTest(input: string, expected: string){
+    @TestCase(`"""Roses are red\nViolets are blue"""`)
+    @TestCase(`"""Roses are red\\\n              Violets are blue"""`)
+    public multiLineBasicStringTest(input: string){
         let lexer = new Lexer(input)
         let token = lexer.next()
         Expect(token.type).toBe(TokenType.MultiLineBasicString)
-        Expect(token.data).toBe(expected)
+        Expect(token.data).toBe(input)
     }
 
 
     @Test("lexer literal string token")
-    @TestCase("'C:\\Users\\nodejs\\templates'","'C:\\Users\\nodejs\\templates'")
-    public literalStringTest(input: string, expected: string){
+    @TestCase("'C:\\Users\\nodejs\\templates'")
+    public literalStringTest(input: string){
         let lexer = new Lexer(input)
         let token = lexer.next()
         Expect(token.type).toBe(TokenType.LiteralString)
-        Expect(token.data).toBe(expected)
+        Expect(token.data).toBe(input)
+    }
+
+    @Test("lexer multi line literal string")
+    @TestCase(`'''I [dw]on't need \\d{2} apples'''`)
+    @TestCase(`'''\nThe first newline is\ntrimmed in raw strings.\n   All other whitespace\n    is preserved.'''`)
+    public multiLineLiteralStringTest(input: string){
+        let lexer = new Lexer(input)
+        let token = lexer.next()
+        Expect(token.type).toBe(TokenType.MultiLineLiteralString)
+        Expect(token.data).toBe(input)
     }
 
     

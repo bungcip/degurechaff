@@ -171,9 +171,14 @@ export class Lexer {
         } else if (ch === '"') {
             return this.consumeBasicStringOrMultiLine()
         } else if (ch === '\'') {
-            return this.consumeLiteralString()
+            const chars = this.peekN(3)
+            if(chars === "'''"){
+                return this.consumeMultiLineLiteralString()
+            }else{
+                return this.consumeLiteralString()
+            }
         } else {
-            let token = this.consumeSimpleToken()
+            const token = this.consumeSimpleToken()
             return token
         }
     }
@@ -482,6 +487,36 @@ export class Lexer {
 
         return this.token(TokenType.LiteralString)
     }
+
+    private consumeMultiLineLiteralString(): Token {
+        this.expect('\'')
+        this.expect('\'')
+        this.expect('\'')
+
+        /// next character must be UTF8
+        let endOfString = false
+        while (endOfString === false && this.offset < this.input.length) {
+            let ch = this.peek()
+            switch (ch) {
+                case "'":
+                    const chars = this.peekN(3)               
+                    if(chars === "'''"){
+                        this.advance()
+                        this.advance()
+                        this.advance()
+                        endOfString = true
+                    }else{
+                        this.advance()
+                    }
+                    break
+                default:
+                    this.advance()
+            }
+        }
+
+        return this.token(TokenType.MultiLineLiteralString)
+    }
+    
 
     private consumeSimpleToken(): Token {
         /// single character token
