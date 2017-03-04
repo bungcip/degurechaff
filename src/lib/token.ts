@@ -68,8 +68,13 @@ export class Token {
             case TokenType.Float:
                 return this.extractFloat(this.data)
             case TokenType.BasicString:
-            case TokenType.LiteralString:
                 return this.extractString(this.data)
+            case TokenType.LiteralString:
+                return this.extractLiteralString(this.data)
+            case TokenType.MultiLineBasicString:
+                return this.extractMultiLineString(this.data)
+            case TokenType.MultiLineLiteralString:
+                return this.extractMultiLineLiteralString(this.data)
             case TokenType.Identifier:
                 return this.data
             case TokenType.Date:
@@ -89,9 +94,38 @@ export class Token {
     }
 
     /// get content between quote
-    private extractString(input: string): string {
-        return input.slice(1, input.length - 1)
+    private extractLiteralString(input: string): string {
+        let content = input.slice(1, input.length - 1)
+        return content
     }
+
+    private extractString(input: string): string {
+        return JSON.parse(input)
+    }
+    
+    private extractMultiLineString(input: string): string{
+        /// replace windows new line style to unix
+        /// replace """\n with single "
+        /// replace """ with single "
+        let content1 = input.replace("\r\n", "\n")
+        let content2 = content1.replace('"""\n', '"')
+        let content3 = content2.replace('"""', '"')
+        let content4 = content3.replace(/\\\n( )*/g, "")
+
+        return this.extractString(content4)
+    }
+
+    private extractMultiLineLiteralString(input: string): string{
+        /// replace windows new line style to unix
+        /// replace '''\n with single '
+        /// replace ''' with single '
+        let content1 = input.replace("\r\n", "\n")
+        let content2 = content1.replace(`'''\n`, `'`)
+        let content3 = content2.replace(`'''`, `'`)
+
+        return this.extractLiteralString(content3)
+    }
+
 
     private extractDateTime(input: string): dt.DateTime {
         const [date, time] = input.split("T")

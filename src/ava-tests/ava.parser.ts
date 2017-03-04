@@ -182,6 +182,26 @@ test('parse value integer & float', t => {
     testFloat("6.626e-34", 6.626e-34);
 })
 
+test('parse value string', t => {
+    const testString = (input, expected) => {
+        let value = setupForTestingAtomicValue(input)
+        t.deepEqual(value.kind, ValueKind.String)
+        t.deepEqual(value.jsValue(), expected)
+    }
+
+    testString(`"value"`, "value")
+    testString(`"I'm a string. \\"You can quote me\\". Name\\tJos\\u00E9\\nLocation\\tSF."`, "I'm a string. \"You can quote me\". Name\tJos\u00E9\nLocation\tSF.")
+
+    testString(`'value'`, "value")
+    testString(`'C:\\Users\\nodejs\\templates'`, `C:\\Users\\nodejs\\templates`)
+
+    testString(`"""\nThe quick brown \\\n  fox jumps over \\\n    the lazy dog."""`, "The quick brown fox jumps over the lazy dog.")
+    testString(
+        `'''\nThe first newline is\ntrimmed in raw strings.\n   All other whitespace\n   is preserved.'''`,
+        `The first newline is\ntrimmed in raw strings.\n   All other whitespace\n   is preserved.`
+    )
+})
+
 test('parse value array', t => {
     const testArray = (input, expected) => {
         let value = setupForTestingArrayValue(input)

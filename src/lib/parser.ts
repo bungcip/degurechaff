@@ -157,6 +157,8 @@ export class Parser {
                 break
             case TokenType.BasicString:
             case TokenType.LiteralString:
+            case TokenType.MultiLineBasicString:
+            case TokenType.MultiLineLiteralString:
                 kind = ast.ValueKind.String
                 break
             case TokenType.Date:
@@ -224,7 +226,7 @@ export class Parser {
 
     private parseName(): ast.Name {
         let segments: Token[] = []
-        
+
         do {
             let token = this.expect(TokenType.Identifier)
             segments.push(token)

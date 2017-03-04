@@ -46,4 +46,8 @@ Parser
 
 Emitter
 - [DONE] JSON
+  - emit Date
+  - emit Table with nested name
+  - emit array of table
+  - emit multiline string
 - AST
