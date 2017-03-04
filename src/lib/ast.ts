@@ -42,7 +42,7 @@ export class Key {
 
     /// return key representation in string
     toString(): string {
-        let value = this.content.jsValue()
+        const value = this.content.jsValue()
         return value.toString()
     }
 }
@@ -136,9 +136,9 @@ export class InlineTableValue extends Value {
 
     jsValue(): any {
         let result = {}
-        for(let pair of this.pairs){
-            let key = pair.key.toString()
-            let value = pair.value.jsValue()
+        for(const pair of this.pairs){
+            const key = pair.key.toString()
+            const value = pair.value.jsValue()
             result[key] = value
         }
         return result

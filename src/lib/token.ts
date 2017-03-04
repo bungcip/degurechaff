@@ -89,13 +89,13 @@ export class Token {
     }
 
     private extractFloat(input: string): number {
-        let value = input.replace(/_/g, '')
+        const value = input.replace(/_/g, '')
         return parseFloat(value)
     }
 
     /// get content between quote
     private extractLiteralString(input: string): string {
-        let content = input.slice(1, input.length - 1)
+        const content = input.slice(1, input.length - 1)
         return content
     }
 
@@ -107,10 +107,10 @@ export class Token {
         /// replace windows new line style to unix
         /// replace """\n with single "
         /// replace """ with single "
-        let content1 = input.replace("\r\n", "\n")
-        let content2 = content1.replace('"""\n', '"')
-        let content3 = content2.replace('"""', '"')
-        let content4 = content3.replace(/\\\n( )*/g, "")
+        const content1 = input.replace("\r\n", "\n")
+        const content2 = content1.replace('"""\n', '"')
+        const content3 = content2.replace('"""', '"')
+        const content4 = content3.replace(/\\\n( )*/g, "")
 
         return this.extractString(content4)
     }
@@ -119,9 +119,9 @@ export class Token {
         /// replace windows new line style to unix
         /// replace '''\n with single '
         /// replace ''' with single '
-        let content1 = input.replace("\r\n", "\n")
-        let content2 = content1.replace(`'''\n`, `'`)
-        let content3 = content2.replace(`'''`, `'`)
+        const content1 = input.replace("\r\n", "\n")
+        const content2 = content1.replace(`'''\n`, `'`)
+        const content3 = content2.replace(`'''`, `'`)
 
         return this.extractLiteralString(content3)
     }
@@ -137,7 +137,7 @@ export class Token {
     }
 
     private extractDate(input: string): dt.Date {
-        let items = input.split('-').map(x => parseInt(x, 10))
+        const items = input.split('-').map(x => parseInt(x, 10))
         const [year, month, day] = items
         const date = new dt.Date(year, month, day)
         return date
@@ -170,8 +170,8 @@ export class Token {
                 if(partitionIndex === -1){
                     fractions = parseInt(input, 10)
                 }else{
-                    let fractionInput = input.substr(0, partitionIndex)
-                    let tzInput = input.substr(partitionIndex)
+                    const fractionInput = input.substr(0, partitionIndex)
+                    const tzInput = input.substr(partitionIndex)
 
                     fractions = parseInt(fractionInput, 10)
 

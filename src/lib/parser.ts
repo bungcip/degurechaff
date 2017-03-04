@@ -133,7 +133,7 @@ export class Parser {
      * parse value fragment
      */
     private parseValue(): ast.AtomicValue | ast.ArrayValue | ast.InlineTableValue {
-        let token = this.peek()
+        const token = this.peek()
         switch(token.type){
             case TokenType.LeftBracket:
                 return this.parseArray()
@@ -146,7 +146,7 @@ export class Parser {
     }
 
     parseAtomic(): ast.AtomicValue {
-        let token = this.advance()
+        const token = this.advance()
         let kind = ast.ValueKind.String
         switch(token.type){
             case TokenType.Integer:
@@ -168,7 +168,7 @@ export class Parser {
                 break
             case TokenType.Identifier:
                 /// check for boolean value
-                let text = token.data
+                const text = token.data
                 if(text == 'true' || text == 'false'){
                     kind = ast.ValueKind.Boolean
                     break
@@ -177,7 +177,7 @@ export class Parser {
             default:
                 throw "parseAtomic(): unexpected token found '" + token.data + "'"
         }
-        let node = new ast.AtomicValue(kind, token)
+        const node = new ast.AtomicValue(kind, token)
         return node
     }
 
@@ -191,10 +191,10 @@ export class Parser {
             switch(nextToken.type){
                 case TokenType.RightBracket:
                     this.advance()
-                    let node = new ast.ArrayValue(items)
+                    const node = new ast.ArrayValue(items)
                     return node
                 default:
-                    let value = this.parseValue()
+                    const value = this.parseValue()
                     items.push(value)
                     nextToken = this.peek()
                     switch(nextToken.type){
@@ -214,10 +214,10 @@ export class Parser {
 
     private parseTable(): ast.Table {
         this.expect(TokenType.LeftBracket)
-        let name = this.parseName()
+        const name = this.parseName()
         this.expect(TokenType.RightBracket)
 
-        let node = new ast.Table()
+        const node = new ast.Table()
         node.name = name
         node.pairs = this.parsePairs()
 
@@ -232,7 +232,7 @@ export class Parser {
             segments.push(token)
         } while(this.advanceIf(TokenType.Dot) )
 
-        let node = new ast.Name(segments)
+        const node = new ast.Name(segments)
         return node
     }
 

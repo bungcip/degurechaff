@@ -386,7 +386,7 @@ export class Lexer {
         /// next character must be UTF8
         let endOfString = false
         while (endOfString === false && this.offset < this.input.length) {
-            let ch = this.peek()
+            const ch = this.peek()
             switch (ch) {
                 case '"':
                     this.advance()
@@ -413,7 +413,7 @@ export class Lexer {
         /// next character must be UTF8
         let endOfString = false
         while (endOfString === false && this.offset < this.input.length) {
-            let ch = this.peek()
+            const ch = this.peek()
             switch (ch) {
                 case '"':
                     const chars = this.peekN(3)               
@@ -443,7 +443,7 @@ export class Lexer {
         this.expect("\\")
 
         let code: Char[] = []
-        let ch = this.advance()
+        const ch = this.advance()
         switch (ch) {
             case 'n':
             case '"':
@@ -487,7 +487,7 @@ export class Lexer {
         /// next character must be UTF8
         let endOfString = false
         while (endOfString === false && this.offset < this.input.length) {
-            let ch = this.peek()
+            const ch = this.peek()
             switch (ch) {
                 case '\'':
                     this.advance()
@@ -509,7 +509,7 @@ export class Lexer {
         /// next character must be UTF8
         let endOfString = false
         while (endOfString === false && this.offset < this.input.length) {
-            let ch = this.peek()
+            const ch = this.peek()
             switch (ch) {
                 case "'":
                     const chars = this.peekN(3)               
@@ -533,7 +533,7 @@ export class Lexer {
 
     private consumeSimpleToken(): Token {
         /// single character token
-        let ch = this.advance()
+        const ch = this.advance()
         let tt = TokenType.Invalid
         switch (ch) {
             case '[': tt = TokenType.LeftBracket; break
