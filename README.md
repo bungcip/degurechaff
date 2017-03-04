@@ -39,7 +39,7 @@ Parser
   - [DONE] Inline Table
 - [DONE] Table
   - [DONE] single name
-  - Nested Name
+  - [DONE] Nested Name
 - [DONE] Array of Table
 - Handle Error on parsing
 - Error Recovery

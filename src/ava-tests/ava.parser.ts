@@ -109,6 +109,21 @@ test('parse table with single pair', t => {
     t.deepEqual(table.pairs[0].value.toString(), '20')
 });
 
+
+test('parse nested table with single pair', t => {
+    let input = `
+    [foo.bar]
+        age = 20
+    `
+    let root = setup(input)
+    let table = root.tables[0]
+    t.deepEqual(table.name.segments[0].data, "foo")
+    t.deepEqual(table.name.segments[1].data, "bar")
+    t.deepEqual(table.pairs.length, 1)
+    t.deepEqual(table.pairs[0].key.toString(), 'age')
+    t.deepEqual(table.pairs[0].value.toString(), '20')
+})
+
 test('parse empty array of table', t => {
     let root = setup('[[array-of-table]]\n[[array-of-table]]\n[[array-of-table]]')
     t.deepEqual(root.arrayOfTables.length, 3)

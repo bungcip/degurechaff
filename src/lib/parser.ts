@@ -223,9 +223,14 @@ export class Parser {
     }
 
     private parseName(): ast.Name {
-        /// TODO: nested name 
-        let token = this.expect(TokenType.Identifier)
-        let node = new ast.Name([token])
+        let segments: Token[] = []
+        
+        do {
+            let token = this.expect(TokenType.Identifier)
+            segments.push(token)
+        } while(this.advanceIf(TokenType.Dot) )
+
+        let node = new ast.Name(segments)
         return node
     }
 
