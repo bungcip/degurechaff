@@ -1,11 +1,6 @@
 /// testing datetime type
 import test from 'ava';
-import { TokenType } from '../lib/token'
-import { Lexer } from '../lib/lexer'
-import { Parser } from '../lib/parser'
-import { ValueKind, AtomicValue, ArrayValue, Value, InlineTableValue } from '../lib/ast'
 import * as dt from '../lib/dt'
-
 
 test("test DateTime toString()", t => {
     {

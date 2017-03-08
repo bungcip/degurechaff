@@ -57,42 +57,24 @@ export const enum ValueKind {
 }
 
 
-export class Value {
-    toString(): string {
-        return ""
-    }
+export type JsValue = string | number | boolean | object | Array<any>
 
-    jsValue(): any {
-        return ""
-    }
+
+export interface Value {
+    toString(): string
+    jsValue(): JsValue
 }
 
 /**
  * Value which cannot contain other value
  */
-export class AtomicValue extends Value {
-    constructor(public kind: ValueKind, public content: Token){
-        super()
-    }
+export class AtomicValue implements Value {
+    constructor(public kind: ValueKind, public content: Token){}
 
     /// return key represantation
     toString(): string {
-        let jsValue = this.jsValue()
+        const jsValue = this.jsValue()
         return jsValue.toString()
-
-        // switch(this.content.type){
-        //     case TokenType.BasicString:
-        //     case TokenType.LiteralString:
-        //         /// only need string value
-        //         const data = (this.content.data as string)
-        //         return data.slice(1, data.length - 1)
-        //     case TokenType.Integer:
-        //     case TokenType.Identifier:
-        //         return this.content.data
-        //     case TokenType.Date
-        //     default:
-        //         throw "Value::toString() not yet implemented"
-        // }
     }
 
     /// return a javascript type which represent the value
@@ -120,12 +102,10 @@ export class AtomicValue extends Value {
 /**
  * ArrayValue class contains other value node
  */
-export class ArrayValue extends Value {
-    constructor(public items: Value[]){
-        super()
-    }
+export class ArrayValue implements Value {
+    constructor(public items: Value[]){}
 
-    jsValue(): any {
+    jsValue(): Array<any> {
         let result: any[] = []
         for(let item of this.items){
             result.push(item.jsValue())
@@ -135,12 +115,10 @@ export class ArrayValue extends Value {
     }
 }
 
-export class InlineTableValue extends Value {
-    constructor(public pairs: Pair[]){
-        super()
-    }
+export class InlineTableValue implements Value {
+    constructor(public pairs: Pair[]){}
 
-    jsValue(): any {
+    jsValue(): Object {
         let result = {}
         for(const pair of this.pairs){
             const key = pair.key.toString()

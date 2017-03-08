@@ -96,8 +96,6 @@ test("identifier token", t => {
     setup("min-size")
     setup("_leading_underscore")
     setup("SCREAMING")
-
-
 })
 
 
@@ -123,8 +121,17 @@ test("basic string escape", t => {
     }
     setup(`"\\b\\t\\f\\r\\"\\"`)
     setup(`"\\n"`)
+})
 
-
+test("basic string escape unicode", t => {
+    const setup = (input) => {
+        const lexer = new Lexer(input)
+        const token = lexer.next()
+        t.deepEqual(token.type, TokenType.BasicString)
+        t.deepEqual(token.data, input)
+    }
+    setup(`"\\u005Cu"`)
+    setup(`"\\u0075"`)
 })
 
 

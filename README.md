@@ -8,18 +8,18 @@ Lexer:
 - [DONE] float
 - [DONE] support exponent syntax
 - [DONE] comment
-- string
-  - Basic string
+- [DONE] string
+  - [DONE] Basic string
     - [DONE] Single
     - [DONE] Multiline
-  - Literal string
+  - [DONE] Literal string
     - [DONE] Single
     - [DONE] Multiline
-- Date
+- [DONE] Date
   - [DONE] Offset Date-Time
   - [DONE] Local Date-Time
   - [DONE] Local Date
-- Unicode Escape Code
+- [DONE] Unicode Escape Code
 
 Parser
 - [DONE] Key
@@ -27,11 +27,11 @@ Parser
   - [DONE] Integer
 - Value
   - [DONE] Array
-  - Primitive
+  - [DONE] Primitive
     - [DONE] BasicString
-      - Parsing multi line
-    - LiteralString
-      - Parsing multi line
+      - [DONE] Parsing multi line
+    - [DONE] LiteralString
+      - [DONE] Parsing multi line
     - [DONE] Integer
     - [DONE] Boolean
     - [DONE] Float
@@ -51,7 +51,7 @@ Emitter
   - [DONE] emit Table with nested name
   - [DONE] emit array of table
   - [DONE] emit multiline basic string
-  - emit multiline literal string
+  - [DONE] emit multiline literal string
 - AST
 
 Test using *.toml from TOML SPEC

@@ -452,7 +452,11 @@ export class Lexer {
             case 't':
             case 'f':
             case 'r':
-                code.push(ch)
+                return
+            case '\n':
+                if(allowedNewLine == false){
+                    throw "consumeEscape(): newline is not allowed"
+                }
                 return
             case 'u':
                 /// get 4 char code
@@ -471,14 +475,21 @@ export class Lexer {
                 code.push(this.advance())
                 code.push(this.advance())
                 break
-            case '\n':
-                if(allowedNewLine == false){
-                    throw "consumeEscape(): newline is not allowed"
-                }
-                break
             default:
                 throw 'not yet implemented'
         }
+
+        let number = parseInt(code.join(''), 16)
+        if(isNaN(number)){
+            throw "consumeEscape(): invalid unicode number"
+        }
+
+        // valid unicode scalar value
+        let validRange = (number >= 0 && number <= 0xD7FF16) || (number >= 0xE00016 && number <= 0x10FFFF16)
+        if(validRange === false){
+            throw "consumeEscape():not valid scalar unicode value"
+        }
+
     }
 
     private consumeLiteralString(): Token {

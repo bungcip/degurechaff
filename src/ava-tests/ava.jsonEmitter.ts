@@ -1,10 +1,6 @@
 /// testing json emitter
 import test from 'ava';
-import { TokenType } from '../lib/token'
-import { Lexer } from '../lib/lexer'
 import { Parser } from '../lib/parser'
-import { ValueKind, AtomicValue, ArrayValue, Value, InlineTableValue } from '../lib/ast'
-import * as dt from '../lib/dt'
 import { JsonEmitter } from '../lib/jsonEmitter'
 
 
@@ -44,10 +40,19 @@ str2 = """
 The quick brown \\
    fox jumps over \\
      the lazy dog."""
+
+str3 = '''
+The first newline is
+trimmed in raw strings.
+   All other whitespace
+   is preserved.
+'''
 `
+
     let expected = {
         'str1': 'Roses are red\nViolets are blue',
-        'str2': 'The quick brown fox jumps over the lazy dog.'
+        'str2': 'The quick brown fox jumps over the lazy dog.',
+        'str3': 'The first newline is\ntrimmed in raw strings.\n   All other whitespace\n   is preserved.\n'
     }
     setupEmitter(input, expected, t)
 })
