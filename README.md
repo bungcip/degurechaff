@@ -48,7 +48,11 @@ Parser
 Emitter
 - [DONE] JSON
   - [DONE] emit Date
-  - emit Table with nested name
-  - emit array of table
-  - emit multiline string
+  - [DONE] emit Table with nested name
+  - [DONE] emit array of table
+  - [DONE] emit multiline basic string
+  - emit multiline literal string
 - AST
+
+Test using *.toml from TOML SPEC
+Create Simple Page To Convert Toml to JSON

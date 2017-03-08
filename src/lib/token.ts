@@ -108,21 +108,26 @@ export class Token {
         /// replace windows new line style to unix
         /// replace """\n with single "
         /// replace """ with single "
-        const content1 = input.replace("\r\n", "\n")
-        const content2 = content1.replace('"""\n', '"')
-        const content3 = content2.replace('"""', '"')
-        const content4 = content3.replace(/\\\n( )*/g, "")
+        const content1 = input.replace(/\r\n/g, "\n")
+        const content2 = content1.replace('"""\n', '"""')
+        const content3 = content2.slice(2, content2.length - 2)
+        const content4 = content3.replace(/\\\n[\n ]*/g, "")
+        const content5 = content4.replace(/\n/g, "\\n")
 
-        return this.extractString(content4)
+        // console.log("content3:",content3)
+        // console.log("content4:",content4)
+        // console.log("content5:",content5)
+
+        return this.extractString(content5)
     }
 
     private extractMultiLineLiteralString(input: string): string{
         /// replace windows new line style to unix
         /// replace '''\n with single '
         /// replace ''' with single '
-        const content1 = input.replace("\r\n", "\n")
-        const content2 = content1.replace(`'''\n`, `'`)
-        const content3 = content2.replace(`'''`, `'`)
+        const content1 = input.replace(/\r\n/g, "\n")
+        const content2 = content1.replace(`'''\n`, `'''`)
+        const content3 = content2.slice(2, content2.length - 2)
 
         return this.extractLiteralString(content3)
     }

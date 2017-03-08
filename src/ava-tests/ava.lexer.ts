@@ -129,17 +129,31 @@ test("basic string escape", t => {
 
 
 test("multi line basic string", t => {
-    const setup = (input) => {
+    const setup = (input, expected) => {
         const lexer = new Lexer(input)
         const token = lexer.next()
         t.deepEqual(token.type, TokenType.MultiLineBasicString)
-        t.deepEqual(token.data, input)
+        t.deepEqual(token.value(), expected)
     }
-    setup(`"""Roses are red\nViolets are blue"""`)
-    setup(`"""Roses are red\\\n              Violets are blue"""`)
+    setup(`"""Roses are red\nViolets are blue"""`, "Roses are red\nViolets are blue")
+})
 
+test("multi line basic string with line ending backslash", t => {
+    const setup = (input, expected) => {
+        const lexer = new Lexer(input)
+        const token = lexer.next()
+        t.deepEqual(token.type, TokenType.MultiLineBasicString)
+        t.deepEqual(token.value(), expected)
+    }
+
+    setup(
+        `"""\nThe quick brown \\\n\n\n  fox jumps over \\\n    the lazy dog."""`, 
+        'The quick brown fox jumps over the lazy dog.'
+    )
 
 })
+
+
 
 test("literal string token", t => {
     const setup = (input) => {

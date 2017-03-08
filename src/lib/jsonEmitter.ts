@@ -28,7 +28,8 @@ export class JsonEmitter {
         for(let table of root.arrayOfTables){
             let array = this.generateStructureFromNameWithArrayAsLast(result, table.name)
             let pairs = this.emitPairs(table.pairs)
-            array.push(...array)
+            array.push(pairs)
+            
         }
 
         return result
@@ -60,11 +61,12 @@ export class JsonEmitter {
         return current
     }
 
+    /// NOTE: refactor this code
     private generateStructureFromNameWithArrayAsLast(tree: Object, name: ast.Name): Array<any> {
         let current = tree
-        let segments = Object.assign({}, name.segments)
-        let lastSegment = segments.pop()
+        let segments = name.segments.slice()
 
+        let lastSegment = segments.pop()
         for(let segment of segments){
             let key = segment.value().toString()
             if(current.hasOwnProperty(key) === false){
@@ -79,7 +81,7 @@ export class JsonEmitter {
             throw "unexpected lastSegment to be undefined"
         }
 
-        let key = lastSegment.value.toString()
+        let key = lastSegment.value().toString()
         if(current.hasOwnProperty(key) === false){
             current[key] = new Array<any>()
         }

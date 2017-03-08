@@ -35,6 +35,25 @@ test("emit json: date value", t => {
     setupEmitter(input, expected, t)
 })
 
+test("emit json: multi line string", t => {
+    let input = `
+str1 = """Roses are red
+Violets are blue"""
+
+str2 = """
+The quick brown \\
+   fox jumps over \\
+     the lazy dog."""
+`
+    let expected = {
+        'str1': 'Roses are red\nViolets are blue',
+        'str2': 'The quick brown fox jumps over the lazy dog.'
+    }
+    setupEmitter(input, expected, t)
+})
+
+
+
 test("emit json: table", t => {
     let input = `
             [database]
@@ -56,6 +75,47 @@ test("emit json: table", t => {
         'clients': {
             'data': [["gamma", "delta"], [1, 2]]
         }
+    }
+    setupEmitter(input, expected, t)
+
+})
+
+
+test("emit json: nested table", t => {
+    let input = `
+            [profile]
+                name = "Foo Bar"
+                age = 20
+            [profile.address]
+                home = "near"
+                count = 2
+        `
+    let expected = {
+        'profile': {
+            'name': "Foo Bar",
+            'age': 20,
+            'address': {
+                'home': 'near',
+                'count': 2
+            }
+        },
+    }
+    setupEmitter(input, expected, t)
+
+})
+
+test("emit json: array of table", t => {
+    let input = `
+            [[fruits]]
+                name = "Apple"
+            [[fruits]]
+                name = "Orange"
+        `
+    let expected = {
+        'fruits': [
+            {'name': 'Apple'},
+            {'name': 'Orange'},
+        ],
     }
     setupEmitter(input, expected, t)
 
