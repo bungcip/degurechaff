@@ -61,8 +61,9 @@ export class Token {
         this.location = location
     }
 
-    /// return javascript builtin type representation
-    jsValue(): string | number | dt.Date | dt.Time | dt.DateTime {
+
+    /// return representation
+    value(): string | number | dt.Date | dt.Time | dt.DateTime {
         switch (this.type) {
             case TokenType.Integer:
             case TokenType.Float:

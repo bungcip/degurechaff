@@ -222,7 +222,7 @@ test('parse value date', t => {
     const testDate = (input, expected) => {
         let value = setupForTestingAtomicValue(input)
         t.deepEqual(value.kind, ValueKind.Date)
-        t.deepEqual(value.jsValue(), expected)
+        t.deepEqual(value.content.value(), expected)
     }
 
     testDate("1979-05-27", new dt.Date(1979, 5, 27))

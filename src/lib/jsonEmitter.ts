@@ -49,7 +49,7 @@ export class JsonEmitter {
     private generateStructureFromName(tree: Object, name: ast.Name): Object {
         let current = tree
         for(let segment of name.segments){
-            let key = segment.jsValue().toString()
+            let key = segment.value().toString()
             if(current.hasOwnProperty(key) === false){
                 current[key] = {}
             }
@@ -66,7 +66,7 @@ export class JsonEmitter {
         let lastSegment = segments.pop()
 
         for(let segment of segments){
-            let key = segment.jsValue().toString()
+            let key = segment.value().toString()
             if(current.hasOwnProperty(key) === false){
                 current[key] = {}
             }
@@ -79,7 +79,7 @@ export class JsonEmitter {
             throw "unexpected lastSegment to be undefined"
         }
 
-        let key = lastSegment.jsValue.toString()
+        let key = lastSegment.value.toString()
         if(current.hasOwnProperty(key) === false){
             current[key] = new Array<any>()
         }

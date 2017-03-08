@@ -42,7 +42,7 @@ export class Key {
 
     /// return key representation in string
     toString(): string {
-        const value = this.content.jsValue()
+        const value = this.content.value()
         return value.toString()
     }
 }
@@ -77,36 +77,42 @@ export class AtomicValue extends Value {
 
     /// return key represantation
     toString(): string {
-        switch(this.content.type){
-            case TokenType.BasicString:
-            case TokenType.LiteralString:
-                /// only need string value
-                const data = (this.content.data as string)
-                return data.slice(1, data.length - 1)
-            case TokenType.Integer:
-            case TokenType.Identifier:
-                return this.content.data
-            default:
-                throw "Value::toString() not yet implemented"
-        }
+        let jsValue = this.jsValue()
+        return jsValue.toString()
+
+        // switch(this.content.type){
+        //     case TokenType.BasicString:
+        //     case TokenType.LiteralString:
+        //         /// only need string value
+        //         const data = (this.content.data as string)
+        //         return data.slice(1, data.length - 1)
+        //     case TokenType.Integer:
+        //     case TokenType.Identifier:
+        //         return this.content.data
+        //     case TokenType.Date
+        //     default:
+        //         throw "Value::toString() not yet implemented"
+        // }
     }
 
     /// return a javascript type which represent the value
-    jsValue(): string | number | boolean| dt.Date | dt.Time | dt.DateTime  {
+    /// any TOML type which cannot be represent in JSON type is automatically
+    /// converted to string
+    jsValue(): string | number | boolean  {
         switch(this.kind){
             case ValueKind.Integer:
             case ValueKind.Float:
             case ValueKind.String:
+                return this.content.value() as string | number
             case ValueKind.Date:
-                return this.content.jsValue()
+                const date = this.content.value()
+                return date.toString()
             case ValueKind.Boolean:
-                if( this.content.jsValue() === 'true'){
+                if( this.content.value() === 'true'){
                     return true
                 }else{
                     return false
                 }
-            default:
-                throw "Value::jsValue(): not yet implemented"
         }
     }
 }

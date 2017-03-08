@@ -27,7 +27,7 @@ export class LexerTest {
         let lexer = new Lexer(input)
         let token = lexer.next()
         Expect(token.type).toBe(tt)
-        Expect(token.jsValue()).toBe(expected)
+        Expect(token.value()).toBe(expected)
     }
 
 

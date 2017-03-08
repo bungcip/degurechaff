@@ -43,10 +43,11 @@ Parser
 - [DONE] Array of Table
 - Handle Error on parsing
 - Error Recovery
+- Ignore Comment Token
 
 Emitter
 - [DONE] JSON
-  - emit Date
+  - [DONE] emit Date
   - emit Table with nested name
   - emit array of table
   - emit multiline string
