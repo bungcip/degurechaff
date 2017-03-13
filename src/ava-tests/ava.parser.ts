@@ -277,3 +277,15 @@ test("parse key",  t => {
     testId(`'key2'`, 'key2')
     testId(`'quoted "value"'`, 'quoted "value"')
 })
+
+test("parse with comment", t => {
+    let input = `
+        # comment as new line
+        name = "value"              # comment 1
+        # comment again
+        "foo" = 20                  # comment 2
+    `
+    let root = setup(input)
+    t.deepEqual(root.pairs.length, 2)
+
+})

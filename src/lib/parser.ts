@@ -57,25 +57,39 @@ export class Parser {
     }
 
     /**
+     * Fill internal token buffer from lexer instance.
+     * It will ignore Token Comment for now
+     */
+    private fillBuffer(n: number){
+        for(let i=0; i < n; i++){
+            /// ignore comment token for now
+            let token: Token
+            do {
+                token = this.lexer.next()
+            } while( token.type == TokenType.Comment)
+
+            this.tokens.push(token)
+        }
+    }
+
+    /**
      * Get next token without advancing current position
      */
     private peek(n: number = 1): Token {
         if(this.tokens.length < n){
-            for(let i=0; i < n; i++){
-                const token = this.lexer.next()
-                this.tokens.push(token)
-            }
+            this.fillBuffer(n)
         }
 
         return this.tokens[n - 1]
     }
 
     private advance(): Token {
-        let token = this.tokens.shift()
-        if(token === undefined){
-            return this.lexer.next()
+        if(this.tokens.length < 1){
+            this.fillBuffer(1)
         }
-        return token
+
+        /// this.tokens is guaranted to have minimun one element
+        return this.tokens.shift() as Token
     }
 
     public eof(): boolean {

@@ -43,7 +43,7 @@ Parser
 - [DONE] Array of Table
 - Handle Error on parsing
 - Error Recovery
-- Ignore Comment Token
+- [DONE] Ignore Comment Token
 
 Emitter
 - [DONE] JSON
