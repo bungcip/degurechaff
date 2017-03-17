@@ -56,6 +56,27 @@ test("lexer: integer and float", t => {
     t.deepEqual(chevrotain.getImage(lexer.tokens[2]), '9_224_617.445_991_228_313')
 })
 
+test("lexer: date, time, and datetime", t => {
+    const input = `1979-05-27 11:30:05 1979-05-27T11:30:05 1979-05-27T11:30:05.999999`
+    const lexer = cp.TomlLexer.tokenize(input)
+    t.deepEqual(lexer.errors, [])
+    t.deepEqual(lexer.tokens.length, 4)
+    t.deepEqual(chevrotain.getImage(lexer.tokens[0]), '1979-05-27')
+    t.deepEqual(chevrotain.getImage(lexer.tokens[1]), '11:30:05')
+    t.deepEqual(chevrotain.getImage(lexer.tokens[2]), '1979-05-27T11:30:05')
+    t.deepEqual(chevrotain.getImage(lexer.tokens[3]), '1979-05-27T11:30:05.999999')
+})
+
+test("lexer: datetime", t => {
+    const input = `1979-05-27T11:30:05Z 1979-05-27T00:32:00-07:00 1979-05-27T11:30:05.999999+11:00`
+    const lexer = cp.TomlLexer.tokenize(input)
+    t.deepEqual(lexer.errors, [])
+    t.deepEqual(lexer.tokens.length, 3)
+    t.deepEqual(chevrotain.getImage(lexer.tokens[0]), '1979-05-27T11:30:05Z')
+    t.deepEqual(chevrotain.getImage(lexer.tokens[1]), '1979-05-27T00:32:00-07:00')
+    t.deepEqual(chevrotain.getImage(lexer.tokens[2]), '1979-05-27T11:30:05.999999+11:00')
+})
+
 
 test("parser: empty toml", t => {
     const testEmpty = (value) => {

@@ -49,12 +49,12 @@ class Colon extends Token { static PATTERN = /:/ }
 class Dot extends Token { static PATTERN = /\./ }
 class Equal extends Token { static PATTERN = /=/ }
 
-class DateTime extends Token { static PATTERN = /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d+/ }
+class DateTime extends Token { static PATTERN = /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|([+-]\d{2}:\d{2}))?/ }
 class Date extends Token {
     static PATTERN = /\d{4}-\d{2}-\d{2}/
     static LONGER_ALT = DateTime
 }
-class Time extends Token { static PATTERN = /\d{2}:\d{2}:\d{2}\.\d+/ }
+class Time extends Token { static PATTERN = /\d{2}:\d{2}:\d{2}(\.\d+)?/ }
 
 
 class Comment extends Token {
@@ -77,6 +77,8 @@ const allTokens = [
 
     BasicString, LiteralString,
 
+    Date, Time,
+
     Integer,
     True, False,
     Identifier,
@@ -84,9 +86,6 @@ const allTokens = [
     LeftBracket, RightBracket,
     LeftCurly, RightCurly,
     Comma, Colon, Dot, Equal,
-
-    Date, 
-    Time,
 
     Comment,
 
