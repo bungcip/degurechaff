@@ -19,10 +19,13 @@ class Integer extends Token {
     static LONGER_ALT = Float
 }
 
+
+
 class BasicString extends Token { static PATTERN = /"(:?[^\\"]+|\\(:?[bfnrtv"\\/]|u[0-9a-fA-F]{4}))*"/ }
+class MultiLineBasicString extends Token { static PATTERN = /"""(:?[^\\"]+|\\(:?[bfnrtv"\\/]|u[0-9a-fA-F]{4}))*"""/ }
 
 class LiteralString extends Token { static PATTERN = /'(:?[^\\'])*'/ }
-class MultiLineLiteralString extends Token { static PATTERN = /'''/ }
+class MultiLineLiteralString extends Token { static PATTERN = /'''[\s\S]*?'''/ }
 
 
 class Identifier extends Token { static PATTERN = /[a-zA-Z0-9_\-]+/ }
@@ -75,7 +78,11 @@ const allTokens = [
     WhiteSpace,
     NewLine,
 
-    BasicString, LiteralString,
+    MultiLineBasicString,
+    BasicString, 
+    
+    MultiLineLiteralString,
+    LiteralString,
 
     Date, Time,
 
@@ -90,7 +97,7 @@ const allTokens = [
     Comment,
 
     /// Longer Alternative Token
-    Float, 
+    Float,
     DateTime,
 ]
 
@@ -104,7 +111,6 @@ export class TomlParser extends Parser {
 
     public toml = this.RULE("toml", () => {
         this.OR([
-            // using ES6 Arrow functions to reduce verbosity.
             { ALT: () => this.SUBRULE(this.table) },
             { ALT: () => this.SUBRULE(this.arrayOfTable) },
             { ALT: () => this.SUBRULE(this.pairs) }
@@ -139,16 +145,21 @@ export class TomlParser extends Parser {
     })
 
     private tableName = this.RULE("tableName", () => {
-        this.AT_LEAST_ONE_SEP(Dot, () => this.OR([
-            { ALT: () => this.CONSUME(Identifier) },
-            { ALT: () => this.CONSUME(Integer) },
-            /// need to split result between dot
-            { ALT: () => this.CONSUME(Float) },
+        this.AT_LEAST_ONE_SEP({
+            SEP: Dot,
+            DEF: () => {
+                this.OR([
+                    { ALT: () => this.CONSUME(Identifier) },
+                    { ALT: () => this.CONSUME(Integer) },
+                    /// need to split result between dot
+                    { ALT: () => this.CONSUME(Float) },
 
-            { ALT: () => this.CONSUME(BasicString) },
-            { ALT: () => this.CONSUME(LiteralString) },
-            { ALT: () => this.SUBRULE(this.boolValue) },
-        ]))
+                    { ALT: () => this.CONSUME(BasicString) },
+                    { ALT: () => this.CONSUME(LiteralString) },
+                    { ALT: () => this.SUBRULE(this.boolValue) },
+                ])
+            }
+        })
     })
 
     private pairs = this.RULE("pairs", () => {
@@ -189,6 +200,7 @@ export class TomlParser extends Parser {
             { ALT: () => this.SUBRULE(this.stringValue) },
             { ALT: () => this.SUBRULE(this.numberValue) },
             { ALT: () => this.SUBRULE(this.boolValue) },
+            { ALT: () => this.SUBRULE(this.dateValue) },
         ])
     })
 
@@ -203,6 +215,8 @@ export class TomlParser extends Parser {
         this.OR([
             { ALT: () => this.CONSUME(BasicString) },
             { ALT: () => this.CONSUME(LiteralString) },
+            { ALT: () => this.CONSUME(MultiLineBasicString) },
+            { ALT: () => this.CONSUME(MultiLineLiteralString) },
         ])
     })
 
@@ -210,6 +224,14 @@ export class TomlParser extends Parser {
         this.OR([
             { ALT: () => this.CONSUME(Integer) },
             { ALT: () => this.CONSUME(Float) },
+        ])
+    })
+
+    private dateValue = this.RULE("dateValue", () => {
+        this.OR([
+            { ALT: () => this.CONSUME(Date) },
+            { ALT: () => this.CONSUME(Time) },
+            { ALT: () => this.CONSUME(DateTime) },
         ])
     })
 

@@ -77,6 +77,28 @@ test("lexer: datetime", t => {
     t.deepEqual(chevrotain.getImage(lexer.tokens[2]), '1979-05-27T11:30:05.999999+11:00')
 })
 
+test("lexer: multiline basic string", t => {
+    const input = `"""""" """simple""" """\nhave new line\n"""`
+    const lexer = cp.TomlLexer.tokenize(input)
+    t.deepEqual(lexer.errors, [])
+    // console.log(lexer.tokens)
+    t.deepEqual(lexer.tokens.length, 3)
+    t.deepEqual(chevrotain.getImage(lexer.tokens[0]), `""""""`)
+    t.deepEqual(chevrotain.getImage(lexer.tokens[1]), `"""simple"""`)
+    t.deepEqual(chevrotain.getImage(lexer.tokens[2]), `"""\nhave new line\n"""`)
+})
+
+test("lexer: multiline literal string", t => {
+    const input = `'''''' '''simple''' '''\nhave new line\n'''`
+    const lexer = cp.TomlLexer.tokenize(input)
+    t.deepEqual(lexer.errors, [])
+    // console.log(lexer.tokens)
+    t.deepEqual(lexer.tokens.length, 3)
+    t.deepEqual(chevrotain.getImage(lexer.tokens[0]), `''''''`)
+    t.deepEqual(chevrotain.getImage(lexer.tokens[1]), `'''simple'''`)
+    t.deepEqual(chevrotain.getImage(lexer.tokens[2]), `'''\nhave new line\n'''`)
+})
+
 
 test("parser: empty toml", t => {
     const testEmpty = (value) => {
@@ -123,10 +145,16 @@ test("parser: atomic value", t => {
     }
 
     testAtomic(`1234567890`)
+    testAtomic(`1.2`)
     testAtomic(`true`)
     testAtomic(`false`)
     testAtomic(`"hello world"`)
     testAtomic(`'literal string d{4}'`)
+    testAtomic(`"""multiline\nbasic\nstring"""`)
+    testAtomic(`"""multiline\nliteral\nstring"""`)
+    testAtomic(`1979-05-27`)
+    testAtomic(`11:30:05`)
+    testAtomic(`1979-05-27T11:30:05.999999`)
 })
 
 
