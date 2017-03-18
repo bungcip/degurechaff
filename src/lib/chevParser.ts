@@ -164,9 +164,15 @@ export class TomlParser extends Parser {
 
     private pairs = this.RULE("pairs", () => {
         // this.MANY(() => this.SUBRULE(this.pair))
-        this.MANY(() => this.OR([
-            { ALT: () => this.SUBRULE(this.blankPair) },
-            { ALT: () => this.SUBRULE(this.pair) },
+        this.MANY(() => this.OR1([
+            { ALT: () => { this.CONSUME1(NewLine) } },
+            { ALT: () => {
+                this.SUBRULE(this.pair)
+                this.OR2([
+                    { ALT: () => this.CONSUME2(NewLine) },
+                    { ALT: () => this.CONSUME3(EOF) },
+                ])
+            }},
         ]))
     })
 
@@ -174,14 +180,6 @@ export class TomlParser extends Parser {
         this.SUBRULE(this.key)
         this.CONSUME(Equal)
         this.SUBRULE(this.value)
-        this.OR([
-            { ALT: () => this.CONSUME(NewLine) },
-            { ALT: () => this.CONSUME(EOF) },
-        ])
-    })
-
-    private blankPair = this.RULE("blankPair", () => {
-        this.CONSUME(NewLine)
     })
 
     private key = this.RULE("key", () => {
@@ -200,6 +198,8 @@ export class TomlParser extends Parser {
             { ALT: () => this.SUBRULE(this.stringValue) },
             { ALT: () => this.SUBRULE(this.numberValue) },
             { ALT: () => this.SUBRULE(this.boolValue) },
+            { ALT: () => this.SUBRULE(this.arrayValue) },
+            { ALT: () => this.SUBRULE(this.inlineTableValue) },
             { ALT: () => this.SUBRULE(this.dateValue) },
         ])
     })
@@ -233,6 +233,48 @@ export class TomlParser extends Parser {
             { ALT: () => this.CONSUME(Time) },
             { ALT: () => this.CONSUME(DateTime) },
         ])
+    })
+
+    private arrayValue = this.RULE("arrayValue", () => {
+        this.CONSUME(LeftBracket)
+
+        let hasComma: boolean = true
+        this.MANY({
+            GATE: () => hasComma === true,
+            DEF: () => {
+                this.SUBRULE(this.value)
+                hasComma = this.OPTION(() => {
+                    this.CONSUME(Comma)
+                    return true
+                })
+            }
+        })
+
+        // this.MANY_SEP({
+        //     SEP: Comma,
+        //     DEF: () => this.SUBRULE(this.value)
+        // })
+
+
+        this.CONSUME(RightBracket)
+    })
+
+    private inlineTableValue = this.RULE("inlineTableValue", () => {
+        this.CONSUME(LeftCurly)
+
+        let hasComma: boolean = true
+        this.MANY({
+            GATE: () => hasComma === true,
+            DEF: () => {
+                this.SUBRULE(this.pair)
+                hasComma = this.OPTION(() => {
+                    this.CONSUME(Comma)
+                    return true
+                })
+            }
+        })
+
+        this.CONSUME(RightCurly)
     })
 
 }

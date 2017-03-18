@@ -157,6 +157,36 @@ test("parser: atomic value", t => {
     testAtomic(`1979-05-27T11:30:05.999999`)
 })
 
+test('parse value array', t => {
+    const testArray = (value) => {
+        const input = `key = ${value}`
+        const parser = setupParser(input)
+
+        t.deepEqual(parser.errors, [])
+    }
+
+    testArray("[]")
+    testArray("[1]")
+    testArray("[1,2,3]")
+    testArray("[1,2,3,]")
+
+    testArray("[[1],[2],[3],]")
+})
+
+
+test("parse value inline table", t => {
+    const testTable = (value) => {
+        const input = `key = ${value}`
+        const parser = setupParser(input)
+
+        t.deepEqual(parser.errors, [])
+    }
+
+    testTable("{}")
+    testTable("{a = 20}")
+    testTable("{a = 20, b = 30, c = 40}")
+})
+
 
 
 test("parser: root pairs", t => {
