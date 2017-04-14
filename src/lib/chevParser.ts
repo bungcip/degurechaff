@@ -5,7 +5,6 @@ import {
     Lexer,
     Parser,
     Token,
-    ISimpleTokenOrIToken,
     EOF
 } from "chevrotain"
 
@@ -104,7 +103,7 @@ const allTokens = [
 export const TomlLexer = new Lexer(allTokens)
 
 export class TomlParser extends Parser {
-    constructor(input: ISimpleTokenOrIToken[]) {
+    constructor(input: Token[]) {
         super(input, allTokens)
         Parser.performSelfAnalysis(this)
     }

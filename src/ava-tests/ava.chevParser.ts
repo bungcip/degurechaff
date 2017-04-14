@@ -29,8 +29,8 @@ test("lexer: must be identifier not true and false", t => {
     const lexer = cp.TomlLexer.tokenize(input)
     t.deepEqual(lexer.errors, [])
     t.deepEqual(lexer.tokens.length, 2)
-    t.deepEqual(chevrotain.getImage(lexer.tokens[0]), 'trueeeee')
-    t.deepEqual(chevrotain.getImage(lexer.tokens[1]), 'falseeeee')
+    t.deepEqual(lexer.tokens[0].image, 'trueeeee')
+    t.deepEqual(lexer.tokens[1].image, 'falseeeee')
 })
 
 test("lexer: whitespace and new line", t => {
@@ -51,9 +51,9 @@ test("lexer: integer and float", t => {
     const lexer = cp.TomlLexer.tokenize(input)
     t.deepEqual(lexer.errors, [])
     t.deepEqual(lexer.tokens.length, 3)
-    t.deepEqual(chevrotain.getImage(lexer.tokens[0]), '1234567890')
-    t.deepEqual(chevrotain.getImage(lexer.tokens[1]), '+1.22e+4')
-    t.deepEqual(chevrotain.getImage(lexer.tokens[2]), '9_224_617.445_991_228_313')
+    t.deepEqual(lexer.tokens[0].image, '1234567890')
+    t.deepEqual(lexer.tokens[1].image, '+1.22e+4')
+    t.deepEqual(lexer.tokens[2].image, '9_224_617.445_991_228_313')
 })
 
 test("lexer: date, time, and datetime", t => {
@@ -61,10 +61,10 @@ test("lexer: date, time, and datetime", t => {
     const lexer = cp.TomlLexer.tokenize(input)
     t.deepEqual(lexer.errors, [])
     t.deepEqual(lexer.tokens.length, 4)
-    t.deepEqual(chevrotain.getImage(lexer.tokens[0]), '1979-05-27')
-    t.deepEqual(chevrotain.getImage(lexer.tokens[1]), '11:30:05')
-    t.deepEqual(chevrotain.getImage(lexer.tokens[2]), '1979-05-27T11:30:05')
-    t.deepEqual(chevrotain.getImage(lexer.tokens[3]), '1979-05-27T11:30:05.999999')
+    t.deepEqual(lexer.tokens[0].image, '1979-05-27')
+    t.deepEqual(lexer.tokens[1].image, '11:30:05')
+    t.deepEqual(lexer.tokens[2].image, '1979-05-27T11:30:05')
+    t.deepEqual(lexer.tokens[3].image, '1979-05-27T11:30:05.999999')
 })
 
 test("lexer: datetime", t => {
@@ -72,9 +72,9 @@ test("lexer: datetime", t => {
     const lexer = cp.TomlLexer.tokenize(input)
     t.deepEqual(lexer.errors, [])
     t.deepEqual(lexer.tokens.length, 3)
-    t.deepEqual(chevrotain.getImage(lexer.tokens[0]), '1979-05-27T11:30:05Z')
-    t.deepEqual(chevrotain.getImage(lexer.tokens[1]), '1979-05-27T00:32:00-07:00')
-    t.deepEqual(chevrotain.getImage(lexer.tokens[2]), '1979-05-27T11:30:05.999999+11:00')
+    t.deepEqual(lexer.tokens[0].image, '1979-05-27T11:30:05Z')
+    t.deepEqual(lexer.tokens[1].image, '1979-05-27T00:32:00-07:00')
+    t.deepEqual(lexer.tokens[2].image, '1979-05-27T11:30:05.999999+11:00')
 })
 
 test("lexer: multiline basic string", t => {
@@ -83,9 +83,9 @@ test("lexer: multiline basic string", t => {
     t.deepEqual(lexer.errors, [])
     // console.log(lexer.tokens)
     t.deepEqual(lexer.tokens.length, 3)
-    t.deepEqual(chevrotain.getImage(lexer.tokens[0]), `""""""`)
-    t.deepEqual(chevrotain.getImage(lexer.tokens[1]), `"""simple"""`)
-    t.deepEqual(chevrotain.getImage(lexer.tokens[2]), `"""\nhave new line\n"""`)
+    t.deepEqual(lexer.tokens[0].image, `""""""`)
+    t.deepEqual(lexer.tokens[1].image, `"""simple"""`)
+    t.deepEqual(lexer.tokens[2].image, `"""\nhave new line\n"""`)
 })
 
 test("lexer: multiline literal string", t => {
@@ -94,9 +94,9 @@ test("lexer: multiline literal string", t => {
     t.deepEqual(lexer.errors, [])
     // console.log(lexer.tokens)
     t.deepEqual(lexer.tokens.length, 3)
-    t.deepEqual(chevrotain.getImage(lexer.tokens[0]), `''''''`)
-    t.deepEqual(chevrotain.getImage(lexer.tokens[1]), `'''simple'''`)
-    t.deepEqual(chevrotain.getImage(lexer.tokens[2]), `'''\nhave new line\n'''`)
+    t.deepEqual(lexer.tokens[0].image, `''''''`)
+    t.deepEqual(lexer.tokens[1].image, `'''simple'''`)
+    t.deepEqual(lexer.tokens[2].image, `'''\nhave new line\n'''`)
 })
 
 
