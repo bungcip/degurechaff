@@ -8,13 +8,26 @@ import {
     EOF
 } from "chevrotain"
 
-// Using TypeScript we have both classes and static properties to define Tokens
+
+const signFragment = /(-|\+)?/
+const integerFragment = /(0|[1-9](\d|_)*)/
+const expFragment = /([eE][+-]?\d+)?/
 class Float extends Token {
-    static PATTERN = /(-|\+)?(0|[1-9](\d|_)*)(\.(0|[1-9])(\d|_)*)?([eE][+-]?\d+)?/
+    // static PATTERN = /(-|\+)?(0|[1-9](\d|_)*)(\.(0|[1-9])(\d|_)*)?([eE][+-]?\d+)?/
+    static PATTERN = new RegExp([
+        signFragment,
+        integerFragment, 
+        /\./,
+        integerFragment,
+        expFragment
+    ].map(x => x.source).join(''))
 }
 
 class Integer extends Token {
-    static PATTERN = /(-|\+)?(0|[1-9](\d|_)*)/
+    static PATTERN = new RegExp([
+        signFragment,
+        integerFragment, 
+    ].map(x => x.source).join(''))
     static LONGER_ALT = Float
 }
 
@@ -30,33 +43,48 @@ class MultiLineLiteralString extends Token { static PATTERN = /'''[\s\S]*?'''/ }
 class Identifier extends Token { static PATTERN = /[a-zA-Z0-9_\-]+/ }
 
 class True extends Token {
-    static PATTERN = /true/
+    static PATTERN = "true"
     static LONGER_ALT = Identifier
 }
 class False extends Token {
-    static PATTERN = /false/
+    static PATTERN = "false"
     static LONGER_ALT = Identifier
 }
 
 
-class LeftBracket extends Token { static PATTERN = /\[/ }
-class RightBracket extends Token { static PATTERN = /]/ }
-class LeftCurly extends Token { static PATTERN = /{/ }
-class RightCurly extends Token { static PATTERN = /}/ }
-class LeftParen extends Token { static PATTERN = /\(/ }
-class RightParen extends Token { static PATTERN = /\)/ }
+class LeftBracket extends Token { static PATTERN = "[" }
+class RightBracket extends Token { static PATTERN = "]" }
+class LeftCurly extends Token { static PATTERN = "{" }
+class RightCurly extends Token { static PATTERN = "}" }
+class LeftParen extends Token { static PATTERN = "(" }
+class RightParen extends Token { static PATTERN = ")" }
 
-class Comma extends Token { static PATTERN = /,/ }
-class Colon extends Token { static PATTERN = /:/ }
-class Dot extends Token { static PATTERN = /\./ }
-class Equal extends Token { static PATTERN = /=/ }
+class Comma extends Token { static PATTERN = "," }
+class Colon extends Token { static PATTERN = ":" }
+class Dot extends Token { static PATTERN = "." }
+class Equal extends Token { static PATTERN = "=" }
 
-class DateTime extends Token { static PATTERN = /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|([+-]\d{2}:\d{2}))?/ }
+const dateFragment = /\d{4}-\d{2}-\d{2}/
+const timeFragment = /\d{2}:\d{2}:\d{2}(\.\d+)?/
+const tzFragment   = /(Z|([+-]\d{2}:\d{2}))?/
+
+class DateTime extends Token { 
+    static PATTERN = new RegExp([
+        dateFragment,
+        /T/,
+        timeFragment,
+        tzFragment
+    ].map(x => x.source).join(''))
+}
+
 class Date extends Token {
-    static PATTERN = /\d{4}-\d{2}-\d{2}/
+    static PATTERN = dateFragment
     static LONGER_ALT = DateTime
 }
-class Time extends Token { static PATTERN = /\d{2}:\d{2}:\d{2}(\.\d+)?/ }
+
+class Time extends Token {
+    static PATTERN = timeFragment
+}
 
 
 class Comment extends Token {
@@ -108,7 +136,7 @@ export class TomlParser extends Parser {
         Parser.performSelfAnalysis(this)
     }
 
-    public toml = this.RULE("toml", () => {
+    public root = this.RULE("root", () => {
         this.OR([
             { ALT: () => this.SUBRULE(this.table) },
             { ALT: () => this.SUBRULE(this.arrayOfTable) },
@@ -277,3 +305,5 @@ export class TomlParser extends Parser {
     })
 
 }
+
+export const parser = new TomlParser([])

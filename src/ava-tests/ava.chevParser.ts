@@ -5,7 +5,7 @@ import * as chevrotain from 'chevrotain'
 function setupParser(input: string){
     const lexerResult = cp.TomlLexer.tokenize(input)
     const parser = new cp.TomlParser(lexerResult.tokens)
-    parser.toml()
+    parser.root()
 
     return parser
 }
