@@ -132,7 +132,7 @@ export const TomlLexer = new Lexer(allTokens)
 
 export class TomlParser extends Parser {
     constructor(input: Token[]) {
-        super(input, allTokens)
+        super(input, allTokens, {outputCst: true})
         Parser.performSelfAnalysis(this)
     }
 
@@ -174,19 +174,21 @@ export class TomlParser extends Parser {
     private tableName = this.RULE("tableName", () => {
         this.AT_LEAST_ONE_SEP({
             SEP: Dot,
-            DEF: () => {
-                this.OR([
-                    { ALT: () => this.CONSUME(Identifier) },
-                    { ALT: () => this.CONSUME(Integer) },
-                    /// need to split result between dot
-                    { ALT: () => this.CONSUME(Float) },
-
-                    { ALT: () => this.CONSUME(BasicString) },
-                    { ALT: () => this.CONSUME(LiteralString) },
-                    { ALT: () => this.SUBRULE(this.boolValue) },
-                ])
-            }
+            DEF: () => { this.SUBRULE(this.tableNameSegment) }
         })
+    })
+
+    private tableNameSegment = this.RULE("tableNameSegment", () => {
+        this.OR([
+            { ALT: () => this.CONSUME(Identifier) },
+            { ALT: () => this.CONSUME(Integer) },
+            /// need to split result between dot
+            { ALT: () => this.CONSUME(Float) },
+
+            { ALT: () => this.CONSUME(BasicString) },
+            { ALT: () => this.CONSUME(LiteralString) },
+            { ALT: () => this.SUBRULE(this.boolValue) },
+        ])        
     })
 
     private pairs = this.RULE("pairs", () => {

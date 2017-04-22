@@ -2,27 +2,12 @@ import * as cp from './chevParser'
 import * as dt from './dt'
 import { Token } from 'chevrotain'
 
-export class Node {
-
-}
-
 export class Root {
-    public pairs: Pair[]
-    public tables: Table[]
-    public arrayOfTables: ArrayOfTable[]
-    constructor() {
-        this.pairs = []
-        this.tables = []
-        this.arrayOfTables = []
-    }
+    constructor(public pairs: Pair[], public tables: Table[], public arrayOfTables: ArrayOfTable[]) {}
 }
 
 export class Table {
-    public name: Name
-    public pairs: Pair[]
-    constructor() {
-        this.pairs = []
-    }
+    constructor(public name: Name, public pairs: Pair[]) {}
 }
 
 export class ArrayOfTable extends Table { }
@@ -35,17 +20,7 @@ export class Name {
 }
 
 export class Pair {
-    constructor(public key: Key, public value: Value) { }
-}
-
-export class Key {
-    constructor(public content: string) { }
-
-    /// return key representation in string
-    toString(): string {
-        const value = this.content
-        return value.toString()
-    }
+    constructor(public key: string, public value: Value) { }
 }
 
 /// atomic value kind

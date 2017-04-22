@@ -1,25 +1,21 @@
 /// testing json emitter
 import test from 'ava';
 
+import {dump} from './../index';
 
-// function setupEmitter(input, expected, t) {
-//     let parser = new Parser(input)
-//     let root = parser.parse()
 
-//     let emitter = new JsonEmitter()
-//     let jsonString = emitter.emit(root)
-//     let json = JSON.parse(jsonString)
+function setupEmitter(input, expected, t) {
+    let json = dump(input)
+    t.deepEqual(json, expected)
+}
 
-//     t.deepEqual(json, expected)
-// }
-
-// test("emit json:pair", t => {
-//     let input = `name = 'value'`
-//     let expected = {
-//         'name': 'value'
-//     }
-//     setupEmitter(input, expected, t)
-// })
+test("emit json:pair", t => {
+    let input = `name = 'value'`
+    let expected = {
+        'name': 'value'
+    }
+    setupEmitter(input, expected, t)
+})
 
 // test("emit json: date value", t => {
 //     let input = `name = 1979-05-27T07:32:00-08:00`

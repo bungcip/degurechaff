@@ -1,16 +1,31 @@
-import { TomlParser, TomlLexer } from "./lib/chevParser";
+import { parser, TomlLexer } from "./lib/chevParser"
+import { ToAstVisitor } from './lib/toAstVisitor'
+import { toJson } from './lib/toJson'
+import * as ast from './lib/chevAst'
 
 /**
  * Dump a TOML content to JSON Compatible data structure
  */
-function dump(content: string): Object {
+export function dump(content: string): Object {
+    const ast = parse(content)
+    // console.log("sini::", ast);
+    const result = toJson(ast)
+    // console.log("smapai");
+
+    return result
+}
+
+export function parse(content: string): ast.Root {
     const lexerResult = TomlLexer.tokenize(content)
-    if(lexerResult.errors){
+    if(lexerResult.errors.length){
         throw lexerResult.errors
     }
 
-    const parser = new TomlParser(lexerResult.tokens)
+    parser.input = lexerResult.tokens
     const cst = parser.root()
 
-    return {}
+    const toAst = new ToAstVisitor()
+    const ast = toAst.visit(cst)
+    
+    return ast
 }
