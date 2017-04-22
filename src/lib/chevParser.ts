@@ -137,11 +137,35 @@ export class TomlParser extends Parser {
     }
 
     public root = this.RULE("root", () => {
-        this.OR([
-            { ALT: () => this.SUBRULE(this.table) },
-            { ALT: () => this.SUBRULE(this.arrayOfTable) },
-            { ALT: () => this.SUBRULE(this.pairs) }
-        ])
+        let once = false
+        this.MANY({
+            GATE: () => {
+                return this.isAtEndOfInput() == false
+            },
+            DEF: () => {
+                this.OR([
+                    { ALT: () => this.SUBRULE(this.arrayOfTable) },
+                    { ALT: () => this.SUBRULE(this.table) },
+                    { GATE: () => once == false, ALT: () => {
+                        this.SUBRULE(this.pairs)
+                        once = true
+                    }},
+                ])
+            }
+        })
+
+        // this.OPTION(() => this.SUBRULE(this.pairs))
+        // this.OR([
+        //     { ALT: () => this.SUBRULE(this.table) },
+        //     { ALT: () => this.SUBRULE(this.arrayOfTable) },
+        // ])
+
+        /// FIXME: perlu MANY
+        // this.OR([
+        //     { ALT: () => this.SUBRULE(this.arrayOfTable) },
+        //     { ALT: () => this.SUBRULE(this.table) },
+        //     { ALT: () => this.SUBRULE(this.pairs) },
+        // ])
     })
 
     private table = this.RULE("table", () => {

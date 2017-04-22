@@ -6,9 +6,18 @@ function setupParser(input: string){
     const lexerResult = cp.TomlLexer.tokenize(input)
     const parser = new cp.TomlParser(lexerResult.tokens)
     parser.root()
-
+    
     return parser
 }
+
+function setupParserAndCst(input: string){
+    const lexerResult = cp.TomlLexer.tokenize(input)
+    const parser = new cp.TomlParser(lexerResult.tokens)
+    const cst = parser.root()
+    
+    return [parser, cst]
+}
+
 
 test("lexer: valid token", t => {
     const input = `
@@ -245,15 +254,29 @@ test("parser: valid table name", t => {
 // })
 
 test("parser: arrayOfTable", t => {
-    const testTable = (input) => {
-        const parser = setupParser(input)
+    const testTable = (input, aotLength) => {
+        const [parser, cst] = setupParserAndCst(input)
         t.deepEqual(parser.errors, [])
+        t.deepEqual(cst.children.arrayOfTable.length, aotLength)
     }
 
-    testTable(`[[empty]]`)
+    testTable(`[[empty]]`, 1)
     testTable(`[[array-of-table]]
         key1 = 1
 
         key2 = 2
+    `, 1)
+})
+
+test("parser: pair & table combo", t => {
+    const testCombo = (input) => {
+        const parser = setupParser(input)
+        t.deepEqual(parser.errors, [])
+    }
+
+    testCombo(`
+        foo = "bar"
+        [table]
+            foo = "bar"
     `)
 })

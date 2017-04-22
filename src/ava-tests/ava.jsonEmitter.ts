@@ -17,13 +17,13 @@ test("emit json:pair", t => {
     setupEmitter(input, expected, t)
 })
 
-// test("emit json: date value", t => {
-//     let input = `name = 1979-05-27T07:32:00-08:00`
-//     let expected = {
-//         'name': '1979-05-27T07:32:00-08:00'
-//     }
-//     setupEmitter(input, expected, t)
-// })
+test("emit json: date value", t => {
+    let input = `name = 1979-05-27T07:32:00-08:00`
+    let expected = {
+        'name': '1979-05-27T07:32:00-08:00'
+    }
+    setupEmitter(input, expected, t)
+})
 
 // test("emit json: multi line string", t => {
 //     let input = `
@@ -103,19 +103,18 @@ test("emit json:pair", t => {
 
 // })
 
-// test("emit json: array of table", t => {
-//     let input = `
-//             [[fruits]]
-//                 name = "Apple"
-//             [[fruits]]
-//                 name = "Orange"
-//         `
-//     let expected = {
-//         'fruits': [
-//             {'name': 'Apple'},
-//             {'name': 'Orange'},
-//         ],
-//     }
-//     setupEmitter(input, expected, t)
-
-// })
+test("emit json: array of table", t => {
+    let input = `
+            [[fruits]]
+                name = "Apple"
+            [[fruits]]
+                name = "Orange"
+        `
+    let expected = {
+        'fruits': [
+            {'name': 'Apple'},
+            {'name': 'Orange'},
+        ],
+    }
+    setupEmitter(input, expected, t)
+})

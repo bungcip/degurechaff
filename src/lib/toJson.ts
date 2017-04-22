@@ -9,26 +9,29 @@ export function toJson(root: ast.Root) : Object {
     const result = {}
 
     /// convert pair first
-    // console.log("dumpPair::", root.pairs)
     dumpPair(result, root.pairs)
 
     /// then tables
     for(const table of root.tables){
         const currentObject = lookup(result, table.name.segments)
-        // console.log("dumpPair::", table.pairs)
         dumpPair(currentObject, table.pairs)
     }
 
     /// last array of table
     for(const aot of root.arrayOfTables){
-        const currentObject = lookupAot(result, aot.name.segments)
-        dumpPair(currentObject, aot.pairs)
+        const currentArray = lookupAot(result, aot.name.segments)
+        // console.log("dump pairs::", aot.pairs)
+        const newObject = {}
+        dumpPair(newObject, aot.pairs)
+
+        currentArray.push(newObject)
     }
 
     return result
 }
 
 function dumpPair(node: Object, pairs: ast.Pair[]){
+    // console.log("pairs ::", pairs)
     for(const pair of pairs){
         const key = pair.key
         const value = pair.value.jsValue()
@@ -49,7 +52,7 @@ function lookup(node: Object, segments: string[]): Object {
     return current
 }
 
-function lookupAot(node: Object, segments: string[]): Object {
+function lookupAot(node: Object, segments: string[]): [any] {
     let initials = segments.slice(0, segments.length - 2)
     let last = segments[segments.length - 1]
 

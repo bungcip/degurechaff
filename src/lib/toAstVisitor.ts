@@ -2,6 +2,7 @@ import {parser} from "./chevParser"
 import {CstNode, CstChildrenDictionary} from "chevrotain"
 import * as ast from "./chevAst"
 import * as extractor from './extractor'
+import * as dt from "./dt"
 
 export const BaseVisitor = parser.getBaseCstVisitorConstructor()
 
@@ -17,16 +18,32 @@ export class ToAstVisitor extends BaseVisitor {
     orEmptyArray(value){
         if(value === undefined){
             return []
+        }else if( value instanceof Array){
+            return value
+        }else {
+            return [value]
         }
-        return value
+    }
+
+    visitAll(nodes: CstNode[]): any[] {
+        let result: any[] = []
+
+        for(const node of nodes){
+            let value = this.visit(node)
+            result.push(value)
+        }
+
+        return result
     }
 
     root(ctx: any){
         const pairs = this.orEmptyArray( this.visit(ctx.pairs) )
-        const tables = this.orEmptyArray( this.visit(ctx.table) )
-        const arrayOfTables = this.orEmptyArray( this.visit(ctx.arrayOfTable) )
+        const tables = this.visitAll(ctx.table)
+        const arrayOfTables = this.visitAll(ctx.arrayOfTable)
 
         /// FIXME: check if aot is duplicated...
+        // console.log("cst aot length:", ctx.arrayOfTable.length)
+        // console.log("ast aot length:", arrayOfTables.length)
         
         return new ast.Root(pairs, tables, arrayOfTables)
     }
@@ -46,7 +63,7 @@ export class ToAstVisitor extends BaseVisitor {
     }
 
     tableName(ctx: any){
-        const nodes = this.visit(ctx.tableNameSegment)
+        const nodes = this.orEmptyArray(this.visit(ctx.tableNameSegment))
         const segments: string[] = []
 
         /// FIXME: simplify this code
@@ -82,13 +99,13 @@ export class ToAstVisitor extends BaseVisitor {
         return result
     }
 
-    tableBody(ctx: any){
-        return this.visit(ctx.pairs)
+    tableBody(ctx: any): ast.Pair[] {
+        return this.orEmptyArray( this.visit(ctx.pairs) )
     }
 
     pairs(ctx: any){
         let result: any[] = []
-        if(ctx.pair){
+        if(ctx.pair[0]){
             result.push( this.visit(ctx.pair) )
         }
 
@@ -175,11 +192,11 @@ export class ToAstVisitor extends BaseVisitor {
 
     dateValue(ctx: any){
         if(ctx.Date[0]){
-            extractor.extractDate(ctx.Date[0].image)
+            return extractor.extractDate(ctx.Date[0].image)
         }else if(ctx.Time[0]){
-            extractor.extractTime(ctx.Time[0].image)
+            return extractor.extractTime(ctx.Time[0].image)
         }else if(ctx.DateTime[0]){
-            extractor.extractDateTime(ctx.DateTime[0].image)
+            return extractor.extractDateTime(ctx.DateTime[0].image)
         }
 
         throw "unexpected token inside dateValue()"

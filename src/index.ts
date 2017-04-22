@@ -27,5 +27,8 @@ export function parse(content: string): ast.Root {
     const toAst = new ToAstVisitor()
     const ast = toAst.visit(cst)
     
+    // console.log("cst::", cst)
+    // console.log("ast::", ast)
+
     return ast
 }
