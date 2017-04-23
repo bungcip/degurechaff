@@ -53,55 +53,55 @@ test("emit json: date value", t => {
 
 
 
-// test("emit json: table", t => {
-//     let input = `
-//             [database]
-//             server = "192.168.1.1"
-//             ports = [ 8001, 8001, 8002 ]
-//             connection_max = 5000
-//             enabled = true
+test("emit json: table", t => {
+    let input = `
+            [database]
+            server = "192.168.1.1"
+            ports = [ 8001, 8001, 8002 ]
+            connection_max = 5000
+            enabled = true
 
-//             [clients]
-//             data = [ ["gamma", "delta"], [1, 2] ]
-//         `
-//     let expected = {
-//         'database': {
-//             'server': "192.168.1.1",
-//             'ports': [8001, 8001, 8002],
-//             'connection_max': 5000,
-//             'enabled': true
-//         },
-//         'clients': {
-//             'data': [["gamma", "delta"], [1, 2]]
-//         }
-//     }
-//     setupEmitter(input, expected, t)
+            [clients]
+            data = [ ["gamma", "delta"], [1, 2] ]
+        `
+    let expected = {
+        'database': {
+            'server': "192.168.1.1",
+            'ports': [8001, 8001, 8002],
+            'connection_max': 5000,
+            'enabled': true
+        },
+        'clients': {
+            'data': [["gamma", "delta"], [1, 2]]
+        }
+    }
+    setupEmitter(input, expected, t)
 
-// })
+})
 
 
-// test("emit json: nested table", t => {
-//     let input = `
-//             [profile]
-//                 name = "Foo Bar"
-//                 age = 20
-//             [profile.address]
-//                 home = "near"
-//                 count = 2
-//         `
-//     let expected = {
-//         'profile': {
-//             'name': "Foo Bar",
-//             'age': 20,
-//             'address': {
-//                 'home': 'near',
-//                 'count': 2
-//             }
-//         },
-//     }
-//     setupEmitter(input, expected, t)
+test("emit json: nested table", t => {
+    let input = `
+            [profile]
+                name = "Foo Bar"
+                age = 20
+            [profile.address]
+                home = "near"
+                count = 2
+        `
+    let expected = {
+        'profile': {
+            'name': "Foo Bar",
+            'age': 20,
+            'address': {
+                'home': 'near',
+                'count': 2
+            }
+        },
+    }
+    setupEmitter(input, expected, t)
 
-// })
+})
 
 test("emit json: array of table", t => {
     let input = `

@@ -37,7 +37,7 @@ export class ToAstVisitor extends BaseVisitor {
     }
 
     root(ctx: any){
-        const pairs = this.orEmptyArray( this.visit(ctx.pairs) )
+        const pairs = this.visit(ctx.pairs)
         const tables = this.visitAll(ctx.table)
         const arrayOfTables = this.visitAll(ctx.arrayOfTable)
 
@@ -63,20 +63,7 @@ export class ToAstVisitor extends BaseVisitor {
     }
 
     tableName(ctx: any){
-        const nodes = this.orEmptyArray(this.visit(ctx.tableNameSegment))
-        const segments: string[] = []
-
-        /// FIXME: simplify this code
-        for(const node of nodes){
-            if(node instanceof Array){
-                for(const n of node){
-                    segments.push(n)
-                }
-            }else{
-                segments.push(node)
-            }
-        }
-
+        const segments = this.visitAll(ctx.tableNameSegment)
         return new ast.Name(segments)
     }
 
@@ -100,16 +87,11 @@ export class ToAstVisitor extends BaseVisitor {
     }
 
     tableBody(ctx: any): ast.Pair[] {
-        return this.orEmptyArray( this.visit(ctx.pairs) )
+        return this.visit(ctx.pairs)
     }
 
     pairs(ctx: any){
-        let result: any[] = []
-        if(ctx.pair[0]){
-            result.push( this.visit(ctx.pair) )
-        }
-
-        return result
+        return this.visitAll(ctx.pair)
     }
 
     pair(ctx: any){
@@ -142,7 +124,7 @@ export class ToAstVisitor extends BaseVisitor {
         if(ctx.stringValue[0]){
             result = this.visit(ctx.stringValue)
         }else if(ctx.numberValue[0]){
-            result = ctx.Integer[0].image
+            result = this.visit(ctx.numberValue)
         }else if(ctx.boolValue[0]){
             result = this.visit(ctx.boolValue)
         }else if(ctx.arrayValue[0]){
@@ -203,7 +185,7 @@ export class ToAstVisitor extends BaseVisitor {
     }
 
     arrayValue(ctx: any){
-        let values = this.visit(ctx.value)
+        let values = this.visitAll(ctx.value)
         return values
     }
 

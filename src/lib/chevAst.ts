@@ -68,12 +68,7 @@ export class ArrayValue implements Value {
     constructor(public items: Value[]) { }
 
     jsValue(): Array<any> {
-        let result: any[] = []
-        for (let item of this.items) {
-            result.push(item)
-        }
-
-        return result
+        return this.items.map( x => x.jsValue() )
     }
 }
 

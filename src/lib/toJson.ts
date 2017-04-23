@@ -14,6 +14,8 @@ export function toJson(root: ast.Root) : Object {
     /// then tables
     for(const table of root.tables){
         const currentObject = lookup(result, table.name.segments)
+        console.log("segments::", table.name.segments)
+        console.log("pairs::", table.pairs)
         dumpPair(currentObject, table.pairs)
     }
 
@@ -43,10 +45,10 @@ function dumpPair(node: Object, pairs: ast.Pair[]){
 function lookup(node: Object, segments: string[]): Object {
     let current = node
     for(const segment of segments){
-        if(node[segment] === undefined){
-            node[segment] = {}
+        if(current[segment] === undefined){
+            current[segment] = {}
         }
-        current = node[segment]
+        current = current[segment]
     }
 
     return current
