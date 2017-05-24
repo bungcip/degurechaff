@@ -90,12 +90,20 @@ test("lexer: multiline basic string", t => {
     const input = `"""""" """simple""" """\nhave new line\n"""`
     const lexer = cp.TomlLexer.tokenize(input)
     t.deepEqual(lexer.errors, [])
-    // console.log(lexer.tokens)
     t.deepEqual(lexer.tokens.length, 3)
     t.deepEqual(lexer.tokens[0].image, `""""""`)
     t.deepEqual(lexer.tokens[1].image, `"""simple"""`)
     t.deepEqual(lexer.tokens[2].image, `"""\nhave new line\n"""`)
 })
+
+test("lexer: multiline basic string with backslash", t => {
+    const input = `"""I HAVE\\\n  BACKSLASH """`
+    const lexer = cp.TomlLexer.tokenize(input)
+    t.deepEqual(lexer.errors, [])
+    t.deepEqual(lexer.tokens.length, 1)
+    t.deepEqual(lexer.tokens[0].image, `"""I HAVE\\\n  BACKSLASH """`)
+})
+
 
 test("lexer: multiline literal string", t => {
     const input = `'''''' '''simple''' '''\nhave new line\n'''`

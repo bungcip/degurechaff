@@ -14,8 +14,8 @@ export function toJson(root: ast.Root) : Object {
     /// then tables
     for(const table of root.tables){
         const currentObject = lookup(result, table.name.segments)
-        console.log("segments::", table.name.segments)
-        console.log("pairs::", table.pairs)
+        // console.log("segments::", table.name.segments)
+        // console.log("pairs::", table.pairs)
         dumpPair(currentObject, table.pairs)
     }
 

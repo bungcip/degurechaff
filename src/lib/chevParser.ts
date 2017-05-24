@@ -5,7 +5,8 @@ import {
     Lexer,
     Parser,
     Token,
-    EOF
+    EOF,
+    TokenConstructor
 } from "chevrotain"
 
 
@@ -16,7 +17,7 @@ class Float extends Token {
     // static PATTERN = /(-|\+)?(0|[1-9](\d|_)*)(\.(0|[1-9])(\d|_)*)?([eE][+-]?\d+)?/
     static PATTERN = new RegExp([
         signFragment,
-        integerFragment, 
+        integerFragment,
         /\./,
         integerFragment,
         expFragment
@@ -26,7 +27,7 @@ class Float extends Token {
 class Integer extends Token {
     static PATTERN = new RegExp([
         signFragment,
-        integerFragment, 
+        integerFragment,
     ].map(x => x.source).join(''))
     static LONGER_ALT = Float
 }
@@ -34,7 +35,60 @@ class Integer extends Token {
 
 
 class BasicString extends Token { static PATTERN = /"(:?[^\\"]+|\\(:?[bfnrtv"\\/]|u[0-9a-fA-F]{4}))*"/ }
-class MultiLineBasicString extends Token { static PATTERN = /"""(:?[^\\"]+|\\(:?[bfnrtv"\\/]|u[0-9a-fA-F]{4}))*"""/ }
+// class MultiLineBasicString extends Token { static PATTERN = /"""(:?[^\\"]+|\\(:?[bfnrtv"\\/]|u[0-9a-fA-F]{4}))*"""/ }
+const escapeFragment = /\\(:?[bfnrtv"\\/]|u[0-9a-fA-F]{4})/
+class MultiLineBasicString extends Token {
+    // static PATTERN = new RegExp([
+    //     /"""/,
+    //     /(:?[^\\"]+|)*/,
+    //     /"""/
+    // ].map(x => x.source).join(''))
+    static PATTERN = {
+        exec: function (input: string, offset: number) {
+            let text = input.slice(offset)
+            /// first 3 char must be """
+            if (text.startsWith('"""') === false) {
+                return null
+            }
+
+            /// check content string, allow new line & escape code
+            let i = 3
+            const textLength = text.length
+            while (i < textLength) {
+                const ch = text.charAt(i)
+
+                /// check escape fragment
+                if (ch === '\\') {
+                    /// test new line
+                    const isNewLine = text.slice(i+1).match(NewLine.PATTERN)
+                    if(isNewLine !== null){
+                        i += isNewLine[0].length
+                        continue
+                    }
+
+                    /// test escape fragment
+                    const result = text.slice(i).match(escapeFragment)
+                    if (result === null) {
+                        return null
+                    }
+                    
+                    i += result[0].length
+                } else if (ch === '"') {
+                    if (text.slice(i).startsWith('"""') === true) {
+                        const matchedString = text.substring(0, i + 3)
+                        const result = [matchedString] as RegExpExecArray
+                        return result
+                    }
+                }
+
+                i++
+            }
+
+            return null
+        },
+        containsLineTerminator: true,
+    }
+}
 
 class LiteralString extends Token { static PATTERN = /'(:?[^\\'])*'/ }
 class MultiLineLiteralString extends Token { static PATTERN = /'''[\s\S]*?'''/ }
@@ -66,9 +120,9 @@ class Equal extends Token { static PATTERN = "=" }
 
 const dateFragment = /\d{4}-\d{2}-\d{2}/
 const timeFragment = /\d{2}:\d{2}:\d{2}(\.\d+)?/
-const tzFragment   = /(Z|([+-]\d{2}:\d{2}))?/
+const tzFragment = /(Z|([+-]\d{2}:\d{2}))?/
 
-class DateTime extends Token { 
+class DateTime extends Token {
     static PATTERN = new RegExp([
         dateFragment,
         /T/,
@@ -101,13 +155,13 @@ class WhiteSpace extends Token {
     static GROUP = Lexer.SKIPPED
 }
 
-const allTokens = [
+const allTokens: TokenConstructor[] = [
     WhiteSpace,
     NewLine,
 
     MultiLineBasicString,
-    BasicString, 
-    
+    BasicString,
+
     MultiLineLiteralString,
     LiteralString,
 
@@ -132,7 +186,7 @@ export const TomlLexer = new Lexer(allTokens)
 
 export class TomlParser extends Parser {
     constructor(input: Token[]) {
-        super(input, allTokens, {outputCst: true})
+        super(input, allTokens, { outputCst: true })
         Parser.performSelfAnalysis(this)
     }
 
@@ -146,10 +200,12 @@ export class TomlParser extends Parser {
                 this.OR([
                     { ALT: () => this.SUBRULE(this.arrayOfTable) },
                     { ALT: () => this.SUBRULE(this.table) },
-                    { GATE: () => once == false, ALT: () => {
-                        this.SUBRULE(this.pairs)
-                        once = true
-                    }},
+                    {
+                        GATE: () => once == false, ALT: () => {
+                            this.SUBRULE(this.pairs)
+                            once = true
+                        }
+                    },
                 ])
             }
         })
@@ -212,20 +268,22 @@ export class TomlParser extends Parser {
             { ALT: () => this.CONSUME(BasicString) },
             { ALT: () => this.CONSUME(LiteralString) },
             { ALT: () => this.SUBRULE(this.boolValue) },
-        ])        
+        ])
     })
 
     private pairs = this.RULE("pairs", () => {
         // this.MANY(() => this.SUBRULE(this.pair))
         this.MANY(() => this.OR1([
             { ALT: () => { this.CONSUME1(NewLine) } },
-            { ALT: () => {
-                this.SUBRULE(this.pair)
-                this.OR2([
-                    { ALT: () => this.CONSUME2(NewLine) },
-                    { ALT: () => this.CONSUME3(EOF) },
-                ])
-            }},
+            {
+                ALT: () => {
+                    this.SUBRULE(this.pair)
+                    this.OR2([
+                        { ALT: () => this.CONSUME2(NewLine) },
+                        { ALT: () => this.CONSUME3(EOF) },
+                    ])
+                }
+            },
         ]))
     })
 

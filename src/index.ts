@@ -8,7 +8,6 @@ import * as ast from './lib/chevAst'
  */
 export function dump(content: string): Object {
     const ast = parse(content)
-    // console.log("sini::", ast);
     const result = toJson(ast)
     // console.log("smapai");
 

@@ -25,31 +25,30 @@ test("emit json: date value", t => {
     setupEmitter(input, expected, t)
 })
 
-// test("emit json: multi line string", t => {
-//     let input = `
-// str1 = """Roses are red
-// Violets are blue"""
+test("emit json: multi line string", t => {
+    let input = `
+str1 = """Roses are red
+Violets are blue"""
 
-// str2 = """
-// The quick brown \\
-//    fox jumps over \\
-//      the lazy dog."""
+str2 = """
+The quick brown \\
+   fox jumps over \\
+     the lazy dog."""
 
-// str3 = '''
-// The first newline is
-// trimmed in raw strings.
-//    All other whitespace
-//    is preserved.
-// '''
-// `
-
-//     let expected = {
-//         'str1': 'Roses are red\nViolets are blue',
-//         'str2': 'The quick brown fox jumps over the lazy dog.',
-//         'str3': 'The first newline is\ntrimmed in raw strings.\n   All other whitespace\n   is preserved.\n'
-//     }
-//     setupEmitter(input, expected, t)
-// })
+str3 = '''
+The first newline is
+trimmed in raw strings.
+   All other whitespace
+   is preserved.
+'''
+`
+     let expected = {
+         'str1': 'Roses are red\nViolets are blue',
+         'str2': 'The quick brown fox jumps over the lazy dog.',
+         'str3': 'The first newline is\ntrimmed in raw strings.\n   All other whitespace\n   is preserved.\n'
+     }
+     setupEmitter(input, expected, t)
+})
 
 
 
