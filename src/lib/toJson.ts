@@ -9,14 +9,14 @@ export function toJson(root: ast.Root) : Object {
     const result = {}
 
     /// convert pair first
-    dumpPair(result, root.pairs)
+    dumpPairs(result, root.pairs)
 
     /// then tables
     for(const table of root.tables){
         const currentObject = lookup(result, table.name.segments)
         // console.log("segments::", table.name.segments)
         // console.log("pairs::", table.pairs)
-        dumpPair(currentObject, table.pairs)
+        dumpPairs(currentObject, table.pairs)
     }
 
     /// last array of table
@@ -24,7 +24,7 @@ export function toJson(root: ast.Root) : Object {
         const currentArray = lookupAot(result, aot.name.segments)
         // console.log("dump pairs::", aot.pairs)
         const newObject = {}
-        dumpPair(newObject, aot.pairs)
+        dumpPairs(newObject, aot.pairs)
 
         currentArray.push(newObject)
     }
@@ -32,7 +32,7 @@ export function toJson(root: ast.Root) : Object {
     return result
 }
 
-function dumpPair(node: Object, pairs: ast.Pair[]){
+function dumpPairs(node: Object, pairs: ast.Pair[]){
     // console.log("pairs ::", pairs)
     for(const pair of pairs){
         const key = pair.key

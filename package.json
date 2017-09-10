@@ -39,22 +39,22 @@
     "node": ">=7"
   },
   "dependencies": {
-    "chevrotain": "^0.28.3",
+    "chevrotain": "^0.32.1",
     "tslib": "^1.7.1"
   },
   "devDependencies": {
-    "@types/node": "^7.0.22",
-    "ava": "^0.19.1",
-    "codecov": "^2.2.0",
+    "@types/node": "^8.0.28",
+    "ava": "^0.22.0",
+    "codecov": "^2.3.0",
     "npm-scripts-info": "^0.3.6",
-    "nyc": "^10.3.2",
+    "nyc": "^11.2.1",
     "opn-cli": "^3.1.0",
-    "standard-version": "^4.0.0",
+    "standard-version": "^4.2.0",
     "trash-cli": "^1.4.0",
-    "tslint": "^5.3.2",
-    "tslint-config-standard": "^5.0.2",
-    "typedoc": "^0.7.1",
-    "typescript": "^2.3.3"
+    "tslint": "^5.7.0",
+    "tslint-config-standard": "^6.0.1",
+    "typedoc": "^0.8.0",
+    "typescript": "^2.5.2"
   },
   "keywords": [
     "toml",

@@ -109,7 +109,6 @@ test("lexer: multiline literal string", t => {
     const input = `'''''' '''simple''' '''\nhave new line\n'''`
     const lexer = cp.TomlLexer.tokenize(input)
     t.deepEqual(lexer.errors, [])
-    // console.log(lexer.tokens)
     t.deepEqual(lexer.tokens.length, 3)
     t.deepEqual(lexer.tokens[0].image, `''''''`)
     t.deepEqual(lexer.tokens[1].image, `'''simple'''`)

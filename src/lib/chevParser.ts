@@ -35,63 +35,73 @@ class Integer extends Token {
 
 
 class BasicString extends Token { static PATTERN = /"(:?[^\\"]+|\\(:?[bfnrtv"\\/]|u[0-9a-fA-F]{4}))*"/ }
-// class MultiLineBasicString extends Token { static PATTERN = /"""(:?[^\\"]+|\\(:?[bfnrtv"\\/]|u[0-9a-fA-F]{4}))*"""/ }
+// class MultiLineBasicString extends Token { 
+//     static PATTERN = /"""(:?[^\\"]+|\\(:?[bfnrtv"\\/]|u[0-9a-fA-F]{4}))*"""/ 
+//     static LINE_BREAKS = true
+// }
 const escapeFragment = /\\(:?[bfnrtv"\\/]|u[0-9a-fA-F]{4})/
+// const stringContentFragment = new RegExp([
+//     /:?[^\\"]+/,
+//     escapeFragment,
+//     /|/,
+// ].map(x => x.source).join(''))
+
 class MultiLineBasicString extends Token {
     // static PATTERN = new RegExp([
     //     /"""/,
     //     /(:?[^\\"]+|)*/,
     //     /"""/
     // ].map(x => x.source).join(''))
-    static PATTERN = {
-        exec: function (input: string, offset: number) {
-            let text = input.slice(offset)
-            /// first 3 char must be """
-            if (text.startsWith('"""') === false) {
-                return null
-            }
+    static LINE_BREAKS = true
+    static PATTERN = (input: string, offset: number) => {
+        let text = input.slice(offset)
+        /// first 3 char must be """
+        if (text.startsWith('"""') === false) {
+            return null
+        }
 
-            /// check content string, allow new line & escape code
-            let i = 3
-            const textLength = text.length
-            while (i < textLength) {
-                const ch = text.charAt(i)
+        /// check content string, allow new line & escape code
+        let i = 3
+        const textLength = text.length
+        while (i < textLength) {
+            const ch = text.charAt(i)
 
-                /// check escape fragment
-                if (ch === '\\') {
-                    /// test new line
-                    const isNewLine = text.slice(i+1).match(NewLine.PATTERN)
-                    if(isNewLine !== null){
-                        i += isNewLine[0].length
-                        continue
-                    }
-
-                    /// test escape fragment
-                    const result = text.slice(i).match(escapeFragment)
-                    if (result === null) {
-                        return null
-                    }
-                    
-                    i += result[0].length
-                } else if (ch === '"') {
-                    if (text.slice(i).startsWith('"""') === true) {
-                        const matchedString = text.substring(0, i + 3)
-                        const result = [matchedString] as RegExpExecArray
-                        return result
-                    }
+            /// check escape fragment
+            if (ch === '\\') {
+                /// test new line
+                const isNewLine = text.slice(i+1).match(NewLine.PATTERN)
+                if(isNewLine !== null){
+                    i += isNewLine[0].length
+                    continue
                 }
 
-                i++
+                /// test escape fragment
+                const result = text.slice(i).match(escapeFragment)
+                if (result === null) {
+                    return null
+                }
+                
+                i += result[0].length
+            } else if (ch === '"') {
+                if (text.slice(i).startsWith('"""') === true) {
+                    const matchedString = text.substring(0, i + 3)
+                    const result = [matchedString] as RegExpExecArray
+                    return result
+                }
             }
 
-            return null
-        },
-        containsLineTerminator: true,
+            i++
+        }
+
+        return null
     }
 }
 
 class LiteralString extends Token { static PATTERN = /'(:?[^\\'])*'/ }
-class MultiLineLiteralString extends Token { static PATTERN = /'''[\s\S]*?'''/ }
+class MultiLineLiteralString extends Token { 
+    static PATTERN = /'''[\s\S]*?'''/
+    static LINE_BREAKS = true
+}
 
 
 class Identifier extends Token { static PATTERN = /[a-zA-Z0-9_\-]+/ }
@@ -148,6 +158,7 @@ class Comment extends Token {
 
 class NewLine extends Token {
     static PATTERN = /(\r\n|\n)/
+    static LINE_BREAKS = true
 }
 
 class WhiteSpace extends Token {
@@ -186,7 +197,7 @@ export const TomlLexer = new Lexer(allTokens)
 
 export class TomlParser extends Parser {
     constructor(input: Token[]) {
-        super(input, allTokens, { outputCst: true })
+        super(input, allTokens, { outputCst: true})
         Parser.performSelfAnalysis(this)
     }
 
