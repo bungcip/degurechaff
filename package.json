@@ -39,13 +39,13 @@
     "node": ">=7"
   },
   "dependencies": {
-    "chevrotain": "^0.32.1",
-    "tslib": "^1.7.1"
+    "chevrotain": "^0.34.0",
+    "tslib": "^1.8.0"
   },
   "devDependencies": {
-    "@types/node": "^8.0.28",
+    "@types/node": "^8.0.34",
     "ava": "^0.22.0",
-    "codecov": "^2.3.0",
+    "codecov": "^2.3.1",
     "npm-scripts-info": "^0.3.6",
     "nyc": "^11.2.1",
     "opn-cli": "^3.1.0",
@@ -53,8 +53,8 @@
     "trash-cli": "^1.4.0",
     "tslint": "^5.7.0",
     "tslint-config-standard": "^6.0.1",
-    "typedoc": "^0.8.0",
-    "typescript": "^2.5.2"
+    "typedoc": "^0.9.0",
+    "typescript": "^2.5.3"
   },
   "keywords": [
     "toml",
@@ -62,7 +62,8 @@
   ],
   "nyc": {
     "exclude": [
-      "**/ava.*.js"
+      "**/ava.*.js",
+      "tools/**"
     ]
   }
 }

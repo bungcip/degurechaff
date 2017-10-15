@@ -46,6 +46,7 @@ const escapeFragment = /\\(:?[bfnrtv"\\/]|u[0-9a-fA-F]{4})/
 //     /|/,
 // ].map(x => x.source).join(''))
 
+/// NOTE: need to change TokenCounstructor PATTERN type signature
 class MultiLineBasicString extends Token {
     // static PATTERN = new RegExp([
     //     /"""/,
@@ -132,6 +133,8 @@ const dateFragment = /\d{4}-\d{2}-\d{2}/
 const timeFragment = /\d{2}:\d{2}:\d{2}(\.\d+)?/
 const tzFragment = /(Z|([+-]\d{2}:\d{2}))?/
 
+
+
 class DateTime extends Token {
     static PATTERN = new RegExp([
         dateFragment,
@@ -170,7 +173,7 @@ const allTokens: TokenConstructor[] = [
     WhiteSpace,
     NewLine,
 
-    MultiLineBasicString,
+    MultiLineBasicString as any, /// need any until chevrotain support it
     BasicString,
 
     MultiLineLiteralString,
@@ -337,7 +340,7 @@ export class TomlParser extends Parser {
         this.OR([
             { ALT: () => this.CONSUME(BasicString) },
             { ALT: () => this.CONSUME(LiteralString) },
-            { ALT: () => this.CONSUME(MultiLineBasicString) },
+            { ALT: () => this.CONSUME(MultiLineBasicString as any) }, /// need as any because chevrotain ts don't support Token with custom function
             { ALT: () => this.CONSUME(MultiLineLiteralString) },
         ])
     })

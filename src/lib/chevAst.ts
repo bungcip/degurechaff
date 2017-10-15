@@ -55,7 +55,7 @@ export class AtomicValue implements Value {
         return this.content
     }
 
-    /// return key represantation
+    /// return key representation
     toString(): string {
         return this.content.toString()
     }

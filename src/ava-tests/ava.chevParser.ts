@@ -276,7 +276,7 @@ test("parser: arrayOfTable", t => {
 })
 
 test("parser: pair & table combo", t => {
-    const testCombo = (input) => {
+    const testCombo = (input: string) => {
         const parser = setupParser(input)
         t.deepEqual(parser.errors, [])
     }
