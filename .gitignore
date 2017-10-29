@@ -1,8 +1,10 @@
 node_modules
-build
-src/**.js
-
 coverage
 .nyc_output
+.DS_Store
 *.log
-.vscode/settings.json
+.vscode
+.idea
+dist
+compiled
+.awcache

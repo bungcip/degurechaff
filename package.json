@@ -1,69 +1,109 @@
 {
   "name": "degurechaff",
-  "version": "0.0.1",
-  "description": "Degurechaff is spec compliant TOML parser",
-  "main": "build/main/index.js",
-  "typings": "build/main/index.d.ts",
-  "module": "build/module/index.js",
-  "repository": "https://github.com/bungcip/degurechaff",
-  "author": "Gigih Aji Ibrahim <bungcip@gmail.com>",
+  "version": "0.0.0",
+  "description": "",
+  "keywords": [],
+  "main": "dist/degurechaff.umd.js",
+  "module": "dist/degurechaff.es5.js",
+  "typings": "dist/types/degurechaff.d.ts",
+  "files": [
+    "dist"
+  ],
+  "author": "bungcip <bungcip@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
   "license": "MIT",
-  "scripts": {
-    "info": "npm-scripts-info",
-    "build": "tsc -p tsconfig.json && tsc -p config/tsconfig.module.json",
-    "lint": "tslint src/**/*.ts",
-    "check-coverage": "nyc check-coverage --lines 100 --functions 100 --branches 100",
-    "test": "yarn unit && yarn check-coverage",
-    "ava": "yarn build && ava build/main/ava-tests/**/*.js",
-    "cov": "yarn unit && yarn html-coverage && opn coverage/index.html",
-    "html-coverage": "nyc report --reporter=html",
-    "send-coverage": "nyc report --reporter=lcov > coverage.lcov && codecov",
-    "docs": "typedoc src/index.ts --excludePrivate --mode file --theme minimal --out build/docs && opn build/docs/index.html",
-    "docs:json": "typedoc --mode file --json build/docs/typedoc.json src/index.ts",
-    "release": "standard-version"
-  },
-  "scripts-info": {
-    "info": "Display information about the scripts",
-    "build": "(Trash and re)build the library",
-    "lint": "Lint all typescript source files",
-    "unit": "Run unit tests",
-    "test": "Lint and test the library",
-    "cov": "Run tests, generate the HTML coverage report, and open it in a browser",
-    "html-coverage": "Output HTML test coverage report",
-    "send-coverage": "Output lcov test coverage report and send it to codecov",
-    "docs": "Generate API documentation and open it in a browser",
-    "docs:json": "Generate API documentation in typedoc JSON format",
-    "release": "Bump package.json version, update CHANGELOG.md, tag a release"
-  },
   "engines": {
-    "node": ">=7"
+    "node": ">=6.0.0"
   },
-  "dependencies": {
-    "chevrotain": "^0.34.0",
-    "tslib": "^1.8.0"
+  "scripts": {
+    "lint": "tslint -t codeFrame 'src/**/*.ts' 'test/**/*.ts'",
+    "prebuild": "rimraf dist",
+    "build": "tsc && rollup -c rollup.config.ts && rimraf compiled && typedoc --out dist/docs --target es6 --theme minimal src",
+    "start": "tsc -w & rollup -c rollup.config.ts -w",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:prod": "npm run lint && npm run test -- --coverage --no-cache",
+    "deploy-docs": "ts-node tools/gh-pages-publish",
+    "report-coverage": "cat ./coverage/lcov.info | coveralls",
+    "commit": "git-cz",
+    "semantic-release": "semantic-release pre && npm publish && semantic-release post",
+    "semantic-release-prepare": "ts-node tools/semantic-release-prepare",
+    "precommit": "lint-staged"
+  },
+  "lint-staged": {
+    "{src,test}/**/*.ts": [
+      "prettier --write --no-semi --single-quote",
+      "git add"
+    ]
+  },
+  "config": {
+    "commitizen": {
+      "path": "node_modules/cz-conventional-changelog"
+    },
+    "validate-commit-msg": {
+      "types": "conventional-commit-types",
+      "helpMessage": "Use \"npm run commit\" instead, we use conventional-changelog format :) (https://github.com/commitizen/cz-cli)"
+    }
+  },
+  "jest": {
+    "transform": {
+      ".(ts|tsx)": "<rootDir>/node_modules/ts-jest/preprocessor.js"
+    },
+    "testRegex": "(/__tests__/.*|\\.(test|spec))\\.(ts|tsx|js)$",
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js"
+    ],
+    "coveragePathIgnorePatterns": [
+      "/node_modules/",
+      "/test/"
+    ],
+    "coverageThreshold": {
+      "global": {
+        "branches": 90,
+        "functions": 95,
+        "lines": 95,
+        "statements": 95
+      }
+    },
+    "collectCoverage": true,
+    "mapCoverage": true
   },
   "devDependencies": {
-    "@types/node": "^8.0.34",
-    "ava": "^0.22.0",
-    "codecov": "^2.3.1",
-    "npm-scripts-info": "^0.3.6",
-    "nyc": "^11.2.1",
-    "opn-cli": "^3.1.0",
-    "standard-version": "^4.2.0",
-    "trash-cli": "^1.4.0",
-    "tslint": "^5.7.0",
-    "tslint-config-standard": "^6.0.1",
+    "@types/jest": "^21.1.5",
+    "@types/node": "^8.0.47",
+    "colors": "^1.1.2",
+    "commitizen": "^2.9.6",
+    "coveralls": "^3.0.0",
+    "cross-env": "^5.1.1",
+    "cz-conventional-changelog": "^2.1.0",
+    "husky": "^0.14.3",
+    "jest": "^21.2.1",
+    "lint-staged": "^4.3.0",
+    "lodash.camelcase": "^4.3.0",
+    "prettier": "^1.7.4",
+    "prompt": "^1.0.0",
+    "replace-in-file": "^3.0.0-beta.2",
+    "rimraf": "^2.6.2",
+    "rollup": "^0.50.0",
+    "rollup-plugin-commonjs": "^8.2.5",
+    "rollup-plugin-node-resolve": "^3.0.0",
+    "rollup-plugin-sourcemaps": "^0.4.2",
+    "semantic-release": "^8.2.3",
+    "ts-jest": "^21.1.4",
+    "ts-node": "^3.3.0",
+    "tslint": "^5.8.0",
+    "tslint-config-prettier": "^1.6.0",
+    "tslint-config-standard": "^7.0.0",
     "typedoc": "^0.9.0",
-    "typescript": "^2.5.3"
+    "typescript": "^2.5.3",
+    "validate-commit-msg": "^2.14.0"
   },
-  "keywords": [
-    "toml",
-    "parser"
-  ],
-  "nyc": {
-    "exclude": [
-      "**/ava.*.js",
-      "tools/**"
-    ]
+  "dependencies": {
+    "chevrotain": "^0.34.0"
   }
 }

@@ -1,31 +1,29 @@
 /// testing json emitter
-import test from 'ava';
-
-import {dump} from './../index';
+import {dump} from '../src/degurechaff';
 
 
-function setupEmitter(input, expected, t) {
+function setupEmitter(input, expected) {
     let json = dump(input)
-    t.deepEqual(json, expected)
+    expect(json).toEqual( expected)
 }
 
-test("emit json:pair", t => {
+test("emit json:pair", () => {
     let input = `name = 'value'`
     let expected = {
         'name': 'value'
     }
-    setupEmitter(input, expected, t)
+    setupEmitter(input, expected)
 })
 
-test("emit json: date value", t => {
+test("emit json: date value", () => {
     let input = `name = 1979-05-27T07:32:00-08:00`
     let expected = {
         'name': '1979-05-27T07:32:00-08:00'
     }
-    setupEmitter(input, expected, t)
+    setupEmitter(input, expected)
 })
 
-test("emit json: multi line string", t => {
+test("emit json: multi line string", () => {
     let input = `
 str1 = """Roses are red
 Violets are blue"""
@@ -47,12 +45,12 @@ trimmed in raw strings.
          'str2': 'The quick brown fox jumps over the lazy dog.',
          'str3': 'The first newline is\ntrimmed in raw strings.\n   All other whitespace\n   is preserved.\n'
      }
-     setupEmitter(input, expected, t)
+     setupEmitter(input, expected)
 })
 
 
 
-test("emit json: table", t => {
+test("emit json: table", () => {
     let input = `
             [database]
             server = "192.168.1.1"
@@ -74,12 +72,12 @@ test("emit json: table", t => {
             'data': [["gamma", "delta"], [1, 2]]
         }
     }
-    setupEmitter(input, expected, t)
+    setupEmitter(input, expected)
 
 })
 
 
-test("emit json: nested table", t => {
+test("emit json: nested table", () => {
     let input = `
             [profile]
                 name = "Foo Bar"
@@ -98,11 +96,11 @@ test("emit json: nested table", t => {
             }
         },
     }
-    setupEmitter(input, expected, t)
+    setupEmitter(input, expected)
 
 })
 
-test("emit json: array of table", t => {
+test("emit json: array of table", () => {
     let input = `
             [[fruits]]
                 name = "Apple"
@@ -115,5 +113,5 @@ test("emit json: array of table", t => {
             {'name': 'Orange'},
         ],
     }
-    setupEmitter(input, expected, t)
+    setupEmitter(input, expected)
 })

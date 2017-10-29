@@ -29,7 +29,7 @@ export function extractMultiLineString(input: string): string {
     // console.log("content4:",content4)
     // console.log("content5:",content5)
 
-    return this.extractString(content5)
+    return extractString(content5)
 }
 
 export function extractMultiLineLiteralString(input: string): string {
@@ -40,14 +40,14 @@ export function extractMultiLineLiteralString(input: string): string {
     const content2 = content1.replace(`'''\n`, `'''`)
     const content3 = content2.slice(2, content2.length - 2)
 
-    return this.extractLiteralString(content3)
+    return extractLiteralString(content3)
 }
 
 
 export function extractDateTime(input: string): dt.DateTime {
     const [date, time] = input.split("T")
-    const jsDate = this.extractDate(date)
-    const jsTime = this.extractTime(time)
+    const jsDate = extractDate(date)
+    const jsTime = extractTime(time)
     const jsDt = new dt.DateTime(jsDate, jsTime)
 
     return jsDt
@@ -98,7 +98,7 @@ export function extractTime(input: string): dt.Time {
                 // console.log("exprs:", exprs)
                 // console.log('part')
                 if (exprs === null) {
-                    throw "extractTime(): unexpected null"
+                    throw new Error("extractTime(): unexpected null")
                 }
 
                 const sign = exprs[1] as dt.TimeOffsetSign

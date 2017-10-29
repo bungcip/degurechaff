@@ -1,5 +1,4 @@
-import test from 'ava';
-import * as cp from '../lib/chevParser'
+import * as cp from '../src/lib/chevParser'
 import * as chevrotain from 'chevrotain'
 
 function setupParser(input: string){
@@ -19,7 +18,7 @@ function setupParserAndCst(input: string){
 }
 
 
-test("lexer: valid token", t => {
+test("lexer: valid token", () => {
     const input = `
         true false
         0 1234567890 +22 -75 1_2_3_4_5
@@ -30,19 +29,19 @@ test("lexer: valid token", t => {
         ## this is comment
     `
     const lexer = cp.TomlLexer.tokenize(input)
-    t.deepEqual(lexer.errors, [])
+    expect(lexer.errors).toEqual( [])
 })
 
-test("lexer: must be identifier not true and false", t => {
+test("lexer: must be identifier not true and false", () => {
     const input = `trueeeee falseeeee`
     const lexer = cp.TomlLexer.tokenize(input)
-    t.deepEqual(lexer.errors, [])
-    t.deepEqual(lexer.tokens.length, 2)
-    t.deepEqual(lexer.tokens[0].image, 'trueeeee')
-    t.deepEqual(lexer.tokens[1].image, 'falseeeee')
+    expect(lexer.errors).toEqual( [])
+    expect(lexer.tokens.length).toEqual( 2)
+    expect(lexer.tokens[0].image).toEqual( 'trueeeee')
+    expect(lexer.tokens[1].image).toEqual( 'falseeeee')
 })
 
-test("lexer: whitespace and new line", t => {
+test("lexer: whitespace and new line", () => {
     const input = `
     a
     b
@@ -51,76 +50,76 @@ test("lexer: whitespace and new line", t => {
     c
     `
     const lexer = cp.TomlLexer.tokenize(input)
-    t.deepEqual(lexer.errors, [])
-    t.deepEqual(lexer.tokens.length, 9)
+    expect(lexer.errors).toEqual( [])
+    expect(lexer.tokens.length).toEqual( 9)
 })
 
-test("lexer: integer and float", t => {
+test("lexer: integer and float", () => {
     const input = `1234567890 +1.22e+4 9_224_617.445_991_228_313`
     const lexer = cp.TomlLexer.tokenize(input)
-    t.deepEqual(lexer.errors, [])
-    t.deepEqual(lexer.tokens.length, 3)
-    t.deepEqual(lexer.tokens[0].image, '1234567890')
-    t.deepEqual(lexer.tokens[1].image, '+1.22e+4')
-    t.deepEqual(lexer.tokens[2].image, '9_224_617.445_991_228_313')
+    expect(lexer.errors).toEqual( [])
+    expect(lexer.tokens.length).toEqual( 3)
+    expect(lexer.tokens[0].image).toEqual( '1234567890')
+    expect(lexer.tokens[1].image).toEqual( '+1.22e+4')
+    expect(lexer.tokens[2].image).toEqual( '9_224_617.445_991_228_313')
 })
 
-test("lexer: date, time, and datetime", t => {
+test("lexer: date, time, and datetime", () => {
     const input = `1979-05-27 11:30:05 1979-05-27T11:30:05 1979-05-27T11:30:05.999999`
     const lexer = cp.TomlLexer.tokenize(input)
-    t.deepEqual(lexer.errors, [])
-    t.deepEqual(lexer.tokens.length, 4)
-    t.deepEqual(lexer.tokens[0].image, '1979-05-27')
-    t.deepEqual(lexer.tokens[1].image, '11:30:05')
-    t.deepEqual(lexer.tokens[2].image, '1979-05-27T11:30:05')
-    t.deepEqual(lexer.tokens[3].image, '1979-05-27T11:30:05.999999')
+    expect(lexer.errors).toEqual( [])
+    expect(lexer.tokens.length).toEqual( 4)
+    expect(lexer.tokens[0].image).toEqual( '1979-05-27')
+    expect(lexer.tokens[1].image).toEqual( '11:30:05')
+    expect(lexer.tokens[2].image).toEqual( '1979-05-27T11:30:05')
+    expect(lexer.tokens[3].image).toEqual( '1979-05-27T11:30:05.999999')
 })
 
-test("lexer: datetime", t => {
+test("lexer: datetime", () => {
     const input = `1979-05-27T11:30:05Z 1979-05-27T00:32:00-07:00 1979-05-27T11:30:05.999999+11:00`
     const lexer = cp.TomlLexer.tokenize(input)
-    t.deepEqual(lexer.errors, [])
-    t.deepEqual(lexer.tokens.length, 3)
-    t.deepEqual(lexer.tokens[0].image, '1979-05-27T11:30:05Z')
-    t.deepEqual(lexer.tokens[1].image, '1979-05-27T00:32:00-07:00')
-    t.deepEqual(lexer.tokens[2].image, '1979-05-27T11:30:05.999999+11:00')
+    expect(lexer.errors).toEqual( [])
+    expect(lexer.tokens.length).toEqual( 3)
+    expect(lexer.tokens[0].image).toEqual( '1979-05-27T11:30:05Z')
+    expect(lexer.tokens[1].image).toEqual( '1979-05-27T00:32:00-07:00')
+    expect(lexer.tokens[2].image).toEqual( '1979-05-27T11:30:05.999999+11:00')
 })
 
-test("lexer: multiline basic string", t => {
+test("lexer: multiline basic string", () => {
     const input = `"""""" """simple""" """\nhave new line\n"""`
     const lexer = cp.TomlLexer.tokenize(input)
-    t.deepEqual(lexer.errors, [])
-    t.deepEqual(lexer.tokens.length, 3)
-    t.deepEqual(lexer.tokens[0].image, `""""""`)
-    t.deepEqual(lexer.tokens[1].image, `"""simple"""`)
-    t.deepEqual(lexer.tokens[2].image, `"""\nhave new line\n"""`)
+    expect(lexer.errors).toEqual( [])
+    expect(lexer.tokens.length).toEqual( 3)
+    expect(lexer.tokens[0].image).toEqual( `""""""`)
+    expect(lexer.tokens[1].image).toEqual( `"""simple"""`)
+    expect(lexer.tokens[2].image).toEqual( `"""\nhave new line\n"""`)
 })
 
-test("lexer: multiline basic string with backslash", t => {
+test("lexer: multiline basic string with backslash", () => {
     const input = `"""I HAVE\\\n  BACKSLASH """`
     const lexer = cp.TomlLexer.tokenize(input)
-    t.deepEqual(lexer.errors, [])
-    t.deepEqual(lexer.tokens.length, 1)
-    t.deepEqual(lexer.tokens[0].image, `"""I HAVE\\\n  BACKSLASH """`)
+    expect(lexer.errors).toEqual( [])
+    expect(lexer.tokens.length).toEqual( 1)
+    expect(lexer.tokens[0].image).toEqual( `"""I HAVE\\\n  BACKSLASH """`)
 })
 
 
-test("lexer: multiline literal string", t => {
+test("lexer: multiline literal string", () => {
     const input = `'''''' '''simple''' '''\nhave new line\n'''`
     const lexer = cp.TomlLexer.tokenize(input)
-    t.deepEqual(lexer.errors, [])
-    t.deepEqual(lexer.tokens.length, 3)
-    t.deepEqual(lexer.tokens[0].image, `''''''`)
-    t.deepEqual(lexer.tokens[1].image, `'''simple'''`)
-    t.deepEqual(lexer.tokens[2].image, `'''\nhave new line\n'''`)
+    expect(lexer.errors).toEqual( [])
+    expect(lexer.tokens.length).toEqual( 3)
+    expect(lexer.tokens[0].image).toEqual( `''''''`)
+    expect(lexer.tokens[1].image).toEqual( `'''simple'''`)
+    expect(lexer.tokens[2].image).toEqual( `'''\nhave new line\n'''`)
 })
 
 
-test("parser: empty toml", t => {
+test("parser: empty toml", () => {
     const testEmpty = (value) => {
         const input = `${value}`
         const parser = setupParser(input)
-        t.deepEqual(parser.errors, [])
+        expect(parser.errors).toEqual( [])
     }
 
     testEmpty(``)
@@ -132,12 +131,12 @@ test("parser: empty toml", t => {
     `)
 })
 
-test("parser: valid key", t => {
+test("parser: valid key", () => {
     const testKey = (value) => {
         const input = `${value} = 0`
         const parser = setupParser(input)
 
-        t.deepEqual(parser.errors, [])
+        expect(parser.errors).toEqual( [])
 
     }
 
@@ -152,12 +151,12 @@ test("parser: valid key", t => {
     testKey(`"ʎǝʞ"`)
 })
 
-test("parser: atomic value", t => {
+test("parser: atomic value", () => {
     const testAtomic = (value) => {
         const input = `key = ${value}`
         const parser = setupParser(input)
 
-        t.deepEqual(parser.errors, [])
+        expect(parser.errors).toEqual( [])
     }
 
     testAtomic(`1234567890`)
@@ -173,12 +172,12 @@ test("parser: atomic value", t => {
     testAtomic(`1979-05-27T11:30:05.999999`)
 })
 
-test('parse value array', t => {
+test('parse value array', () => {
     const testArray = (value) => {
         const input = `key = ${value}`
         const parser = setupParser(input)
 
-        t.deepEqual(parser.errors, [])
+        expect(parser.errors).toEqual( [])
     }
 
     testArray("[]")
@@ -190,12 +189,12 @@ test('parse value array', t => {
 })
 
 
-test("parse value inline table", t => {
+test("parse value inline table", () => {
     const testTable = (value) => {
         const input = `key = ${value}`
         const parser = setupParser(input)
 
-        t.deepEqual(parser.errors, [])
+        expect(parser.errors).toEqual( [])
     }
 
     testTable("{}")
@@ -205,7 +204,7 @@ test("parse value inline table", t => {
 
 
 
-test("parser: root pairs", t => {
+test("parser: root pairs", () => {
     const input = `
     ## comment
 
@@ -214,13 +213,13 @@ test("parser: root pairs", t => {
 
 `   
     const parser = setupParser(input)
-    t.deepEqual(parser.errors, []) 
+    expect(parser.errors).toEqual( []) 
 })
 
-test("parser: table", t => {
+test("parser: table", () => {
     const testTable = (input) => {
         const parser = setupParser(input)
-        t.deepEqual(parser.errors, [])
+        expect(parser.errors).toEqual( [])
     }
 
     testTable(`[empty]`)
@@ -231,10 +230,10 @@ test("parser: table", t => {
     `)
 })
 
-test("parser: valid table name", t => {
+test("parser: valid table name", () => {
     const testTableName = (input) => {
         const parser = setupParser(`[ ${input} ]`)
-        t.deepEqual(parser.errors, [])
+        expect(parser.errors).toEqual( [])
     }
 
     testTableName(`identifier`)
@@ -246,11 +245,11 @@ test("parser: valid table name", t => {
 })
 
 /// NOTE: activate when error recory code began coding
-// test("parser: invalid table name", t => {
+// test("parser: invalid table name", () => {
 //     const testInvalid = (input) => {
 //         const parser = setupParser(`[ ${input} ]`)
 //         console.log(parser.errors)
-//         t.deepEqual(parser.errors, [])
+//         expect(parser.errors).toEqual( [])
 //     }
 
 //     testInvalid(``)
@@ -260,11 +259,11 @@ test("parser: valid table name", t => {
 //     testInvalid(`.`)
 // })
 
-test("parser: arrayOfTable", t => {
+test("parser: arrayOfTable", () => {
     const testTable = (input, aotLength) => {
         const [parser, cst] = setupParserAndCst(input)
-        t.deepEqual(parser.errors, [])
-        t.deepEqual(cst.children.arrayOfTable.length, aotLength)
+        expect(parser.errors).toEqual( [])
+        expect(cst.children.arrayOfTable.length).toEqual( aotLength)
     }
 
     testTable(`[[empty]]`, 1)
@@ -275,10 +274,10 @@ test("parser: arrayOfTable", t => {
     `, 1)
 })
 
-test("parser: pair & table combo", t => {
+test("parser: pair & table combo", () => {
     const testCombo = (input: string) => {
         const parser = setupParser(input)
-        t.deepEqual(parser.errors, [])
+        expect(parser.errors).toEqual( [])
     }
 
     testCombo(`

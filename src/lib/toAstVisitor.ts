@@ -15,7 +15,7 @@ export class ToAstVisitor extends BaseVisitor {
         this.validateVisitor()
     }
 
-    orEmptyArray(value){
+    orEmptyArray(value?: any){
         if(value === undefined){
             return []
         }else if( value instanceof Array){
@@ -169,7 +169,7 @@ export class ToAstVisitor extends BaseVisitor {
             return extractor.extractFloat(ctx.Float[0].image)
         }
 
-        throw "unexpected token inside numberValue()"
+        throw new Error("unexpected token inside numberValue()")
     }
 
     dateValue(ctx: any){
@@ -181,7 +181,7 @@ export class ToAstVisitor extends BaseVisitor {
             return extractor.extractDateTime(ctx.DateTime[0].image)
         }
 
-        throw "unexpected token inside dateValue()"
+        throw new Error("unexpected token inside dateValue()")
     }
 
     arrayValue(ctx: any){
