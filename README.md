@@ -1,9 +1,12 @@
 (WIP) Degurechaff - Toml Parser in Typescript
 =================
 
-TODO:
+TODO for 0.0.1 release:
 
 - [DONE] Add newline escape (\) feature in multi line string
+- [DONE] Create Simple Page To Convert Toml to JSON
 
 - create infrastructure to test using toml from TOML SPEC
-- Create Simple Page To Convert Toml to JSON
+- setup travis
+- setup doc publish
+- setup simple homepage
