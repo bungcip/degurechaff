@@ -1,18 +1,20 @@
-import {parser} from "./chevParser"
-import {CstNode, CstChildrenDictionary} from "chevrotain"
+import { parser } from "./chevParser"
+import { CstNode, CstChildrenDictionary } from "chevrotain"
 import * as ast from "./chevAst"
 import * as extractor from './extractor'
 
 
 /// convert AST root node to JSON compatible object structure
-export function toJson(root: ast.Root) : Object {
+export function toJson(root: ast.Root): Object {
     const result = {}
 
     /// convert pair first
-    dumpPairs(result, root.pairs)
+    if(root.pairs !== undefined){
+        dumpPairs(result, root.pairs)
+    }
 
     /// then tables
-    for(const table of root.tables){
+    for (const table of root.tables) {
         const currentObject = lookup(result, table.name.segments)
         // console.log("segments::", table.name.segments)
         // console.log("pairs::", table.pairs)
@@ -20,7 +22,7 @@ export function toJson(root: ast.Root) : Object {
     }
 
     /// last array of table
-    for(const aot of root.arrayOfTables){
+    for (const aot of root.arrayOfTables) {
         const currentArray = lookupAot(result, aot.name.segments)
         // console.log("dump pairs::", aot.pairs)
         const newObject = {}
@@ -32,9 +34,9 @@ export function toJson(root: ast.Root) : Object {
     return result
 }
 
-function dumpPairs(node: Object, pairs: ast.Pair[]){
+function dumpPairs(node: Object, pairs: ast.Pair[]) {
     // console.log("pairs ::", pairs)
-    for(const pair of pairs){
+    for (const pair of pairs) {
         const key = pair.key
         const value = pair.value.jsValue()
         node[key] = value
@@ -44,8 +46,8 @@ function dumpPairs(node: Object, pairs: ast.Pair[]){
 /// lookup name inside Object structure
 function lookup(node: Object, segments: string[]): Object {
     let current = node
-    for(const segment of segments){
-        if(current[segment] === undefined){
+    for (const segment of segments) {
+        if (current[segment] === undefined) {
             current[segment] = {}
         }
         current = current[segment]
@@ -59,7 +61,7 @@ function lookupAot(node: Object, segments: string[]): [any] {
     let last = segments[segments.length - 1]
 
     let current = lookup(node, initials)
-    if(current[last] === undefined){
+    if (current[last] === undefined) {
         current[last] = []
     }
 

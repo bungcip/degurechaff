@@ -2,7 +2,7 @@
 import {dump} from '../src/degurechaff';
 
 
-function setupEmitter(input, expected) {
+function setupEmitter(input: string, expected: Object): void {
     let json = dump(input)
     expect(json).toEqual( expected)
 }

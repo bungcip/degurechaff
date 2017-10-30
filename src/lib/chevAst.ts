@@ -13,10 +13,7 @@ export class Table {
 export class ArrayOfTable extends Table { }
 
 export class Name {
-    public segments: string[]
-    constructor(segments: string[]) {
-        this.segments = segments
-    }
+    constructor(public segments: string[]) {}
 }
 
 export class Pair {

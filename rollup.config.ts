@@ -12,10 +12,15 @@ export default {
   output: [
     { file: pkg.main, name: camelCase(libraryName), format: 'umd' },
     { file: pkg.module, format: 'es' },
+    { file: pkg.iife, name: camelCase(libraryName), format: 'iife' },
   ],
   sourcemap: true,
   // Indicate here external modules you don't wanna include in your bundle (i.e.: 'lodash')
-  external: [],
+  external: ['chevrotain'],
+  globals: {
+    chevrotain: 'chevrotain',
+  },
+
   watch: {
     include: 'compiled/**',
   },
@@ -26,7 +31,7 @@ export default {
         // left-hand side can be an absolute path, a path
         // relative to the current directory, or the name
         // of a module in node_modules
-        'node_modules/chevrotain/lib/src/api.js': [ 'Token', 'Lexer', 'Parser', 'EOF' ]
+        'chevrotain': [ 'Token', 'Lexer', 'Parser', 'EOF' ]
       }
     }),
     // Allow node_modules resolution, so you can use 'external' to control

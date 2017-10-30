@@ -8,7 +8,9 @@ import { toJson } from './lib/toJson'
 import * as ast from './lib/chevAst'
 
 /**
- * Dump a TOML content to JSON Compatible data structure
+ * Dump a TOML content to JSON Compatible data structure.
+ * Throw exception when content cannot be dumped to json.
+ * use parse() for more functionality
  */
 export function dump(content: string): Object {
   const ast = parse(content)
@@ -26,6 +28,10 @@ export function parse(content: string): ast.Root {
 
   parser.input = lexerResult.tokens
   const cst = parser.root()
+
+  if(parser.errors.length > 0){
+    throw parser.errors
+  }
 
   const toAst = new ToAstVisitor()
   const ast = toAst.visit(cst)

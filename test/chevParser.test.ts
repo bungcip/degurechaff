@@ -1,5 +1,4 @@
 import * as cp from '../src/lib/chevParser'
-import * as chevrotain from 'chevrotain'
 
 function setupParser(input: string){
     const lexerResult = cp.TomlLexer.tokenize(input)

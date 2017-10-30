@@ -199,23 +199,18 @@ const allTokens: TokenConstructor[] = [
 export const TomlLexer = new Lexer(allTokens)
 
 export class TomlParser extends Parser {
-    constructor(input: Token[]) {
-        super(input, allTokens, { outputCst: true})
-        Parser.performSelfAnalysis(this)
-    }
-
     public root = this.RULE("root", () => {
         let once = false
         this.MANY({
             GATE: () => {
-                return this.isAtEndOfInput() == false
+                return this.isAtEndOfInput() === false
             },
             DEF: () => {
                 this.OR([
                     { ALT: () => this.SUBRULE(this.arrayOfTable) },
                     { ALT: () => this.SUBRULE(this.table) },
                     {
-                        GATE: () => once == false, ALT: () => {
+                        GATE: () => once === false, ALT: () => {
                             this.SUBRULE(this.pairs)
                             once = true
                         }
@@ -401,6 +396,11 @@ export class TomlParser extends Parser {
 
         this.CONSUME(RightCurly)
     })
+
+    constructor(input: Token[]) {
+        super(input, allTokens, { outputCst: true})
+        Parser.performSelfAnalysis(this)
+    }
 
 }
 

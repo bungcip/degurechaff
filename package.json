@@ -4,7 +4,8 @@
   "description": "",
   "keywords": [],
   "main": "dist/degurechaff.umd.js",
-  "module": "dist/degurechaff.es5.js",
+  "module": "dist/degurechaff.es6.js",
+  "iife": "dist/degurechaff.iife.js",
   "typings": "dist/types/degurechaff.d.ts",
   "files": [
     "dist"
@@ -70,8 +71,8 @@
         "statements": 95
       }
     },
-    "collectCoverage": true,
-    "mapCoverage": true
+    "collectCoverage": false,
+    "mapCoverage": false
   },
   "devDependencies": {
     "@types/jest": "^21.1.5",
@@ -90,7 +91,7 @@
     "replace-in-file": "^3.0.0-beta.2",
     "rimraf": "^2.6.2",
     "rollup": "^0.50.0",
-    "rollup-plugin-commonjs": "^8.2.5",
+    "rollup-plugin-commonjs": "^8.2.6",
     "rollup-plugin-node-resolve": "^3.0.0",
     "rollup-plugin-sourcemaps": "^0.4.2",
     "semantic-release": "^8.2.3",
@@ -104,6 +105,6 @@
     "validate-commit-msg": "^2.14.0"
   },
   "dependencies": {
-    "chevrotain": "^0.34.0"
+    "chevrotain": "^0.3n4.0"
   }
 }
