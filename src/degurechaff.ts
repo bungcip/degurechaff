@@ -1,7 +1,3 @@
-// Import here Polyfills if needed. Recommended core-js (npm i -D core-js)
-// import "core-js/fn/array.find"
-// ...
-
 import { parser, TomlLexer } from "./lib/chevParser"
 import { ToAstVisitor } from './lib/toAstVisitor'
 import { toJson } from './lib/toJson'
@@ -15,7 +11,6 @@ import * as ast from './lib/chevAst'
 export function dump(content: string): Object {
   const ast = parse(content)
   const result = toJson(ast)
-  // console.log("smapai");
 
   return result
 }
@@ -35,9 +30,6 @@ export function parse(content: string): ast.Root {
 
   const toAst = new ToAstVisitor()
   const ast = toAst.visit(cst)
-
-  // console.log("cst::", cst)
-  // console.log("ast::", ast)
 
   return ast
 }
