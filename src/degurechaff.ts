@@ -15,6 +15,10 @@ export function dump(content: string): Object {
   return result
 }
 
+/**
+ * Parse string containing toml to AST
+ * @param content 
+ */
 export function parse(content: string): ast.Root {
   const lexerResult = TomlLexer.tokenize(content)
   if (lexerResult.errors.length) {

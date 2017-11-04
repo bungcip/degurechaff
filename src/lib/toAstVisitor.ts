@@ -37,9 +37,13 @@ export class ToAstVisitor extends BaseVisitor {
     }
 
     root(ctx: any){
-        const pairs = this.visit(ctx.pairs)
+        let pairs = this.visit(ctx.pairs)
         const tables = this.visitAll(ctx.table)
         const arrayOfTables = this.visitAll(ctx.arrayOfTable)
+
+        if(pairs === undefined){
+            pairs = []
+        }
 
         /// FIXME: check if aot is duplicated...
         // console.log("cst aot length:", ctx.arrayOfTable.length)
@@ -121,22 +125,37 @@ export class ToAstVisitor extends BaseVisitor {
 
     value(ctx: any){
         let result : any = null
+        let kind
+
         if(ctx.stringValue[0]){
+            kind = ast.AtomicValueKind.String
             result = this.visit(ctx.stringValue)
         }else if(ctx.numberValue[0]){
-            result = this.visit(ctx.numberValue)
+            const numberCtx = ctx.numberValue[0].children
+            if(numberCtx.Integer[0]){
+                kind = ast.AtomicValueKind.Integer
+                result = extractor.extractFloat(numberCtx.Integer[0].image)
+            }else if(numberCtx.Float[0]){
+                kind = ast.AtomicValueKind.Float
+                result = extractor.extractFloat(numberCtx.Float[0].image)
+            }else{
+                throw new Error("unexpected token inside numberValue():" + JSON.stringify(numberCtx))
+            }
         }else if(ctx.boolValue[0]){
+            kind = ast.AtomicValueKind.Boolean
             result = this.visit(ctx.boolValue)
         }else if(ctx.arrayValue[0]){
             const values = this.visit(ctx.arrayValue)
             return new ast.ArrayValue(values)
         }else if(ctx.inlineTableValue[0]){
+            kind = ast.AtomicValueKind.InlineTable
             result = this.visit(ctx.inlineTableValue)
         }else if(ctx.dateValue[0]){
+            kind = ast.AtomicValueKind.Date
             result = this.visit(ctx.dateValue)
         }
 
-        return new ast.AtomicValue(result)
+        return new ast.AtomicValue(kind, result)
     }
 
     boolValue(ctx: any): boolean {

@@ -21,12 +21,13 @@ export class Pair {
 }
 
 /// atomic value kind
-export const enum ValueKind {
+export const enum AtomicValueKind {
     Boolean,
     String,
     Integer,
     Float,
-    Date
+    Date,
+    InlineTable,
 }
 
 
@@ -35,14 +36,14 @@ export type JsValue = string | number | boolean | object | Array<any>
 
 export interface Value {
     toString(): string
-    jsValue(): object | string | boolean | number
+    jsValue(): object | string | boolean | number | Array<any>
 }
 
 /**
  * Value which cannot contain other value
  */
 export class AtomicValue implements Value {
-    constructor(public content: string | boolean | number | dt.Date | dt.DateTime | dt.Time) { }
+    constructor(public kind: AtomicValueKind, public content: string | boolean | number | dt.Date | dt.DateTime | dt.Time) {}
 
     jsValue(): string | boolean | number {
         if (this.content instanceof dt.Date || this.content instanceof dt.DateTime || this.content instanceof dt.Time) {
