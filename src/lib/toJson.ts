@@ -2,6 +2,7 @@ import { parser } from "./chevParser"
 import { CstNode, CstChildrenDictionary } from "chevrotain"
 import * as ast from "./chevAst"
 import * as extractor from './extractor'
+import { lookupArray, lookupObject } from './utils'
 
 
 /// convert AST root node to JSON compatible object structure
@@ -15,7 +16,7 @@ export function toJson(root: ast.Root): Object {
 
     /// then tables
     for (const table of root.tables) {
-        const currentObject = lookup(result, table.name.segments)
+        const currentObject = lookupObject(result, table.name.segments)
         // console.log("segments::", table.name.segments)
         // console.log("pairs::", table.pairs)
         dumpPairs(currentObject, table.pairs)
@@ -23,7 +24,7 @@ export function toJson(root: ast.Root): Object {
 
     /// last array of table
     for (const aot of root.arrayOfTables) {
-        const currentArray = lookupAot(result, aot.name.segments)
+        const currentArray = lookupArray(result, aot.name.segments)
         // console.log("dump pairs::", aot.pairs)
         const newObject = {}
         dumpPairs(newObject, aot.pairs)
@@ -41,34 +42,4 @@ function dumpPairs(node: Object, pairs: ast.Pair[]) {
         const value = pair.value.jsValue()
         node[key] = value
     }
-}
-
-/// lookup name inside Object structure
-function lookup(node: Object, segments: string[]): Object {
-    let current = node
-    for (const segment of segments) {
-        if (current[segment] === undefined) {
-            current[segment] = {}
-        }
-        current = current[segment]
-    }
-
-    /// return last element of array
-    if(Array.isArray(current)){
-        return current[current.length - 1]
-    }
-
-    return current
-}
-
-function lookupAot(node: Object, segments: string[]): [any] {
-    let initials = segments.slice(0, -1)
-    let last = segments[segments.length - 1]
-
-    let current = lookup(node, initials)
-    if (current[last] === undefined) {
-        current[last] = []
-    }
-
-    return current[last]
 }

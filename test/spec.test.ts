@@ -3,6 +3,7 @@
 
 import {parse} from '../src/degurechaff'
 import * as ast from '../src/lib/chevAst'
+import * as utils from '../src/lib/utils'
 
 import {exceptions} from 'chevrotain'
 import fs from 'fs'
@@ -18,7 +19,7 @@ function toJsonSpec(root: ast.Root){
 
     /// then tables
     for (const table of root.tables) {
-        const currentObject = lookup(result, table.name.segments)
+        const currentObject = utils.lookupObject(result, table.name.segments)
         // console.log("segments::", table.name)
         // console.log("pairs::", table.pairs)
         dumpPairs(currentObject, table.pairs)
@@ -26,7 +27,7 @@ function toJsonSpec(root: ast.Root){
 
     /// last array of table
     for (const aot of root.arrayOfTables) {
-        const currentArray = lookupAot(result, aot.name.segments)
+        const currentArray = utils.lookupArray(result, aot.name.segments)
         // console.log("dump pairs::", aot.pairs)
         const newObject = {}
         dumpPairs(newObject, aot.pairs)
@@ -82,45 +83,6 @@ function toValueSpec(data: ast.Value){
 }
 
 
-/// lookup name inside Object structure
-function lookup(node: Object, segments: string[]): Object {
-    let current = node
-    for (const segment of segments) {
-        if (current[segment] === undefined) {
-            current[segment] = {}
-        }
-        current = current[segment]
-    }
-
-    /// return last element of array
-    if(Array.isArray(current)){
-        return current[current.length - 1]
-    }
-
-    return current
-}
-
-/// lookup name inside Object structure and set to empty array when not exist
-function lookupAot(node: Object, segments: string[]): [any] {
-    let initials = segments.slice(0, -1)
-    let last = segments[segments.length - 1]
-    let current = lookup(node, initials)
-
-    // console.log(
-    //     'node:', JSON.stringify(node), '\n',
-    //     'current', JSON.stringify(current), '\n',
-    //     'segments:', segments, 
-    //     'initials:', initials, 
-    //     'last:', last)
-
-    if (current[last] === undefined) {
-        current[last] = []
-    }
-
-    return current[last]
-}
-
-
 
 function testSpec(folder, filename){
     const tomlData = fs.readFileSync(`${folder}/${filename}.toml`, 'utf8')
@@ -138,48 +100,69 @@ function testSpec(folder, filename){
     expect(result).toEqual(expected)
 }
 
+import path from 'path'
 
 
-test('test valid toml file', () => {
-    testSpec('test/data/valid', 'array-empty')
-    testSpec('test/data/valid', 'array-nospaces')
-    testSpec('test/data/valid', 'arrays-hetergeneous')
-    testSpec('test/data/valid', 'arrays-nested')
-    testSpec('test/data/valid', 'arrays')
-    testSpec('test/data/valid', 'bool')
-    testSpec('test/data/valid', 'comments-everywhere')
-    testSpec('test/data/valid', 'datetime')
-    testSpec('test/data/valid', 'empty')
-    testSpec('test/data/valid', 'example')
-    testSpec('test/data/valid', 'float')
-    testSpec('test/data/valid', 'implicit-and-explicit-after')
-    testSpec('test/data/valid', 'implicit-and-explicit-before')
-    testSpec('test/data/valid', 'implicit-groups')
-    testSpec('test/data/valid', 'integer')
-    testSpec('test/data/valid', 'key-equals-nospace')
-    testSpec('test/data/valid', 'key-space')
-    testSpec('test/data/valid', 'key-special-chars')
-    testSpec('test/data/valid', 'long-float')
+describe('test valid toml file', () => {
+    const dirname = 'test/data/valid'
+    const allFiles = fs.readdirSync(dirname)
+    const tomlFiles = allFiles
+        .filter( x => path.extname(x) === '.toml')
+        
+        /// FIXME: js native don't support big integer
+        .filter( x => x !== 'long-integer.toml')
+        
+        .map(x => path.basename(x).slice(0, -5))
 
-    /// FIXME: js native don't support big integer
-    // testSpec('test/data/valid', 'long-integer')
-
-    testSpec('test/data/valid', 'multiline-string')
-    testSpec('test/data/valid', 'raw-multiline-string')
-    testSpec('test/data/valid', 'raw-string')
-    testSpec('test/data/valid', 'string-empty')
-    testSpec('test/data/valid', 'string-escapes')
-    testSpec('test/data/valid', 'string-simple')
-    testSpec('test/data/valid', 'string-with-pound')
-    testSpec('test/data/valid', 'table-array-implicit')
-    testSpec('test/data/valid', 'table-array-many')
-    testSpec('test/data/valid', 'table-array-nest')
-    testSpec('test/data/valid', 'table-array-one')
-    testSpec('test/data/valid', 'table-empty')
-    testSpec('test/data/valid', 'table-sub-empty')
-    testSpec('test/data/valid', 'table-whitespace')
-    testSpec('test/data/valid', 'table-with-pound')
-    testSpec('test/data/valid', 'unicode-escape')
-    testSpec('test/data/valid', 'unicode-literal')
+    tomlFiles.forEach(filename => {
+        test(`${filename}`, () => {
+            testSpec(dirname, filename)
+        })
+    })
     
 })
+
+
+// test('test valid toml file', () => {
+//     testSpec('test/data/valid', 'array-empty')
+//     testSpec('test/data/valid', 'array-nospaces')
+//     testSpec('test/data/valid', 'arrays-hetergeneous')
+//     testSpec('test/data/valid', 'arrays-nested')
+//     testSpec('test/data/valid', 'arrays')
+//     testSpec('test/data/valid', 'bool')
+//     testSpec('test/data/valid', 'comments-everywhere')
+//     testSpec('test/data/valid', 'datetime')
+//     testSpec('test/data/valid', 'empty')
+//     testSpec('test/data/valid', 'example')
+//     testSpec('test/data/valid', 'float')
+//     testSpec('test/data/valid', 'implicit-and-explicit-after')
+//     testSpec('test/data/valid', 'implicit-and-explicit-before')
+//     testSpec('test/data/valid', 'implicit-groups')
+//     testSpec('test/data/valid', 'integer')
+//     testSpec('test/data/valid', 'key-equals-nospace')
+//     testSpec('test/data/valid', 'key-space')
+//     testSpec('test/data/valid', 'key-special-chars')
+//     testSpec('test/data/valid', 'long-float')
+
+//     /// FIXME: js native don't support big integer
+//     // testSpec('test/data/valid', 'long-integer')
+
+//     testSpec('test/data/valid', 'multiline-string')
+//     testSpec('test/data/valid', 'raw-multiline-string')
+//     testSpec('test/data/valid', 'raw-string')
+//     testSpec('test/data/valid', 'string-empty')
+//     testSpec('test/data/valid', 'string-escapes')
+//     testSpec('test/data/valid', 'string-simple')
+//     testSpec('test/data/valid', 'string-with-pound')
+//     testSpec('test/data/valid', 'table-array-implicit')
+//     testSpec('test/data/valid', 'table-array-many')
+//     testSpec('test/data/valid', 'table-array-nest')
+//     testSpec('test/data/valid', 'table-array-one')
+//     testSpec('test/data/valid', 'table-empty')
+//     testSpec('test/data/valid', 'table-sub-empty')
+//     testSpec('test/data/valid', 'table-whitespace')
+//     testSpec('test/data/valid', 'table-with-pound')
+//     testSpec('test/data/valid', 'unicode-escape')
+//     testSpec('test/data/valid', 'unicode-literal')
+    
+// })

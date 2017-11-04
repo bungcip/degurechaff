@@ -129,15 +129,3 @@ test("lexer: unicode escape", () => {
     expect(lexer.tokens[0].image).toEqual(`"\U000003B4"`)
     expect(lexer.tokens[1].image).toEqual(`"\u03B4"`)
 })
-
-test("lexer: unicode escape 2", () => {
-    const input = `
-    answer8 = "\U000003B4"
-    `
-    const lexer = cp.TomlLexer.tokenize(input)
-    expect(lexer.errors).toEqual([])
-    // expect(lexer.tokens.length).toEqual(2)
-    // expect(lexer.tokens[0].image).toEqual(`"\U000003B4"`)
-    // expect(lexer.tokens[1].image).toEqual(`"\u03B4"`)
-})
-
