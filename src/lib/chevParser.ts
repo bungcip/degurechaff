@@ -162,8 +162,10 @@ class Time extends Token {
 
 
 class Comment extends Token {
-    static PATTERN = /#[^\n]+/
+    // static PATTERN = /#[^\n]+/
+    static PATTERN = /#.*/
     static GROUP = Lexer.SKIPPED
+    static LINE_BREAKS = true
 }
 
 class NewLine extends Token {
@@ -181,33 +183,6 @@ class WhiteSpaceAndNewLine extends Token {
     static GROUP = Lexer.SKIPPED
     static LINE_BREAKS = true
 }
-
-// const allTokens: TokenConstructor[] = [
-//     WhiteSpace,
-//     NewLine,
-
-//     MultiLineBasicString as any, /// need any until chevrotain support it
-//     BasicString,
-
-//     MultiLineLiteralString,
-//     LiteralString,
-
-//     Date, Time,
-
-//     Integer,
-//     True, False,
-//     Identifier,
-
-//     LeftBracket, RightBracket,
-//     LeftCurly, RightCurly,
-//     Comma, Colon, Dot, Equal,
-
-//     Comment,
-
-//     /// Longer Alternative Token
-//     Float,
-//     DateTime,
-// ]
 
 const allTokens = {
     defaultMode: 'DEFAULT',

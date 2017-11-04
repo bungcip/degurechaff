@@ -111,7 +111,7 @@ describe('test valid toml file', () => {
         
         /// FIXME: js native don't support big integer
         .filter( x => x !== 'long-integer.toml')
-        
+
         .map(x => path.basename(x).slice(0, -5))
 
     tomlFiles.forEach(filename => {
@@ -144,7 +144,7 @@ describe('test valid toml file', () => {
 //     testSpec('test/data/valid', 'key-special-chars')
 //     testSpec('test/data/valid', 'long-float')
 
-//     /// FIXME: js native don't support big integer
+//     // FIXME: js native don't support big integer
 //     // testSpec('test/data/valid', 'long-integer')
 
 //     testSpec('test/data/valid', 'multiline-string')

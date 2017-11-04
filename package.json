@@ -72,7 +72,7 @@
       }
     },
     "collectCoverage": false,
-    "mapCoverage": false
+    "mapCoverage": true
   },
   "devDependencies": {
     "@types/jest": "^21.1.5",
