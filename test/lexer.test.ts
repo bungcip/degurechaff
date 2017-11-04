@@ -121,3 +121,23 @@ test("lexer: multiline literal string", () => {
     expect(lexer.tokens[2].image).toEqual(`'''\nhave new line\n'''`)
 })
 
+test("lexer: unicode escape", () => {
+    const input = `"\U000003B4" "\u03B4"`
+    const lexer = cp.TomlLexer.tokenize(input)
+    expect(lexer.errors).toEqual([])
+    expect(lexer.tokens.length).toEqual(2)
+    expect(lexer.tokens[0].image).toEqual(`"\U000003B4"`)
+    expect(lexer.tokens[1].image).toEqual(`"\u03B4"`)
+})
+
+test("lexer: unicode escape 2", () => {
+    const input = `
+    answer8 = "\U000003B4"
+    `
+    const lexer = cp.TomlLexer.tokenize(input)
+    expect(lexer.errors).toEqual([])
+    // expect(lexer.tokens.length).toEqual(2)
+    // expect(lexer.tokens[0].image).toEqual(`"\U000003B4"`)
+    // expect(lexer.tokens[1].image).toEqual(`"\u03B4"`)
+})
+

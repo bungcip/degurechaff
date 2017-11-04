@@ -7,7 +7,8 @@ TODO for 0.0.1 release:
 - [DONE] Create Simple Page To Convert Toml to JSON
 - [DONE] setup travis
 - [DONE] create infrastructure to test using toml from TOML SPEC
+- [DONE] add support for comma in last item of array
+- [DONE] parse unicode escape
 
-- add support for comma in last item of array
 - setup doc publish
 - setup simple homepage

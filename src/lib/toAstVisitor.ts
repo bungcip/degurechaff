@@ -73,17 +73,23 @@ export class ToAstVisitor extends BaseVisitor {
 
     tableNameSegment(ctx: any){
         let result = ""
-        if(ctx.stringValue){
-            result = this.visit(ctx.stringValue)
-        }else if(ctx.Integer[0]){
+        // throw new Error("masuk sini" + JSON.stringify(ctx));
+        // if(ctx.stringValue){
+        //     result = this.visit(ctx.stringValue)
+        // }else 
+        if(ctx.Integer[0]){
             result = ctx.Integer[0].image
         }else if(ctx.Float[0]){
             const float = ctx.Float[0].image
             result = float.split(".")
         }else if(ctx.Identifier[0]){
             result = ctx.Identifier[0].image
+
+        }else if(ctx.BasicString[0]){
+            result = this.stringValue(ctx)
         }else if(ctx.LiteralString[0]){
-            result = ctx.LiteralString[0].image
+            result = this.stringValue(ctx)
+            // result = ctx.LiteralString[0].image
         }else if(ctx.boolValue){
             result = this.visit(ctx.boolValue)
         }

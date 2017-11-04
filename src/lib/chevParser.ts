@@ -33,13 +33,14 @@ class Integer extends Token {
 }
 
 
-
-class BasicString extends Token { static PATTERN = /"(:?[^\\"]+|\\(:?[bfnrtv"\\/]|u[0-9a-fA-F]{4}))*"/ }
+const escapeFragment = /\\(:?[bfnrtv"\\/]|u[0-9a-fA-F]{4}|U[0-9a-fA-F]{8})/
+class BasicString extends Token { 
+    static PATTERN = /"(:?[^\\"]+|\\(:?[bfnrtv"\\/]|u[0-9a-fA-F]{4}|U[0-9a-fA-F]{8}))*"/ 
+}
 // class MultiLineBasicString extends Token { 
 //     static PATTERN = /"""(:?[^\\"]+|\\(:?[bfnrtv"\\/]|u[0-9a-fA-F]{4}))*"""/ 
 //     static LINE_BREAKS = true
 // }
-const escapeFragment = /\\(:?[bfnrtv"\\/]|u[0-9a-fA-F]{4})/
 // const stringContentFragment = new RegExp([
 //     /:?[^\\"]+/,
 //     escapeFragment,
