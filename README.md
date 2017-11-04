@@ -10,5 +10,6 @@ TODO for 0.0.1 release:
 - [DONE] add support for comma in last item of array
 - [DONE] parse unicode escape
 
+- give more error friendly message for invalid TOML
 - setup doc publish
 - setup simple homepage

@@ -30,13 +30,20 @@ export const enum AtomicValueKind {
     InlineTable,
 }
 
+/**
+ * JsObject is type of object which only contain value which can be representate with
+ * js primitive data type
+ */
+export interface JsObject {
+    [key: string]: JsValue
+}
 
-export type JsValue = string | number | boolean | object | Array<any>
+export type JsValue = string | number | boolean | JsObject | Array<any>
 
 
 export interface Value {
     toString(): string
-    jsValue(): object | string | boolean | number | Array<any>
+    jsValue(): JsObject | string | boolean | number | Array<any>
 }
 
 /**
@@ -73,8 +80,8 @@ export class ArrayValue implements Value {
 export class InlineTableValue implements Value {
     constructor(public pairs: Pair[]) { }
 
-    jsValue(): Object {
-        let result = {}
+    jsValue(): JsObject {
+        let result: JsObject = {}
         for (const pair of this.pairs) {
             const key = pair.key.toString()
             const value = pair.value.jsValue()

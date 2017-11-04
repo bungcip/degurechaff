@@ -4,7 +4,6 @@ import * as ast from "./chevAst"
 import * as extractor from './extractor'
 import { lookupArray, lookupObject } from './utils'
 
-
 /// convert AST root node to JSON compatible object structure
 export function toJson(root: ast.Root): Object {
     const result = {}
@@ -35,7 +34,7 @@ export function toJson(root: ast.Root): Object {
     return result
 }
 
-function dumpPairs(node: Object, pairs: ast.Pair[]) {
+function dumpPairs(node: ast.JsObject, pairs: ast.Pair[]) {
     // console.log("pairs ::", pairs)
     for (const pair of pairs) {
         const key = pair.key

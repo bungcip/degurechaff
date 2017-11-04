@@ -159,6 +159,8 @@ export class ToAstVisitor extends BaseVisitor {
         }else if(ctx.dateValue[0]){
             kind = ast.AtomicValueKind.Date
             result = this.visit(ctx.dateValue)
+        }else{
+            throw new Error('cannot convert ctx to Value Node:' + JSON.stringify(ctx))
         }
 
         return new ast.AtomicValue(kind, result)
