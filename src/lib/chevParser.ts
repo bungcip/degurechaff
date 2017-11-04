@@ -98,7 +98,7 @@ class MultiLineBasicString extends Token {
     }
 }
 
-class LiteralString extends Token { static PATTERN = /'(:?[^\\'])*'/ }
+class LiteralString extends Token { static PATTERN = /'(:?[^\'])*'/ }
 class MultiLineLiteralString extends Token { 
     static PATTERN = /'''[\s\S]*?'''/
     static LINE_BREAKS = true
@@ -178,6 +178,7 @@ class WhiteSpace extends Token {
 class WhiteSpaceAndNewLine extends Token {
     static PATTERN = /[ \t\r\n]+/
     static GROUP = Lexer.SKIPPED
+    static LINE_BREAKS = true
 }
 
 // const allTokens: TokenConstructor[] = [

@@ -180,7 +180,40 @@ test("parser: arrayOfTable", () => {
 
         key2 = 2
     `, 1)
+    testTable(`[[albums]]
+    name = "Born to Run"
+    
+      [[albums.songs]]
+      name = "Jungleland"
+    
+      [[albums.songs]]
+      name = "Meeting Across the River"
+    
+    [[albums]]
+    name = "Born in the USA"
+      
+      [[albums.songs]]
+      name = "Glory Days"
+    
+      [[albums.songs]]
+      name = "Dancing in the Dark"
+    `, 6)
 })
+
+test("parser: arrayOfTable name", () => {
+    const testTableName = (input) => {
+        const parser = setupParser(`[[ ${input} ]]`)
+        expect(parser.errors).toEqual( [])
+    }
+
+    testTableName(`identifier`)
+    testTableName(`with-dash-and_underscore`)
+    testTableName(`a.b.c`)
+    testTableName(`g .  h  . i`)
+    testTableName(`j . "ʞ" . 'l'`)
+    testTableName(`1.2.3`)
+})
+
 
 test("parser: pair & table combo", () => {
     const testCombo = (input: string) => {

@@ -53,11 +53,16 @@ function lookup(node: Object, segments: string[]): Object {
         current = current[segment]
     }
 
+    /// return last element of array
+    if(Array.isArray(current)){
+        return current[current.length - 1]
+    }
+
     return current
 }
 
 function lookupAot(node: Object, segments: string[]): [any] {
-    let initials = segments.slice(0, segments.length - 2)
+    let initials = segments.slice(0, -1)
     let last = segments[segments.length - 1]
 
     let current = lookup(node, initials)
