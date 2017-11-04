@@ -117,8 +117,14 @@ class False extends Token {
 }
 
 
-class LeftBracket extends Token { static PATTERN = "[" }
-class RightBracket extends Token { static PATTERN = "]" }
+class LeftBracket extends Token { 
+    static PATTERN = "[" 
+    static PUSH_MODE = 'INSIDE_BRACKET'
+}
+class RightBracket extends Token { 
+    static PATTERN = "]" 
+    static POP_MODE = true
+}
 class LeftCurly extends Token { static PATTERN = "{" }
 class RightCurly extends Token { static PATTERN = "}" }
 class LeftParen extends Token { static PATTERN = "(" }
@@ -169,32 +175,99 @@ class WhiteSpace extends Token {
     static GROUP = Lexer.SKIPPED
 }
 
-const allTokens: TokenConstructor[] = [
-    WhiteSpace,
-    NewLine,
+class WhiteSpaceAndNewLine extends Token {
+    static PATTERN = /[ \t\r\n]+/
+    static GROUP = Lexer.SKIPPED
+}
 
-    MultiLineBasicString as any, /// need any until chevrotain support it
-    BasicString,
+// const allTokens: TokenConstructor[] = [
+//     WhiteSpace,
+//     NewLine,
 
-    MultiLineLiteralString,
-    LiteralString,
+//     MultiLineBasicString as any, /// need any until chevrotain support it
+//     BasicString,
 
-    Date, Time,
+//     MultiLineLiteralString,
+//     LiteralString,
 
-    Integer,
-    True, False,
-    Identifier,
+//     Date, Time,
 
-    LeftBracket, RightBracket,
-    LeftCurly, RightCurly,
-    Comma, Colon, Dot, Equal,
+//     Integer,
+//     True, False,
+//     Identifier,
 
-    Comment,
+//     LeftBracket, RightBracket,
+//     LeftCurly, RightCurly,
+//     Comma, Colon, Dot, Equal,
 
-    /// Longer Alternative Token
-    Float,
-    DateTime,
-]
+//     Comment,
+
+//     /// Longer Alternative Token
+//     Float,
+//     DateTime,
+// ]
+
+const allTokens = {
+    defaultMode: 'DEFAULT',
+    modes: {
+        DEFAULT: [
+            WhiteSpace,
+            NewLine,
+        
+            MultiLineBasicString as any as TokenConstructor, /// need any until chevrotain support it
+            BasicString,
+        
+            MultiLineLiteralString,
+            LiteralString,
+        
+            Date, Time,
+        
+            Integer,
+            True, False,
+            Identifier,
+        
+            LeftBracket,
+            RightBracket,
+
+            LeftCurly, RightCurly,
+            Comma, Colon, Dot, Equal,
+        
+            Comment,
+        
+            /// Longer Alternative Token
+            Float,
+            DateTime,
+        ],
+    
+        INSIDE_BRACKET: [
+            WhiteSpaceAndNewLine,
+        
+            MultiLineBasicString as any as TokenConstructor, /// need any until chevrotain support it
+            BasicString,
+        
+            MultiLineLiteralString,
+            LiteralString,
+        
+            Date, Time,
+        
+            Integer,
+            True, False,
+            Identifier,
+        
+            LeftBracket, 
+            RightBracket,
+
+            LeftCurly, RightCurly,
+            Comma, Colon, Dot, Equal,
+        
+            Comment,
+        
+            /// Longer Alternative Token
+            Float,
+            DateTime,
+        ],
+    }
+}
 
 export const TomlLexer = new Lexer(allTokens)
 

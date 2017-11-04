@@ -65,6 +65,9 @@ function toValueSpec(data: ast.Value){
         }else if(data.kind === ast.AtomicValueKind.Float){
             type = 'float'
             value = data.toString()
+        }else if(data.kind === ast.AtomicValueKind.Date){
+            type = 'datetime'
+            value = data.toString()
         }else{
             throw new Error("sementara error: " + typeof data)
         }
@@ -104,13 +107,11 @@ function lookupAot(node: Object, segments: string[]): [any] {
 
 
 function testSpec(folder, filename){
-    // const folder = 'data/valid'
-    // const filename = 'array-empty'
     const tomlData = fs.readFileSync(`${folder}/${filename}.toml`, 'utf8')
     const jsonData = fs.readFileSync(`${folder}/${filename}.json`, 'utf8')
 
     const root = parse(tomlData)
-
+    
     /// convert to test json data
     const expected = JSON.parse(jsonData)
 

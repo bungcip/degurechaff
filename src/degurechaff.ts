@@ -21,7 +21,9 @@ export function dump(content: string): Object {
  */
 export function parse(content: string): ast.Root {
   const lexerResult = TomlLexer.tokenize(content)
+
   if (lexerResult.errors.length) {
+    console.log(lexerResult.errors)
     throw lexerResult.errors
   }
 
