@@ -385,7 +385,7 @@ export class TomlParser extends Parser {
         this.OR([
             { ALT: () => this.CONSUME(BasicString) },
             { ALT: () => this.CONSUME(LiteralString) },
-            { ALT: () => this.CONSUME(MultiLineBasicString as any) }, /// need as any because chevrotain ts don't support Token with custom function
+            { ALT: () => this.CONSUME(MultiLineBasicString as any as TokenConstructor) }, /// need as any because chevrotain ts don't support Token with custom function
             { ALT: () => this.CONSUME(MultiLineLiteralString) },
         ])
     })
