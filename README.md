@@ -13,3 +13,4 @@ TODO for 0.0.1 release:
 - give more error friendly message for invalid TOML
 - setup doc publish
 - setup simple homepage
+- change AST Root to become order dependent to become compliant with TOML

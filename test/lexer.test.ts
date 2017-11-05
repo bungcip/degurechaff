@@ -48,14 +48,18 @@ test("lexer: whitespace new line inside bracket ignored", () => {
 
 
 test("lexer: integer and float", () => {
-    const input = `1234567890 +1.22e+4 9_224_617.445_991_228_313`
+    const input = `1234567890 +1.22e+4 9_224_617.445_991_228_313 3e2 3e-2 3E+2`
     const lexer = cp.TomlLexer.tokenize(input)
     expect(lexer.errors).toEqual([])
-    expect(lexer.tokens.length).toEqual(3)
+    expect(lexer.tokens.length).toEqual(6)
     expect(lexer.tokens[0].image).toEqual('1234567890')
     expect(lexer.tokens[1].image).toEqual('+1.22e+4')
     expect(lexer.tokens[2].image).toEqual('9_224_617.445_991_228_313')
+    expect(lexer.tokens[3].image).toEqual('3e2')
+    expect(lexer.tokens[4].image).toEqual('3e-2')
+    expect(lexer.tokens[5].image).toEqual('3E+2')
 })
+
 
 test("lexer: date, time, and datetime", () => {
     const input = `1979-05-27 11:30:05 1979-05-27T11:30:05 1979-05-27T11:30:05.999999`

@@ -1,8 +1,8 @@
 {
     "simple": { "a": {"type": "integer", "value": "1"} },
     "str-key": { "a": {"type": "integer", "value": "1"} },
-    "table-array": [
+    "table-array": {"type": "array", "value": [
         { "a": {"type": "integer", "value": "1"} },
         { "b": {"type": "integer", "value": "2"} }
-    ]
+    ]}
 }

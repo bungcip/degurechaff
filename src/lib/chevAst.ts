@@ -27,7 +27,6 @@ export const enum AtomicValueKind {
     Integer,
     Float,
     Date,
-    InlineTable,
 }
 
 /**

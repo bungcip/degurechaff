@@ -14,14 +14,15 @@ const signFragment = /(-|\+)?/
 const integerFragment = /(0|[1-9](\d|_)*)/
 const expFragment = /([eE][+-]?\d+)?/
 class Float extends Token {
-    // static PATTERN = /(-|\+)?(0|[1-9](\d|_)*)(\.(0|[1-9])(\d|_)*)?([eE][+-]?\d+)?/
-    static PATTERN = new RegExp([
-        signFragment,
-        integerFragment,
-        /\./,
-        integerFragment,
-        expFragment
-    ].map(x => x.source).join(''))
+    static PATTERN = /(-|\+)?(0|[1-9](\d|_)*)(\.(0|[1-9])(\d|_)*)?([eE][+-]?[\d_]+)?/
+    // static PATTERN = new RegExp([
+    //     signFragment,
+    //     integerFragment,
+    //     /\(\./,
+    //     integerFragment,
+    //     /\)?/,
+    //     expFragment
+    // ].map(x => x.source).join(''))
 }
 
 class Integer extends Token {
@@ -282,6 +283,15 @@ export class TomlParser extends Parser {
         //     { ALT: () => this.SUBRULE(this.pairs) },
         // ])
     })
+
+    // private tables = this.RULE("tables", () => {
+    //     this.MANY(() => {
+    //         this.OR([
+    //             { ALT: () => this.SUBRULE(this.table) },
+    //             { ALT: () => this.SUBRULE(this.arrayOfTable) },
+    //         ])
+    //     })
+    // })
 
     private table = this.RULE("table", () => {
         this.CONSUME(LeftBracket)

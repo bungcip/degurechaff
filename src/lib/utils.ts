@@ -1,5 +1,29 @@
 import {JsObject, JsValue} from './chevAst'
 
+export function objectSet(node: JsObject, segments: string[], value: any){
+    let initials = segments.slice(0, -1)
+    let last = segments[segments.length - 1]
+    let head = lookupObject(node, initials)
+    head[last] = value
+}
+
+export function arrayPush(node: JsObject, segments: string[], value: any){
+    let initials = segments.slice(0, -1)
+    let last = segments[segments.length - 1]
+    let head = lookupObject(node, initials)
+    
+    if(head[last] === undefined){
+        head[last] = []
+    }
+
+    const current = head[last]
+    if(Array.isArray(current)){
+        current.push(value)
+    } else {
+        throw new Error('arrayPush(): last item in segments is not array')
+    }
+}
+
 /**
  * Lookup name inside Object structure and get the object.
  * 
@@ -29,13 +53,8 @@ export function lookupObject(node: JsObject, segments: string[]): JsObject {
         }
     }
 
-    // /// return last element of array
-    // if(Array.isArray(current)){
-    //     return current[current.length - 1]
-    // }
-
     return current
-}
+} 
 
 /**
  * lookup name inside Object structure and set to empty array when not exist
