@@ -4,16 +4,16 @@
 import {
     Lexer,
     Parser,
-    Token,
     EOF,
-    TokenConstructor
+    IMultiModeLexerDefinition,
+    IToken,
 } from "chevrotain"
 
 
 const signFragment = /(-|\+)?/
 const integerFragment = /(0|[1-9](\d|_)*)/
 const expFragment = /([eE][+-]?\d+)?/
-class Float extends Token {
+class Float {
     static PATTERN = /(-|\+)?(0|[1-9](\d|_)*)(\.(0|[1-9])(\d|_)*)?([eE][+-]?[\d_]+)?/
     // static PATTERN = new RegExp([
     //     signFragment,
@@ -25,7 +25,7 @@ class Float extends Token {
     // ].map(x => x.source).join(''))
 }
 
-class Integer extends Token {
+class Integer {
     static PATTERN = new RegExp([
         signFragment,
         integerFragment,
@@ -35,8 +35,8 @@ class Integer extends Token {
 
 
 const escapeFragment = /\\(:?[bfnrtv"\\/]|u[0-9a-fA-F]{4}|U[0-9a-fA-F]{8})/
-class BasicString extends Token { 
-    static PATTERN = /"(:?[^\\"]+|\\(:?[bfnrtv"\\/]|u[0-9a-fA-F]{4}|U[0-9a-fA-F]{8}))*"/ 
+class BasicString {
+    static PATTERN = /"(:?[^\\"]+|\\(:?[bfnrtv"\\/]|u[0-9a-fA-F]{4}|U[0-9a-fA-F]{8}))*"/
 }
 // class MultiLineBasicString extends Token { 
 //     static PATTERN = /"""(:?[^\\"]+|\\(:?[bfnrtv"\\/]|u[0-9a-fA-F]{4}))*"""/ 
@@ -49,7 +49,7 @@ class BasicString extends Token {
 // ].map(x => x.source).join(''))
 
 /// NOTE: need to change TokenCounstructor PATTERN type signature
-class MultiLineBasicString extends Token {
+class MultiLineBasicString {
     // static PATTERN = new RegExp([
     //     /"""/,
     //     /(:?[^\\"]+|)*/,
@@ -72,8 +72,8 @@ class MultiLineBasicString extends Token {
             /// check escape fragment
             if (ch === '\\') {
                 /// test new line
-                const isNewLine = text.slice(i+1).match(NewLine.PATTERN)
-                if(isNewLine !== null){
+                const isNewLine = text.slice(i + 1).match(NewLine.PATTERN)
+                if (isNewLine !== null) {
                     i += isNewLine[0].length
                     continue
                 }
@@ -83,7 +83,7 @@ class MultiLineBasicString extends Token {
                 if (result === null) {
                     return null
                 }
-                
+
                 i += result[0].length
             } else if (ch === '"') {
                 if (text.slice(i).startsWith('"""') === true) {
@@ -100,42 +100,42 @@ class MultiLineBasicString extends Token {
     }
 }
 
-class LiteralString extends Token { static PATTERN = /'(:?[^\'])*'/ }
-class MultiLineLiteralString extends Token { 
+class LiteralString { static PATTERN = /'(:?[^\'])*'/ }
+class MultiLineLiteralString {
     static PATTERN = /'''[\s\S]*?'''/
     static LINE_BREAKS = true
 }
 
 
-class Identifier extends Token { static PATTERN = /[a-zA-Z0-9_\-]+/ }
+class Identifier { static PATTERN = /[a-zA-Z0-9_\-]+/ }
 
-class True extends Token {
+class True {
     static PATTERN = "true"
     static LONGER_ALT = Identifier
 }
-class False extends Token {
+class False {
     static PATTERN = "false"
     static LONGER_ALT = Identifier
 }
 
 
-class LeftBracket extends Token { 
-    static PATTERN = "[" 
+class LeftBracket {
+    static PATTERN = "["
     static PUSH_MODE = 'INSIDE_BRACKET'
 }
-class RightBracket extends Token { 
-    static PATTERN = "]" 
+class RightBracket {
+    static PATTERN = "]"
     static POP_MODE = true
 }
-class LeftCurly extends Token { static PATTERN = "{" }
-class RightCurly extends Token { static PATTERN = "}" }
-class LeftParen extends Token { static PATTERN = "(" }
-class RightParen extends Token { static PATTERN = ")" }
+class LeftCurly { static PATTERN = "{" }
+class RightCurly { static PATTERN = "}" }
+class LeftParen { static PATTERN = "(" }
+class RightParen { static PATTERN = ")" }
 
-class Comma extends Token { static PATTERN = "," }
-class Colon extends Token { static PATTERN = ":" }
-class Dot extends Token { static PATTERN = "." }
-class Equal extends Token { static PATTERN = "=" }
+class Comma { static PATTERN = "," }
+class Colon { static PATTERN = ":" }
+class Dot { static PATTERN = "." }
+class Equal { static PATTERN = "=" }
 
 const dateFragment = /\d{4}-\d{2}-\d{2}/
 const timeFragment = /\d{2}:\d{2}:\d{2}(\.\d+)?/
@@ -143,7 +143,7 @@ const tzFragment = /(Z|([+-]\d{2}:\d{2}))?/
 
 
 
-class DateTime extends Token {
+class DateTime {
     static PATTERN = new RegExp([
         dateFragment,
         /T/,
@@ -152,94 +152,94 @@ class DateTime extends Token {
     ].map(x => x.source).join(''))
 }
 
-class Date extends Token {
+class Date {
     static PATTERN = dateFragment
     static LONGER_ALT = DateTime
 }
 
-class Time extends Token {
+class Time {
     static PATTERN = timeFragment
 }
 
 
-class Comment extends Token {
+class Comment {
     // static PATTERN = /#[^\n]+/
     static PATTERN = /#.*/
     static GROUP = Lexer.SKIPPED
     static LINE_BREAKS = true
 }
 
-class NewLine extends Token {
+class NewLine {
     static PATTERN = /(\r\n|\n)/
     static LINE_BREAKS = true
 }
 
-class WhiteSpace extends Token {
+class WhiteSpace {
     static PATTERN = /[ \t]+/
     static GROUP = Lexer.SKIPPED
 }
 
-class WhiteSpaceAndNewLine extends Token {
+class WhiteSpaceAndNewLine {
     static PATTERN = /[ \t\r\n]+/
     static GROUP = Lexer.SKIPPED
     static LINE_BREAKS = true
 }
 
-const allTokens = {
+const allTokens: IMultiModeLexerDefinition  = {
     defaultMode: 'DEFAULT',
     modes: {
-        DEFAULT: [
+        'DEFAULT': [
             WhiteSpace,
             NewLine,
-        
-            MultiLineBasicString as any as TokenConstructor, /// need any until chevrotain support it
+
+            MultiLineBasicString as any, /// need any until chevrotain support it
             BasicString,
-        
+
             MultiLineLiteralString,
             LiteralString,
-        
+
             Date, Time,
-        
+
             Integer,
             True, False,
             Identifier,
-        
+
             LeftBracket,
             RightBracket,
 
             LeftCurly, RightCurly,
             Comma, Colon, Dot, Equal,
-        
+
             Comment,
-        
+
             /// Longer Alternative Token
             Float,
             DateTime,
         ],
-    
-        INSIDE_BRACKET: [
+
+        'INSIDE_BRACKET': [
             WhiteSpaceAndNewLine,
-        
-            MultiLineBasicString as any as TokenConstructor, /// need any until chevrotain support it
+
+            MultiLineBasicString as any, /// need any until chevrotain support it
             BasicString,
-        
+
             MultiLineLiteralString,
             LiteralString,
-        
+
             Date, Time,
-        
+
             Integer,
             True, False,
             Identifier,
-        
-            LeftBracket, 
+
+            LeftBracket,
             RightBracket,
 
             LeftCurly, RightCurly,
             Comma, Colon, Dot, Equal,
-        
+
             Comment,
-        
+
             /// Longer Alternative Token
             Float,
             DateTime,
@@ -395,7 +395,7 @@ export class TomlParser extends Parser {
         this.OR([
             { ALT: () => this.CONSUME(BasicString) },
             { ALT: () => this.CONSUME(LiteralString) },
-            { ALT: () => this.CONSUME(MultiLineBasicString as any as TokenConstructor) }, /// need as any because chevrotain ts don't support Token with custom function
+            { ALT: () => this.CONSUME(MultiLineBasicString as any) }, /// Need this until chevrotain fixed it
             { ALT: () => this.CONSUME(MultiLineLiteralString) },
         ])
     })
@@ -457,8 +457,8 @@ export class TomlParser extends Parser {
         this.CONSUME(RightCurly)
     })
 
-    constructor(input: Token[]) {
-        super(input, allTokens, { outputCst: true})
+    constructor(input: IToken[]) {
+        super(input, allTokens, { outputCst: true })
         Parser.performSelfAnalysis(this)
     }
 
