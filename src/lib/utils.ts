@@ -1,4 +1,4 @@
-import {JsObject, JsValue} from './chevAst'
+import {JsObject, JsValue, Value, AtomicValue, AtomicValueKind, ArrayValue, InlineTableValue} from './chevAst'
 
 export function objectSet(node: JsObject, segments: string[], value: any){
     let initials = segments.slice(0, -1)
@@ -76,4 +76,28 @@ export function lookupArray(node: JsObject, segments: string[]): [JsValue] {
     }
 
     return current[last] as [JsValue]
+}
+
+/**
+ * check if value is have same type
+ */
+export function isSameType(a: Value, b: Value): boolean {
+    if(a instanceof AtomicValue && b instanceof AtomicValue && a.kind === b.kind){
+        return true
+    }else if(a instanceof ArrayValue && b instanceof ArrayValue){
+        if(a.items.length === 0 || b.items.length === 0){
+            return true
+        }
+
+        if(isSameType(a.items[0], b.items[0])){
+            return true
+        }
+        
+        return false
+    }else if(a instanceof InlineTableValue && b instanceof InlineTableValue){
+        /// FIXME: add check for its member
+        return true
+    }
+
+    return false
 }

@@ -3,6 +3,7 @@ import { CstNode, CstChildrenDictionary } from "chevrotain"
 import * as ast from "./chevAst"
 import * as extractor from './extractor'
 import * as dt from "./dt"
+import { isSameType } from "./utils";
 
 export const BaseVisitor = parser.getBaseCstVisitorConstructor()
 
@@ -212,8 +213,20 @@ export class ToAstVisitor extends BaseVisitor {
         throw new Error("unexpected token inside dateValue()")
     }
 
-    arrayValue(ctx: any) {
-        let values = this.visitAll(ctx.value)
+    arrayValue(ctx: any): ast.Value[] {
+        let values: ast.Value[] = this.visitAll(ctx.value)
+
+        /// toml array element type must be uniform with first element
+        if(values.length > 1){
+            const firstElement = values[0]
+            const isUniform = values.every(x => isSameType(firstElement, x))
+            if(isUniform === false){
+                const typeName = firstElement.typename()
+                throw new Error(`Cannot have value with different type from ${typeName}`)
+            }
+        }
+
+
         return values
     }
 

@@ -43,6 +43,7 @@ export type JsValue = string | number | boolean | JsObject | Array<any>
 export interface Value {
     toString(): string
     jsValue(): JsObject | string | boolean | number | Array<any>
+    typename(): string
 }
 
 /**
@@ -63,6 +64,18 @@ export class AtomicValue implements Value {
     toString(): string {
         return this.content.toString()
     }
+
+    typename(): string {
+        switch(this.kind) {
+            case AtomicValueKind.Boolean: return 'boolean'
+            case AtomicValueKind.Date: return 'date'
+            case AtomicValueKind.Float: return 'float'
+            case AtomicValueKind.Integer: return 'integer'
+            case AtomicValueKind.String: return 'string'
+        }
+
+        return '-'
+    }
 }
 
 /**
@@ -73,6 +86,10 @@ export class ArrayValue implements Value {
 
     jsValue(): Array<any> {
         return this.items.map( x => x.jsValue() )
+    }
+
+    typename(): string {
+        return `array`
     }
 }
 
@@ -87,5 +104,9 @@ export class InlineTableValue implements Value {
             result[key] = value
         }
         return result
+    }
+
+    typename(): string {
+        return 'inline table'
     }
 }

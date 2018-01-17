@@ -16,7 +16,10 @@ export function dump(content: string): Object {
 }
 
 /**
- * Parse string containing toml to AST
+ * Parse string containing toml to AST data structure.
+ * This is useful when you want to manipulate data beyond just reading it.
+ * For simple usage, use dump().
+ * 
  * @param content 
  */
 export function parse(content: string): ast.Root {

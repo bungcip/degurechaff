@@ -107,6 +107,15 @@ function testSpec(folder, filename) {
     expect(result).toEqual(expected)
 }
 
+function testInvalid(folder, filename){
+    const tomlData = fs.readFileSync(`${folder}/${filename}.toml`, 'utf8')
+
+    expect(() => {
+        const root = parse(tomlData)
+        const result = toJsonSpec(root)
+    }).toThrow();
+}
+
 import path from 'path'
 
 
@@ -124,54 +133,21 @@ describe('test valid toml file', () => {
         .map(x => path.basename(x).slice(0, -5))
 
     tomlFiles.forEach(filename => {
-        test(`${filename}`, () => {
-            testSpec(dirname, filename)
-        })
+        test(`${filename}`, () => testSpec(dirname, filename))
     })
-
 })
 
 
-// test('test valid toml file', () => {
-    // testSpec('test/data/valid', 'table-array-table-array')
-//     testSpec('test/data/valid', 'array-nospaces')
-//     testSpec('test/data/valid', 'arrays-hetergeneous')
-//     testSpec('test/data/valid', 'arrays-nested')
-//     testSpec('test/data/valid', 'arrays')
-//     testSpec('test/data/valid', 'bool')
-//     testSpec('test/data/valid', 'comments-everywhere')
-//     testSpec('test/data/valid', 'datetime')
-//     testSpec('test/data/valid', 'empty')
-//     testSpec('test/data/valid', 'example')
-//     testSpec('test/data/valid', 'float')
-//     testSpec('test/data/valid', 'implicit-and-explicit-after')
-//     testSpec('test/data/valid', 'implicit-and-explicit-before')
-//     testSpec('test/data/valid', 'implicit-groups')
-//     testSpec('test/data/valid', 'integer')
-//     testSpec('test/data/valid', 'key-equals-nospace')
-//     testSpec('test/data/valid', 'key-space')
-//     testSpec('test/data/valid', 'key-special-chars')
-//     testSpec('test/data/valid', 'long-float')
+test('test invalid toml file', () => {
+    testInvalid('test/data/invalid', 'array-mixed-types-arrays-and-ints')
+    testInvalid('test/data/invalid', 'array-mixed-types-ints-and-floats')
+    testInvalid('test/data/invalid', 'array-mixed-types-strings-and-ints')
 
-//     // FIXME: js native don't support big integer
-//     // testSpec('test/data/valid', 'long-integer')
+    testInvalid('test/data/invalid', 'datetime-malformed-no-leads')
+    testInvalid('test/data/invalid', 'datetime-malformed-no-secs')
+    testInvalid('test/data/invalid', 'datetime-malformed-no-t')
+    testInvalid('test/data/invalid', 'datetime-malformed-with-milli')
 
-//     testSpec('test/data/valid', 'multiline-string')
-//     testSpec('test/data/valid', 'raw-multiline-string')
-//     testSpec('test/data/valid', 'raw-string')
-//     testSpec('test/data/valid', 'string-empty')
-//     testSpec('test/data/valid', 'string-escapes')
-//     testSpec('test/data/valid', 'string-simple')
-//     testSpec('test/data/valid', 'string-with-pound')
-//     testSpec('test/data/valid', 'table-array-implicit')
-//     testSpec('test/data/valid', 'table-array-many')
-//     testSpec('test/data/valid', 'table-array-nest')
-//     testSpec('test/data/valid', 'table-array-one')
-//     testSpec('test/data/valid', 'table-empty')
-//     testSpec('test/data/valid', 'table-sub-empty')
-//     testSpec('test/data/valid', 'table-whitespace')
-//     testSpec('test/data/valid', 'table-with-pound')
-//     testSpec('test/data/valid', 'unicode-escape')
-//     testSpec('test/data/valid', 'unicode-literal')
+    // testInvalid('test/data/invalid', 'duplicate-key-table')
 
-// })
+})
