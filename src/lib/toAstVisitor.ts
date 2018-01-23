@@ -3,7 +3,8 @@ import { CstNode, CstChildrenDictionary } from "chevrotain"
 import * as ast from "./chevAst"
 import * as extractor from './extractor'
 import * as dt from "./dt"
-import { isSameType } from "./utils";
+import { isSameType, lookupObject } from "./utils";
+import Dom from './dom'
 
 export const BaseVisitor = parser.getBaseCstVisitorConstructor()
 
@@ -16,31 +17,6 @@ export class ToAstVisitor extends BaseVisitor {
         this.validateVisitor()
     }
 
-    /**
-     * convert value as array
-     * @param value 
-     */
-    asArray(value?: any): Array<any> {
-        if (value === undefined) {
-            return []
-        } else if (Array.isArray(value)) {
-            return value
-        } else {
-            return [value]
-        }
-    }
-
-    visitAll(nodes: CstNode[]): any[] {
-        let result: any[] = []
-
-        for (const node of nodes) {
-            let value = this.visit(node)
-            result.push(value)
-        }
-
-        return result
-    }
-
     root(ctx: any) {
         let pairs = this.visit(ctx.pairs)
         const tables = this.visitAll(ctx.table)
@@ -51,7 +27,7 @@ export class ToAstVisitor extends BaseVisitor {
         }
 
         /// check table name for duplicate 
-        this.checkDuplicate(tables)
+        this.checkDuplicate(pairs, tables)
 
         /// FIXME: check if aot is duplicated...
         // console.log("cst aot length:", ctx.arrayOfTable.length)
@@ -254,20 +230,60 @@ export class ToAstVisitor extends BaseVisitor {
     }
 
 
+    /**
+     * convert value as array
+     * @param value 
+     */
+    private asArray(value?: any): Array<any> {
+        if (value === undefined) {
+            return []
+        } else if (Array.isArray(value)) {
+            return value
+        } else {
+            return [value]
+        }
+    }
+
+    private visitAll(nodes: CstNode[]): any[] {
+        let result: any[] = []
+
+        for (const node of nodes) {
+            let value = this.visit(node)
+            result.push(value)
+        }
+
+        return result
+    }
+
     /// check duplicate names in table
-    private checkDuplicate(tables: ast.Table[]) {
+    private checkDuplicate(pairs: ast.Pair[], tables: ast.Table[]) {
         const unique = []
+        const dom = new Dom();
+
+        for (const pair of pairs) {
+            dom.setOrFail(pair.key, pair.value.jsValue())
+        }
+
         for (const table of tables) {
             const key = table.name
-            const position = unique.findIndex(x => x.isEqual(key))
-            if (position === -1) {
-                unique.push(key)
-            } else {
+
+            try {
+                if (table.pairs.length === 0) {
+                    dom.setOrFail(key, {})
+                    continue
+                }
+
+                for (const pair of table.pairs) {
+                    const pairName = table.name.segments.concat(pair.key)
+                    dom.setOrFail(pairName, pair.value.jsValue())
+                    // console.log("pairName:", pairName)
+                    // console.log("content:", dom._content)
+                }
+            } catch{
                 /// TODO: accumulate all duplicated error...
                 ///        currently it just throw on first error encountered
-                throw new Error('duplicate table name: ' + key)
+                throw new Error('duplicate name: ' + key)
             }
-
         }
 
     }
