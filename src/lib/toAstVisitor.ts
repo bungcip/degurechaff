@@ -50,6 +50,9 @@ export class ToAstVisitor extends BaseVisitor {
             pairs = []
         }
 
+        /// check table name for duplicate 
+        this.checkDuplicate(tables)
+
         /// FIXME: check if aot is duplicated...
         // console.log("cst aot length:", ctx.arrayOfTable.length)
         // console.log("ast aot length:", arrayOfTables.length)
@@ -100,15 +103,15 @@ export class ToAstVisitor extends BaseVisitor {
     }
 
     pairs(ctx: any): ast.Pair[] {
-        const pairs : ast.Pair[] = this.visitAll(ctx.pair)
+        const pairs: ast.Pair[] = this.visitAll(ctx.pair)
 
         /// check key must be unique
         const unique = []
-        for(const pair of pairs){
+        for (const pair of pairs) {
             const exists = unique.includes(pair.key)
-            if(exists === false){
+            if (exists === false) {
                 unique.push(pair.key)
-            }else{
+            } else {
                 /// TODO: accumulate all duplicated error...
                 ///        currently it just throw on first error encountered
                 throw new Error('Cannot redefining existing key: ' + pair.key)
@@ -153,8 +156,8 @@ export class ToAstVisitor extends BaseVisitor {
         } else if (ctx.inlineTableValue[0]) {
             const values = this.visit(ctx.inlineTableValue)
             return new ast.InlineTableValue(values)
-        } 
-        
+        }
+
         /// atomic value
         if (ctx.stringValue[0]) {
             kind = ast.AtomicValueKind.String
@@ -232,10 +235,10 @@ export class ToAstVisitor extends BaseVisitor {
         let values: ast.Value[] = this.visitAll(ctx.value)
 
         /// toml array element type must be uniform with first element
-        if(values.length > 1){
+        if (values.length > 1) {
             const firstElement = values[0]
             const isUniform = values.every(x => isSameType(firstElement, x))
-            if(isUniform === false){
+            if (isUniform === false) {
                 const typeName = firstElement.typename()
                 throw new Error(`Cannot have value with different type from ${typeName}`)
             }
@@ -248,5 +251,24 @@ export class ToAstVisitor extends BaseVisitor {
     inlineTableValue(ctx: any): ast.Pair[] {
         let pairs = this.visitAll(ctx.pair)
         return pairs
+    }
+
+
+    /// check duplicate names in table
+    private checkDuplicate(tables: ast.Table[]) {
+        const unique = []
+        for (const table of tables) {
+            const key = table.name
+            const position = unique.findIndex(x => x.isEqual(key))
+            if (position === -1) {
+                unique.push(key)
+            } else {
+                /// TODO: accumulate all duplicated error...
+                ///        currently it just throw on first error encountered
+                throw new Error('duplicate table name: ' + key)
+            }
+
+        }
+
     }
 }

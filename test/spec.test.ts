@@ -150,5 +150,6 @@ test('test invalid toml file', () => {
 
     // testInvalid('test/data/invalid', 'duplicate-key-table')
     testInvalid('test/data/invalid', 'duplicate-keys')
+    testInvalid('test/data/invalid', 'duplicate-tables')
 
 })

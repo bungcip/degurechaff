@@ -1,6 +1,5 @@
 import * as cp from './chevParser'
 import * as dt from './dt'
-import { Token } from 'chevrotain'
 
 export class Root {
     constructor(public pairs: Pair[], public tables: Table[], public arrayOfTables: ArrayOfTable[]) {}
@@ -14,6 +13,19 @@ export class ArrayOfTable extends Table { }
 
 export class Name {
     constructor(public segments: string[]) {}
+    isEqual(other: Name): boolean {
+        if(this.segments.length !== other.segments.length){
+            return false
+        }
+
+        for(const index in this.segments){
+            if(this.segments[index] !== other.segments[index]){
+                return false
+            }
+        }
+
+        return true
+    }
 }
 
 export class Pair {
