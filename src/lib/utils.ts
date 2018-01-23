@@ -85,15 +85,8 @@ export function isSameType(a: Value, b: Value): boolean {
     if(a instanceof AtomicValue && b instanceof AtomicValue && a.kind === b.kind){
         return true
     }else if(a instanceof ArrayValue && b instanceof ArrayValue){
-        if(a.items.length === 0 || b.items.length === 0){
-            return true
-        }
-
-        if(isSameType(a.items[0], b.items[0])){
-            return true
-        }
-        
-        return false
+        /// toml array is heterogenous
+        return true
     }else if(a instanceof InlineTableValue && b instanceof InlineTableValue){
         /// FIXME: add check for its member
         return true

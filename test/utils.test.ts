@@ -55,8 +55,11 @@ test('isSameType: array', () => {
     const d = new AtomicValue(AtomicValueKind.Integer, 0)
 
     expect(isSameType(a, b)).toEqual(true)
-    expect(isSameType(a, c)).toEqual(false)
-    expect(isSameType(b, c)).toEqual(false)
+
+    /// toml allow heterogenous array
+    expect(isSameType(a, c)).toEqual(true)
+    expect(isSameType(b, c)).toEqual(true)
+
     expect(isSameType(a, d)).toEqual(false)
     expect(isSameType(c, d)).toEqual(false)
 })
