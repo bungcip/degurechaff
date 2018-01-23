@@ -100,7 +100,22 @@ export class ToAstVisitor extends BaseVisitor {
     }
 
     pairs(ctx: any): ast.Pair[] {
-        return this.visitAll(ctx.pair)
+        const pairs : ast.Pair[] = this.visitAll(ctx.pair)
+
+        /// check key must be unique
+        const unique = []
+        for(const pair of pairs){
+            const exists = unique.includes(pair.key)
+            if(exists === false){
+                unique.push(pair.key)
+            }else{
+                /// TODO: accumulate all duplicated error...
+                ///        currently it just throw on first error encountered
+                throw new Error('Cannot redefining existing key: ' + pair.key)
+            }
+        }
+
+        return pairs
     }
 
     pair(ctx: any) {
