@@ -7,14 +7,19 @@ import {
     EOF,
     IMultiModeLexerDefinition,
     IToken,
+    createToken,
+    createTokenInstance,
+    ICustomPattern,
 } from "chevrotain"
 
 
 const signFragment = /(-|\+)?/
 const integerFragment = /(0|[1-9](\d|_)*)/
 const expFragment = /([eE][+-]?\d+)?/
-class Float {
-    static PATTERN = /(-|\+)?(0|[1-9](\d|_)*)(\.(0|[1-9])(\d|_)*)?([eE][+-]?[\d_]+)?/
+
+const Float = createToken({
+    name: 'Float',
+    pattern: /(-|\+)?(0|[1-9](\d|_)*)(\.(0|[1-9])(\d|_)*)?([eE][+-]?[\d_]+)?/
     // static PATTERN = new RegExp([
     //     signFragment,
     //     integerFragment,
@@ -23,40 +28,25 @@ class Float {
     //     /\)?/,
     //     expFragment
     // ].map(x => x.source).join(''))
-}
+})
 
-class Integer {
-    static PATTERN = new RegExp([
+const Integer = createToken({
+    name: 'Integer',
+    pattern: new RegExp([
         signFragment,
         integerFragment,
-    ].map(x => x.source).join(''))
-    static LONGER_ALT = Float
-}
+    ].map(x => x.source).join('')),
+    longer_alt: Float
+})
 
 
 const escapeFragment = /\\(:?[bfnrtv"\\/]|u[0-9a-fA-F]{4}|U[0-9a-fA-F]{8})/
-class BasicString {
-    static PATTERN = /"(:?[^\\"]+|\\(:?[bfnrtv"\\/]|u[0-9a-fA-F]{4}|U[0-9a-fA-F]{8}))*"/
-}
-// class MultiLineBasicString extends Token { 
-//     static PATTERN = /"""(:?[^\\"]+|\\(:?[bfnrtv"\\/]|u[0-9a-fA-F]{4}))*"""/ 
-//     static LINE_BREAKS = true
-// }
-// const stringContentFragment = new RegExp([
-//     /:?[^\\"]+/,
-//     escapeFragment,
-//     /|/,
-// ].map(x => x.source).join(''))
+const BasicString = createToken({
+    name: 'BasicString',
+    pattern: /"(:?[^\\"]+|\\(:?[bfnrtv"\\/]|u[0-9a-fA-F]{4}|U[0-9a-fA-F]{8}))*"/
+})
 
-/// NOTE: need to change TokenCounstructor PATTERN type signature
-class MultiLineBasicString {
-    // static PATTERN = new RegExp([
-    //     /"""/,
-    //     /(:?[^\\"]+|)*/,
-    //     /"""/
-    // ].map(x => x.source).join(''))
-    static LINE_BREAKS = true
-    static PATTERN = (input: string, offset: number) => {
+function matchMultiLineBasicString(input: string, offset: number): RegExpExecArray | null {
         let text = input.slice(offset)
         /// first 3 char must be """
         if (text.startsWith('"""') === false) {
@@ -72,7 +62,7 @@ class MultiLineBasicString {
             /// check escape fragment
             if (ch === '\\') {
                 /// test new line
-                const isNewLine = text.slice(i + 1).match(NewLine.PATTERN)
+            const isNewLine = text.slice(i + 1).match(/(\r\n|\n)/)
                 if (isNewLine !== null) {
                     i += isNewLine[0].length
                     continue
@@ -98,101 +88,98 @@ class MultiLineBasicString {
 
         return null
     }
-}
 
-class LiteralString { static PATTERN = /'(:?[^\'])*'/ }
-class MultiLineLiteralString {
-    static PATTERN = /'''[\s\S]*?'''/
-    static LINE_BREAKS = true
-}
+const MultiLineBasicString = createToken({
+    name: 'MultiLineBasicString',
+    line_breaks: true,
+    pattern: matchMultiLineBasicString as any
+})
 
+const LiteralString = createToken({name: 'LiteralString', pattern: /'(:?[^\'])*'/})
 
-class Identifier { static PATTERN = /[a-zA-Z0-9_\-]+/ }
+const MultiLineLiteralString = createToken({
+    name: 'MultiLineLiteralString', 
+    line_breaks: true,
+    pattern: /'''[\s\S]*?'''/
+})
 
-class True {
-    static PATTERN = "true"
-    static LONGER_ALT = Identifier
-}
-class False {
-    static PATTERN = "false"
-    static LONGER_ALT = Identifier
-}
+const Identifier = createToken({name: 'Identifier', pattern: /[a-zA-Z0-9_\-]+/})
+const True = createToken({name: 'True', pattern: 'true', longer_alt: Identifier})
+const False = createToken({name: 'False', pattern: 'false', longer_alt: Identifier})
+const LeftBracket = createToken({name: 'LeftBracket', pattern: '[', push_mode: 'INSIDE_BRACKET'})
+const RightBracket = createToken({name: 'RightBracket', pattern: ']', pop_mode: true})
 
+const LeftCurly = createToken({name: 'LeftCurly', pattern: '{'})
+const RightCurly = createToken({name: 'RightCurly', pattern: '}'})
+const LeftParen = createToken({name: 'LeftParen', pattern: '('})
+const RightParen = createToken({name: 'RightParen', pattern: ')'})
 
-class LeftBracket {
-    static PATTERN = "["
-    static PUSH_MODE = 'INSIDE_BRACKET'
-}
-class RightBracket {
-    static PATTERN = "]"
-    static POP_MODE = true
-}
-class LeftCurly { static PATTERN = "{" }
-class RightCurly { static PATTERN = "}" }
-class LeftParen { static PATTERN = "(" }
-class RightParen { static PATTERN = ")" }
-
-class Comma { static PATTERN = "," }
-class Colon { static PATTERN = ":" }
-class Dot { static PATTERN = "." }
-class Equal { static PATTERN = "=" }
+const Comma = createToken({name: 'Comma', pattern: ','})
+const Colon = createToken({name: 'Colon', pattern: ':'})
+const Dot = createToken({name: 'Dot', pattern: '.'})
+const Equal = createToken({name: 'Equal', pattern: '='})
 
 const dateFragment = /\d{4}-\d{2}-\d{2}/
 const timeFragment = /\d{2}:\d{2}:\d{2}(\.\d+)?/
 const tzFragment = /(Z|([+-]\d{2}:\d{2}))?/
 
-
-
-class DateTime {
-    static PATTERN = new RegExp([
+const DateTime = createToken({
+    name: 'DateTime',
+    pattern: new RegExp([
         dateFragment,
         /T/,
         timeFragment,
         tzFragment
     ].map(x => x.source).join(''))
-}
-
-class Date {
-    static PATTERN = dateFragment
-    static LONGER_ALT = DateTime
-}
-
-class Time {
-    static PATTERN = timeFragment
-}
+})
 
 
-class Comment {
-    // static PATTERN = /#[^\n]+/
-    static PATTERN = /#.*/
-    static GROUP = Lexer.SKIPPED
-    static LINE_BREAKS = true
-}
+const Date = createToken({
+    name: 'Date',
+    pattern: dateFragment,
+    longer_alt: DateTime
+})
 
-class NewLine {
-    static PATTERN = /(\r\n|\n)/
-    static LINE_BREAKS = true
-}
+const Time = createToken({
+    name: 'Time',
+    pattern: timeFragment
+})
 
-class WhiteSpace {
-    static PATTERN = /[ \t]+/
-    static GROUP = Lexer.SKIPPED
-}
+const Comment = createToken({
+    name: 'Comment',
+    pattern: /#.*/,
+    group: Lexer.SKIPPED,
+    line_breaks: true
+})
 
-class WhiteSpaceAndNewLine {
-    static PATTERN = /[ \t\r\n]+/
-    static GROUP = Lexer.SKIPPED
-    static LINE_BREAKS = true
-}
+const NewLine = createToken({
+    name: 'NewLine',
+    pattern: /(\r\n|\n)/,
+    line_breaks: true,
+})
 
-const allTokens: IMultiModeLexerDefinition  = {
+const WhiteSpace = createToken({
+    name: 'WhiteSpace',
+    pattern: /[ \t]+/,
+    group: Lexer.SKIPPED
+})
+
+const WhiteSpaceAndNewLine = createToken({
+    name: 'WhiteSpaceAndNewLine',
+    pattern: /[ \t\r\n]+/,
+    group: Lexer.SKIPPED,
+    line_breaks: true
+})
+
+
+const allTokens: IMultiModeLexerDefinition = {
     defaultMode: 'DEFAULT',
     modes: {
         'DEFAULT': [
             WhiteSpace,
             NewLine,
 
-            MultiLineBasicString as any, /// need any until chevrotain support it
+            MultiLineBasicString,
             BasicString,
 
             MultiLineLiteralString,
@@ -220,7 +207,7 @@ const allTokens: IMultiModeLexerDefinition  = {
         'INSIDE_BRACKET': [
             WhiteSpaceAndNewLine,
 
-            MultiLineBasicString as any, /// need any until chevrotain support it
+            MultiLineBasicString,
             BasicString,
 
             MultiLineLiteralString,
@@ -229,7 +216,7 @@ const allTokens: IMultiModeLexerDefinition  = {
             Date, Time,
 
             Integer,
-            True, False,
+            True, False, 
             Identifier,
 
             LeftBracket,

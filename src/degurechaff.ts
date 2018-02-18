@@ -26,7 +26,7 @@ export function parse(content: string): ast.Root {
   const lexerResult = TomlLexer.tokenize(content)
 
   if (lexerResult.errors.length) {
-    console.log("lexer error::", lexerResult.errors)
+    // console.log("lexer error::", lexerResult.errors)
     throw lexerResult.errors
   }
 

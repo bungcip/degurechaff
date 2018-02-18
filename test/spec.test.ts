@@ -152,4 +152,65 @@ test('test invalid toml file', () => {
     testInvalid('test/data/invalid', 'duplicate-keys')
     testInvalid('test/data/invalid', 'duplicate-tables')
 
+    testInvalid('test/data/invalid', 'empty-implicit-table')
+    testInvalid('test/data/invalid', 'empty-table')
+
+    testInvalid('test/data/invalid', 'float-leading-zero-neg')
+    testInvalid('test/data/invalid', 'float-leading-zero-pos')
+    testInvalid('test/data/invalid', 'float-leading-zero')
+    testInvalid('test/data/invalid', 'float-no-leading-zero')
+    testInvalid('test/data/invalid', 'float-no-trailing-digits')
+    testInvalid('test/data/invalid', 'float-underscore-after-point')
+    
+
+    testInvalid('test/data/invalid', 'integer-leading-zero-neg')
+    testInvalid('test/data/invalid', 'integer-leading-zero-pos')
+    testInvalid('test/data/invalid', 'integer-leading-zero')
+
+    testInvalid('test/data/invalid', 'integer-underscore-before')
+
+    testInvalid('test/data/invalid', 'key-empty')
+    testInvalid('test/data/invalid', 'key-hash')
+    testInvalid('test/data/invalid', 'key-newline')
+    testInvalid('test/data/invalid', 'key-no-eol')
+    testInvalid('test/data/invalid', 'key-open-bracket')
+    testInvalid('test/data/invalid', 'key-space')
+    testInvalid('test/data/invalid', 'key-start-bracket')
+    testInvalid('test/data/invalid', 'key-two-equals')
+
+    testInvalid('test/data/invalid', 'string-bad-byte-escape')
+    testInvalid('test/data/invalid', 'string-bad-escape')
+    testInvalid('test/data/invalid', 'string-bad-uni-esc')
+    testInvalid('test/data/invalid', 'string-byte-escapes')
+    testInvalid('test/data/invalid', 'string-no-close')
+
+    testInvalid('test/data/invalid', 'table-array-implicit')
+    testInvalid('test/data/invalid', 'table-array-malformed-bracket')
+    testInvalid('test/data/invalid', 'table-array-malformed-empty')
+    testInvalid('test/data/invalid', 'table-empty')
+
+    testInvalid('test/data/invalid', 'table-nested-brackets-close')
+    testInvalid('test/data/invalid', 'table-nested-brackets-open')
+    testInvalid('test/data/invalid', 'table-whitespace')
+    testInvalid('test/data/invalid', 'table-with-pound')
+    
+    testInvalid('test/data/invalid', 'text-after-array-entries')
+    testInvalid('test/data/invalid', 'text-after-integer')
+    testInvalid('test/data/invalid', 'text-after-string')
+    testInvalid('test/data/invalid', 'text-after-table')
+    testInvalid('test/data/invalid', 'text-before-array-separator')
+    testInvalid('test/data/invalid', 'text-in-array')
+
+    // / NOTE: toml node allow it
+    // testInvalid('test/data/invalid', 'float-underscore-after')
+
+    /// TODO: fix it
+    // testInvalid('test/data/invalid', 'integer-underscore-after')
+    // testInvalid('test/data/invalid', 'integer-underscore-double')
+    // testInvalid('test/data/invalid', 'key-after-array')
+    // testInvalid('test/data/invalid', 'key-after-table')
+    // testInvalid('test/data/invalid', 'llbrace')
+    // testInvalid('test/data/invalid', 'rrbrace')
+
+
 })
