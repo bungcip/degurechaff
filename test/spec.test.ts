@@ -5,7 +5,6 @@ import { parse } from '../src/degurechaff'
 import * as ast from '../src/lib/chevAst'
 import * as utils from '../src/lib/utils'
 
-import { exceptions } from 'chevrotain'
 import fs from 'fs'
 
 

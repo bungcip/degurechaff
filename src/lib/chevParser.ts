@@ -47,47 +47,47 @@ const BasicString = createToken({
 })
 
 function matchMultiLineBasicString(input: string, offset: number): RegExpExecArray | null {
-        let text = input.slice(offset)
-        /// first 3 char must be """
-        if (text.startsWith('"""') === false) {
-            return null
-        }
-
-        /// check content string, allow new line & escape code
-        let i = 3
-        const textLength = text.length
-        while (i < textLength) {
-            const ch = text.charAt(i)
-
-            /// check escape fragment
-            if (ch === '\\') {
-                /// test new line
-            const isNewLine = text.slice(i + 1).match(/(\r\n|\n)/)
-                if (isNewLine !== null) {
-                    i += isNewLine[0].length
-                    continue
-                }
-
-                /// test escape fragment
-                const result = text.slice(i).match(escapeFragment)
-                if (result === null) {
-                    return null
-                }
-
-                i += result[0].length
-            } else if (ch === '"') {
-                if (text.slice(i).startsWith('"""') === true) {
-                    const matchedString = text.substring(0, i + 3)
-                    const result = [matchedString] as RegExpExecArray
-                    return result
-                }
-            }
-
-            i++
-        }
-
+    let text = input.slice(offset)
+    /// first 3 char must be """
+    if (text.startsWith('"""') === false) {
         return null
     }
+
+    /// check content string, allow new line & escape code
+    let i = 3
+    const textLength = text.length
+    while (i < textLength) {
+        const ch = text.charAt(i)
+
+        /// check escape fragment
+        if (ch === '\\') {
+            /// test new line
+            const isNewLine = text.slice(i + 1).match(/[ \t]*(\r\n|\n)/)
+            if (isNewLine !== null) {
+                i += isNewLine[0].length
+                continue
+            }
+
+            /// test escape fragment
+            const result = text.slice(i).match(escapeFragment)
+            if (result === null) {
+                return null
+            }
+
+            i += result[0].length
+        } else if (ch === '"') {
+            if (text.slice(i).startsWith('"""') === true) {
+                const matchedString = text.substring(0, i + 3)
+                const result = [matchedString] as RegExpExecArray
+                return result
+            }
+        }
+
+        i++
+    }
+
+    return null
+}
 
 const MultiLineBasicString = createToken({
     name: 'MultiLineBasicString',
@@ -95,29 +95,29 @@ const MultiLineBasicString = createToken({
     pattern: matchMultiLineBasicString as any
 })
 
-const LiteralString = createToken({name: 'LiteralString', pattern: /'(:?[^\'])*'/})
+const LiteralString = createToken({ name: 'LiteralString', pattern: /'(:?[^\'])*'/ })
 
 const MultiLineLiteralString = createToken({
-    name: 'MultiLineLiteralString', 
+    name: 'MultiLineLiteralString',
     line_breaks: true,
     pattern: /'''[\s\S]*?'''/
 })
 
-const Identifier = createToken({name: 'Identifier', pattern: /[a-zA-Z0-9_\-]+/})
-const True = createToken({name: 'True', pattern: 'true', longer_alt: Identifier})
-const False = createToken({name: 'False', pattern: 'false', longer_alt: Identifier})
-const LeftBracket = createToken({name: 'LeftBracket', pattern: '[', push_mode: 'INSIDE_BRACKET'})
-const RightBracket = createToken({name: 'RightBracket', pattern: ']', pop_mode: true})
+const Identifier = createToken({ name: 'Identifier', pattern: /[a-zA-Z0-9_\-]+/ })
+const True = createToken({ name: 'True', pattern: 'true', longer_alt: Identifier })
+const False = createToken({ name: 'False', pattern: 'false', longer_alt: Identifier })
+const LeftBracket = createToken({ name: 'LeftBracket', pattern: '[', push_mode: 'INSIDE_BRACKET' })
+const RightBracket = createToken({ name: 'RightBracket', pattern: ']', pop_mode: true })
 
-const LeftCurly = createToken({name: 'LeftCurly', pattern: '{'})
-const RightCurly = createToken({name: 'RightCurly', pattern: '}'})
-const LeftParen = createToken({name: 'LeftParen', pattern: '('})
-const RightParen = createToken({name: 'RightParen', pattern: ')'})
+const LeftCurly = createToken({ name: 'LeftCurly', pattern: '{' })
+const RightCurly = createToken({ name: 'RightCurly', pattern: '}' })
+const LeftParen = createToken({ name: 'LeftParen', pattern: '(' })
+const RightParen = createToken({ name: 'RightParen', pattern: ')' })
 
-const Comma = createToken({name: 'Comma', pattern: ','})
-const Colon = createToken({name: 'Colon', pattern: ':'})
-const Dot = createToken({name: 'Dot', pattern: '.'})
-const Equal = createToken({name: 'Equal', pattern: '='})
+const Comma = createToken({ name: 'Comma', pattern: ',' })
+const Colon = createToken({ name: 'Colon', pattern: ':' })
+const Dot = createToken({ name: 'Dot', pattern: '.' })
+const Equal = createToken({ name: 'Equal', pattern: '=' })
 
 const dateFragment = /\d{4}-\d{2}-\d{2}/
 const timeFragment = /\d{2}:\d{2}:\d{2}(\.\d+)?/
@@ -216,7 +216,7 @@ const allTokens: IMultiModeLexerDefinition = {
             Date, Time,
 
             Integer,
-            True, False, 
+            True, False,
             Identifier,
 
             LeftBracket,

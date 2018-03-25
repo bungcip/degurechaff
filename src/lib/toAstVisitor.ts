@@ -106,13 +106,13 @@ export class ToAstVisitor extends BaseVisitor {
 
     key(ctx: any): string {
         let result = ""
-        if (ctx.stringValue[0]) {
+        if (ctx.stringValue) {
             result = this.visit(ctx.stringValue)
-        } else if (ctx.Integer[0]) {
+        } else if (ctx.Integer) {
             result = ctx.Integer[0].image
-        } else if (ctx.Identifier[0]) {
+        } else if (ctx.Identifier) {
             result = ctx.Identifier[0].image
-        } else if (ctx.boolValue[0]) {
+        } else if (ctx.boolValue) {
             result = this.visit(ctx.boolValue).toString()
         }
 
@@ -135,10 +135,10 @@ export class ToAstVisitor extends BaseVisitor {
         }
 
         /// atomic value
-        if (ctx.stringValue[0]) {
+        if (ctx.stringValue) {
             kind = ast.AtomicValueKind.String
             result = this.visit(ctx.stringValue)
-        } else if (ctx.numberValue[0]) {
+        } else if (ctx.numberValue) {
             const numberCtx = ctx.numberValue[0].children
             if (numberCtx.Integer[0]) {
                 kind = ast.AtomicValueKind.Integer
@@ -149,10 +149,10 @@ export class ToAstVisitor extends BaseVisitor {
             } else {
                 throw new Error("unexpected token inside numberValue():" + JSON.stringify(numberCtx))
             }
-        } else if (ctx.boolValue[0]) {
+        } else if (ctx.boolValue) {
             kind = ast.AtomicValueKind.Boolean
             result = this.visit(ctx.boolValue)
-        } else if (ctx.dateValue[0]) {
+        } else if (ctx.dateValue) {
             kind = ast.AtomicValueKind.Date
             result = this.visit(ctx.dateValue)
         } else {
@@ -172,13 +172,13 @@ export class ToAstVisitor extends BaseVisitor {
 
     stringValue(ctx: any) {
         let result = ""
-        if (ctx.BasicString[0]) {
+        if (ctx.BasicString) {
             result = extractor.extractString(ctx.BasicString[0].image)
-        } else if (ctx.LiteralString[0]) {
+        } else if (ctx.LiteralString) {
             result = extractor.extractLiteralString(ctx.LiteralString[0].image)
-        } else if (ctx.MultiLineBasicString[0]) {
+        } else if (ctx.MultiLineBasicString) {
             result = extractor.extractMultiLineString(ctx.MultiLineBasicString[0].image)
-        } else if (ctx.MultiLineLiteralString[0]) {
+        } else if (ctx.MultiLineLiteralString) {
             result = extractor.extractMultiLineLiteralString(ctx.MultiLineLiteralString[0].image)
         }
 
@@ -186,9 +186,9 @@ export class ToAstVisitor extends BaseVisitor {
     }
 
     numberValue(ctx: any) {
-        if (ctx.Integer[0]) {
+        if (ctx.Integer) {
             return extractor.extractFloat(ctx.Integer[0].image)
-        } else if (ctx.Float[0]) {
+        } else if (ctx.Float) {
             return extractor.extractFloat(ctx.Float[0].image)
         }
 
@@ -196,11 +196,11 @@ export class ToAstVisitor extends BaseVisitor {
     }
 
     dateValue(ctx: any) {
-        if (ctx.Date[0]) {
+        if (ctx.Date) {
             return extractor.extractDate(ctx.Date[0].image)
-        } else if (ctx.Time[0]) {
+        } else if (ctx.Time) {
             return extractor.extractTime(ctx.Time[0].image)
-        } else if (ctx.DateTime[0]) {
+        } else if (ctx.DateTime) {
             return extractor.extractDateTime(ctx.DateTime[0].image)
         }
 

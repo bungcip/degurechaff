@@ -15,10 +15,9 @@ export function extractString(input: string): string {
     /// replace \U{8} unicode escape
     const regex = /\\u([\d\w]{8})/gi;
     input = input.replace(regex, function (match, grp) {
-        return String.fromCharCode(parseInt(grp, 16)); 
-    });
+        return String.fromCharCode(parseInt(grp, 16))
+    })
     
-
     return JSON.parse(input)
 }
 
