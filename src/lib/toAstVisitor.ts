@@ -57,16 +57,16 @@ export class ToAstVisitor extends BaseVisitor {
 
     tableNameSegment(ctx: any): string {
         let result = ""
-        if (ctx.Integer[0]) {
+        if (ctx.Integer) {
             result = ctx.Integer[0].image
-        } else if (ctx.Float[0]) {
+        } else if (ctx.Float) {
             const float = ctx.Float[0].image
             result = float.split(".")
-        } else if (ctx.Identifier[0]) {
+        } else if (ctx.Identifier) {
             result = ctx.Identifier[0].image
-        } else if (ctx.BasicString[0]) {
+        } else if (ctx.BasicString) {
             result = this.stringValue(ctx)
-        } else if (ctx.LiteralString[0]) {
+        } else if (ctx.LiteralString) {
             result = this.stringValue(ctx)
         } else if (ctx.boolValue) {
             result = this.visit(ctx.boolValue).toString()
@@ -126,10 +126,10 @@ export class ToAstVisitor extends BaseVisitor {
         let kind
 
         /// composite value
-        if (ctx.arrayValue[0]) {
+        if (ctx.arrayValue) {
             const values = this.visit(ctx.arrayValue)
             return new ast.ArrayValue(values)
-        } else if (ctx.inlineTableValue[0]) {
+        } else if (ctx.inlineTableValue) {
             const values = this.visit(ctx.inlineTableValue)
             return new ast.InlineTableValue(values)
         }
@@ -140,10 +140,10 @@ export class ToAstVisitor extends BaseVisitor {
             result = this.visit(ctx.stringValue)
         } else if (ctx.numberValue) {
             const numberCtx = ctx.numberValue[0].children
-            if (numberCtx.Integer[0]) {
+            if (numberCtx.Integer) {
                 kind = ast.AtomicValueKind.Integer
                 result = extractor.extractFloat(numberCtx.Integer[0].image)
-            } else if (numberCtx.Float[0]) {
+            } else if (numberCtx.Float) {
                 kind = ast.AtomicValueKind.Float
                 result = extractor.extractFloat(numberCtx.Float[0].image)
             } else {
@@ -163,7 +163,7 @@ export class ToAstVisitor extends BaseVisitor {
     }
 
     boolValue(ctx: any): boolean {
-        if (ctx.True[0]) {
+        if (ctx.True) {
             return true
         } else {
             return false
@@ -244,8 +244,12 @@ export class ToAstVisitor extends BaseVisitor {
         }
     }
 
-    private visitAll(nodes: CstNode[]): any[] {
+    private visitAll(nodes?: CstNode[]): any[] {
         let result: any[] = []
+
+        if(nodes === undefined){
+            return result
+        }
 
         for (const node of nodes) {
             let value = this.visit(node)
