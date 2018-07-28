@@ -1,12 +1,12 @@
-/// Test to check degurechaff parser 
+/// Test to check degurechaff parser
 /// with toml-test data
 
 import { parse } from '../src/degurechaff'
 import * as ast from '../src/lib/chevAst'
 import * as utils from '../src/lib/utils'
 
-import fs from 'fs'
-
+import * as fs from 'fs'
+import * as path from 'path'
 
 /// convert AST root node to JSON compatible object structure
 /// in folder data
@@ -51,7 +51,7 @@ function toValueSpec(data: ast.Value) {
         const result = {}
         dumpPairs(result, data.pairs)
         return result
-    } 
+    }
 
     /// other data have same format {'type': ..., 'value': ....}
     let type
@@ -115,7 +115,6 @@ function testInvalid(folder, filename){
     }).toThrow();
 }
 
-import path from 'path'
 
 
 describe('test valid toml file', () => {
@@ -160,7 +159,7 @@ test('test invalid toml file', () => {
     testInvalid('test/data/invalid', 'float-no-leading-zero')
     testInvalid('test/data/invalid', 'float-no-trailing-digits')
     testInvalid('test/data/invalid', 'float-underscore-after-point')
-    
+
 
     testInvalid('test/data/invalid', 'integer-leading-zero-neg')
     testInvalid('test/data/invalid', 'integer-leading-zero-pos')
@@ -192,7 +191,7 @@ test('test invalid toml file', () => {
     testInvalid('test/data/invalid', 'table-nested-brackets-open')
     testInvalid('test/data/invalid', 'table-whitespace')
     testInvalid('test/data/invalid', 'table-with-pound')
-    
+
     testInvalid('test/data/invalid', 'text-after-array-entries')
     testInvalid('test/data/invalid', 'text-after-integer')
     testInvalid('test/data/invalid', 'text-after-string')
