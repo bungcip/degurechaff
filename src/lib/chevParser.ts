@@ -1,37 +1,25 @@
 /**
  *  new token, lexer & parser implementation using chevrotain
  */
-import {
-  Lexer,
-  Parser,
-  EOF,
-  IMultiModeLexerDefinition,
-  IToken,
-  createToken,
-  createTokenInstance,
-  ICustomPattern
-} from 'chevrotain'
+import { Lexer, Parser, EOF, IMultiModeLexerDefinition, createToken } from 'chevrotain'
+
+/// helper function to create regex pattern from other regex
+function pattern(array: (RegExp | string)[]): RegExp {
+  return new RegExp(array.map(x => (typeof x === 'string' ? x : x.source)).join(''))
+}
 
 const signFragment = /(-|\+)?/
 const integerFragment = /(0|[1-9](\d|_)*)/
-const expFragment = /([eE][+-]?\d+)?/
+const expFragment = /([eE][+-]?[\d_]+)?/
 
 const Float = createToken({
   name: 'Float',
-  pattern: /(-|\+)?(0|[1-9](\d|_)*)(\.(0|[1-9])(\d|_)*)?([eE][+-]?[\d_]+)?/
-  // static PATTERN = new RegExp([
-  //     signFragment,
-  //     integerFragment,
-  //     /\(\./,
-  //     integerFragment,
-  //     /\)?/,
-  //     expFragment
-  // ].map(x => x.source).join(''))
+  pattern: pattern([signFragment, integerFragment, '(\\.', '(0|[1-9])(\\d|_)', '*)?', expFragment])
 })
 
 const Integer = createToken({
   name: 'Integer',
-  pattern: new RegExp([signFragment, integerFragment].map(x => x.source).join('')),
+  pattern: pattern([signFragment, integerFragment]),
   longer_alt: Float
 })
 
@@ -87,7 +75,7 @@ function matchMultiLineBasicString(input: string, offset: number): RegExpExecArr
 const MultiLineBasicString = createToken({
   name: 'MultiLineBasicString',
   line_breaks: true,
-  pattern: matchMultiLineBasicString as any
+  pattern: matchMultiLineBasicString
 })
 
 const LiteralString = createToken({ name: 'LiteralString', pattern: /'(:?[^\'])*'/ })
@@ -120,7 +108,7 @@ const tzFragment = /(Z|([+-]\d{2}:\d{2}))?/
 
 const DateTime = createToken({
   name: 'DateTime',
-  pattern: new RegExp([dateFragment, /T/, timeFragment, tzFragment].map(x => x.source).join(''))
+  pattern: pattern([dateFragment, /T/, timeFragment, tzFragment])
 })
 
 const Date = createToken({
@@ -386,7 +374,7 @@ export class TomlParser extends Parser {
     this.OR([
       { ALT: () => this.CONSUME(BasicString) },
       { ALT: () => this.CONSUME(LiteralString) },
-      { ALT: () => this.CONSUME(MultiLineBasicString as any) }, /// Need this until chevrotain fixed it
+      { ALT: () => this.CONSUME(MultiLineBasicString) },
       { ALT: () => this.CONSUME(MultiLineLiteralString) }
     ])
   })
@@ -446,7 +434,7 @@ export class TomlParser extends Parser {
 
   constructor() {
     super(allTokens)
-    Parser.performSelfAnalysis(this)
+    this.performSelfAnalysis()
   }
 }
 
