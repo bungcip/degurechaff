@@ -1,6 +1,6 @@
 {
   "name": "degurechaff",
-  "version": "0.0.1-alpha",
+  "version": "0.0.2-alpha",
   "description": "Spec compliant TOML Parser in Typescript. This is alpha version, don't use in production",
   "keywords": [],
   "main": "dist/degurechaff.umd.js",
