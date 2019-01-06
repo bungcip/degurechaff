@@ -1,19 +1,21 @@
-import * as cp from '../src/lib/chevParser'
+// import * as cp from '../src/lib/chevParser'
+import { Parser } from '../src/lib/parser'
+import { Lexer } from '../src/lib/lexer'
 
 function setupParser(input: string) {
-  const lexerResult = cp.TomlLexer.tokenize(input)
-  const parser = new cp.TomlParser()
-  parser.input = lexerResult.tokens
-  parser.root()
+  const lexer = new Lexer(input)
+  const tokens = lexer.tokenize()
+  const parser = new Parser(tokens)
+  parser.parseRoot()
 
   return parser
 }
 
-function setupParserAndCst(input: string) {
-  const lexerResult = cp.TomlLexer.tokenize(input)
-  const parser = new cp.TomlParser()
-  parser.input = lexerResult.tokens
-  const cst = parser.root()
+function setupParserAndCst(input: string): any {
+  const lexer = new Lexer(input)
+  const tokens = lexer.tokenize()
+  const parser = new Parser(tokens)
+  const cst = parser.parseRoot()
 
   return [parser, cst]
 }
@@ -167,7 +169,7 @@ test('parser: arrayOfTable', () => {
   const testTable = (input: string, aotLength: number) => {
     const [parser, cst] = setupParserAndCst(input)
     expect(parser.errors).toEqual([])
-    expect(cst.children.arrayOfTable.length).toEqual(aotLength)
+    expect(cst.arrayOfTables.length).toEqual(aotLength)
   }
 
   testTable(`[[empty]]`, 1)

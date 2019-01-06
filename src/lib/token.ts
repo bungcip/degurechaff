@@ -2,7 +2,7 @@ import * as dt from './dt'
 
 export const enum TokenType {
   Invalid,
-  // EndOfFile,
+  EndOfFile, /// this token is not produced by lexer
 
   Comment,
 
@@ -34,6 +34,64 @@ export const enum TokenType {
   Date,
   Time,
   DateTime
+}
+
+export function print(tt: TokenType): string {
+  switch (tt) {
+    case TokenType.Invalid:
+      return 'INVALID_TOKEN'
+    case TokenType.EndOfFile:
+      return 'EOF'
+    case TokenType.Comment:
+      return 'COMMENT'
+    case TokenType.Integer:
+      return 'INTEGER'
+    case TokenType.Float:
+      return 'FLOAT'
+    case TokenType.Identifier:
+      return 'IDENTIFIER'
+
+    case TokenType.LeftBracket:
+      return '['
+    case TokenType.RightBracket:
+      return ']'
+    case TokenType.LeftParen:
+      return '('
+    case TokenType.RightParen:
+      return ')'
+    case TokenType.LeftCurly:
+      return '{'
+    case TokenType.RightCurly:
+      return '}'
+    case TokenType.Equal:
+      return '='
+    case TokenType.Dot:
+      return '.'
+    case TokenType.Comma:
+      return ','
+    case TokenType.Colon:
+      return ':'
+
+    case TokenType.BasicString:
+      return 'BASIC_STRING'
+    case TokenType.LiteralString:
+      return 'LITERAL_STRING'
+    case TokenType.MultiLineBasicString:
+      return 'MULTILINE_BASIC_STRING'
+    case TokenType.MultiLineLiteralString:
+      return 'MULTILINE_LITERAL_STRING'
+
+    ///
+    case TokenType.Date:
+      return 'DATE'
+    case TokenType.Time:
+      return 'TIME'
+    case TokenType.DateTime:
+      return 'DATETIME'
+
+    default:
+      return 'UNKWOWN'
+  }
 }
 
 export class SourcePosition {

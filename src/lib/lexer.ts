@@ -412,7 +412,7 @@ export class Lexer {
           this.consumeEscape()
           break
         case '\n':
-          throw 'consumeBasicString(): newline is not allowed'
+          throw new Error('consumeBasicString(): newline is not allowed')
         default:
           this.advance()
       }

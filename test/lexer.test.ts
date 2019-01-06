@@ -1,4 +1,5 @@
 import { Lexer } from '../src/lib/lexer'
+import { TokenType } from '../src/lib/token'
 
 function tokenize(input: string) {
   const lexer = new Lexer(input)
@@ -93,6 +94,13 @@ test('lexer: datetime in array with trailing comma', () => {
   expect(tokens[5].image).toEqual('2006-06-01T11:00:00Z')
   expect(tokens[6].image).toEqual(',')
   expect(tokens[7].image).toEqual(']')
+})
+
+test('lexer: utf8 in basic string', () => {
+  const input = `"ʞ"`
+  const tokens = tokenize(input)
+  expect(tokens[0].image).toEqual(`"ʞ"`)
+  expect(tokens[0].type).toEqual(TokenType.BasicString)
 })
 
 test('lexer: multiline basic string', () => {
