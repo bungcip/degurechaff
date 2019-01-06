@@ -2,6 +2,32 @@
 import * as dt from './dt'
 import { Token } from './token'
 
+export const enum Type {
+  Root,
+  Table,
+  Pair,
+  Key,
+  Value,
+
+  Error /// Error Node
+}
+
+export type TokenIndex = number
+
+/// CST Node
+export class Node {
+  // type: Type,
+  // spanBegin: TokenIndex,
+  // spanEnd: TokenIndex,
+
+  constructor(
+    public type: Type,
+    public begin: TokenIndex,
+    public end: TokenIndex,
+    public children: Node[]
+  ) {}
+}
+
 export class Root {
   constructor(public pairs: Pair[], public tables: Table[], public arrayOfTables: ArrayOfTable[]) {}
 }

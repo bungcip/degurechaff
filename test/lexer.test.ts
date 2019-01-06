@@ -1,9 +1,9 @@
 import { Lexer } from '../src/lib/lexer'
 import { TokenType } from '../src/lib/token'
 
-function tokenize(input: string) {
+function tokenize(input: string, skipWs: boolean = true) {
   const lexer = new Lexer(input)
-  const tokens = lexer.tokenize()
+  const tokens = lexer.tokenize(skipWs)
   return tokens
 }
 
@@ -38,8 +38,11 @@ test('lexer: whitespace and new line', () => {
     c
     `
   const tokens = tokenize(input)
-
   expect(tokens.length).toEqual(3)
+
+  /// with withspace
+  const allTokens = tokenize(input, false)
+  expect(allTokens.length).toEqual(7)
 })
 
 test('lexer: whitespace new line inside bracket ignored', () => {
@@ -136,4 +139,34 @@ test('lexer: unicode escape', () => {
   expect(tokens.length).toEqual(2)
   expect(tokens[0].image).toEqual(`"\U000003B4"`)
   expect(tokens[1].image).toEqual(`"\u03B4"`)
+})
+
+test('lexer: offset & position', () => {
+  const input = `a b c
+
+d e f
+  `
+  const tokens = tokenize(input, false)
+
+  expect(tokens.length).toEqual(12)
+
+  expect(tokens[0].location.begin.line).toEqual(1)
+  expect(tokens[0].location.begin.column).toEqual(1)
+  expect(tokens[0].location.end.line).toEqual(1)
+  expect(tokens[0].location.end.column).toEqual(2)
+
+  expect(tokens[2].location.begin.line).toEqual(1)
+  expect(tokens[2].location.begin.column).toEqual(3)
+  expect(tokens[2].location.end.line).toEqual(1)
+  expect(tokens[2].location.end.column).toEqual(4)
+
+  expect(tokens[4].location.begin.line).toEqual(1)
+  expect(tokens[4].location.begin.column).toEqual(5)
+  expect(tokens[4].location.end.line).toEqual(1)
+  expect(tokens[4].location.end.column).toEqual(6)
+
+  expect(tokens[6].location.begin.line).toEqual(3)
+  expect(tokens[6].location.begin.column).toEqual(1)
+  expect(tokens[6].location.end.line).toEqual(3)
+  expect(tokens[6].location.end.column).toEqual(2)
 })

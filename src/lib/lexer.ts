@@ -153,7 +153,10 @@ export class Lexer {
    */
   next(): Token | null {
     /// skip whitespace
-    this.skipWhitespace()
+    const ws = this.consumeWhiteSpace()
+    if (ws) {
+      return ws
+    }
 
     if (this.offset >= this.input.length) {
       this.mark()
@@ -187,12 +190,14 @@ export class Lexer {
   /**
    * get all token from input
    */
-  tokenize(): Token[] {
+  tokenize(skipWs: boolean = true): Token[] {
     const tokens = []
     while (true) {
       const token = this.next()
       if (token === null) {
         break
+      } else if (token.type === TokenType.WhiteSpace && skipWs === true) {
+        continue
       }
 
       tokens.push(token)
@@ -202,27 +207,35 @@ export class Lexer {
   }
 
   /// skip whitespace
-  private skipWhitespace() {
-    while (this.offset < this.input.length) {
+  private consumeWhiteSpace(): Token | null {
+    let hasWS = false
+
+    outerLoop: while (this.offset < this.input.length) {
       let nextCh = this.peek()
       switch (nextCh) {
         case ' ':
         case '\t':
-          this.offset++
-          this.column++
-          break
         case '\r':
           this.offset++
           this.column++
+          hasWS = true
+          break
         /// fallthrough
         case '\n':
           this.offset++
           this.line++
           this.column = 1
+          hasWS = true
           break
         default:
-          return
+          break outerLoop
       }
+    }
+
+    if (hasWS) {
+      return this.token(TokenType.WhiteSpace)
+    } else {
+      return null
     }
   }
 
@@ -243,7 +256,7 @@ export class Lexer {
     const token = this.token(TokenType.Comment)
 
     /// discard newline character
-    this.skipWhitespace()
+    this.consumeWhiteSpace()
 
     return token
   }

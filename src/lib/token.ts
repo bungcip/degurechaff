@@ -3,6 +3,7 @@ import * as dt from './dt'
 export const enum TokenType {
   Invalid,
   EndOfFile, /// this token is not produced by lexer
+  WhiteSpace,
 
   Comment,
 

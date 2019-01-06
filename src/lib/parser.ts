@@ -208,7 +208,7 @@ export class Parser {
   private parseArray(): cst.ArrayValue {
     this.expect(TokenType.LeftBracket)
 
-    let items: cst.Value[] = []
+    const items: cst.Value[] = []
 
     while (this.eof() === false) {
       let nextToken = this.peek()
@@ -249,7 +249,7 @@ export class Parser {
   }
 
   private parseName(): cst.Name {
-    let segments: Token[] = []
+    const segments: Token[] = []
 
     do {
       let token = this.advance()
