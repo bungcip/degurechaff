@@ -53,7 +53,7 @@ export class LexerState {
     this.skipComment()
     const newIndex = this.position + n
 
-    if (this.position >= this.tokens.length) {
+    if (newIndex >= this.tokens.length) {
       return this.eofToken
     }
 
@@ -83,7 +83,7 @@ export class LexerState {
   }
 
   eof(): boolean {
-    const token = this.peek()
+    const token = this.current()
     if (token.type === TokenType.EndOfFile) {
       return true
     }
@@ -92,9 +92,8 @@ export class LexerState {
   }
 
   skipComment() {
-    const nextIndex = this.position
-    while (nextIndex < this.tokens.length) {
-      const token = this.tokens[nextIndex]
+    while (this.position < this.tokens.length) {
+      const token = this.tokens[this.position]
       if (token.type === TokenType.Comment || token.type === TokenType.WhiteSpace) {
         this.position++
       } else {

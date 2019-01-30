@@ -1,59 +1,67 @@
 // import * as ast from './ast'
 import * as cst from './cst'
 import { Token, TokenType, SourceRange, SourcePosition, print as printToken } from './token'
+import { LexerState } from './lexerState'
 
 /// pratt parser
 export class Parser {
-  // private root!: cst.Root
-  private tokens: Token[]
-  private eofToken: Token
-
+  private state: LexerState
   public errors: Token[] = [] /// sementara...
 
   constructor(tokens: Token[]) {
-    this.tokens = tokens
-
-    /// create token
-    let lastToken = this.tokens[this.tokens.length - 1]
-    let location
-    if (lastToken === undefined) {
-      location = new SourceRange(new SourcePosition(1, 1), new SourcePosition(1, 1))
-    } else {
-      location = lastToken.location
-    }
-
-    this.eofToken = new Token(TokenType.EndOfFile, location, '')
+    this.state = new LexerState(tokens)
   }
 
-  parseRoot(): cst.Root {
+  private node(type: cst.Type, children: cst.NodeChildren): cst.Node {
+    const begin = this.state.unmark()
+    const end = this.state.position
+    const instance = new cst.Node(type, begin, end, children)
+    return instance
+  }
+
+  private atomic(type: cst.Type, kind: cst.AtomicValueKind): cst.AtomicNode {
+    const begin = this.state.unmark()
+    const end = this.state.position
+    const instance = new cst.AtomicNode(type, begin, end, kind)
+    return instance
+  }
+
+  parseRoot(): cst.Node {
+    this.state.mark()
+
     const pairs = []
     const arrayOfTables = []
     const tables = []
 
-    while (this.eof() === false) {
-      let firstToken = this.peek(1)
-      let secondToken = this.peek(2)
+    while (this.state.eof() === false) {
+      const firstToken = this.state.peek(0)
+      const secondToken = this.state.peek(1)
 
       if (firstToken.type === TokenType.LeftBracket) {
         if (secondToken.type === TokenType.LeftBracket) {
-          let aot = this.parseArrayOfTable()
+          const aot = this.parseArrayOfTable()
           arrayOfTables.push(aot)
         } else {
-          let table = this.parseTable()
+          const table = this.parseTable()
           tables.push(table)
         }
       } else {
-        let pair = this.parsePair()
+        const pair = this.parsePair()
         pairs.push(pair)
       }
     }
 
-    const node = new cst.Root(pairs, tables, arrayOfTables)
+    const children = new Map<cst.Type, cst.Node[]>()
+    children.set(cst.Type.Pair, pairs)
+    children.set(cst.Type.Table, tables)
+    children.set(cst.Type.ArrayOfTable, arrayOfTables)
+
+    const node = this.node(cst.Type.Root, children)
     return node
   }
 
   private expect(tt: TokenType): Token {
-    const token = this.advance()
+    const token = this.state.advance()
     if (token.type !== tt) {
       console.trace('ok')
       throw new Error(`Expected ${printToken(tt)} but got ${printToken(token.type)} ${token.image}`)
@@ -63,81 +71,44 @@ export class Parser {
   }
 
   private advanceIf(tt: TokenType): Token | false {
-    let nextToken = this.peek()
+    const nextToken = this.state.current()
     if (nextToken.type === tt) {
-      return this.advance()
+      return this.state.advance()
     }
     return false
   }
 
-  private skipComment() {
-    let token = this.tokens[0]
-    while (token !== undefined && token.type === TokenType.Comment) {
-      this.tokens.shift()
-      token = this.tokens[0]
-    }
-  }
+  private parsePair(): cst.Node {
+    this.state.mark()
 
-  /**
-   * Get next token without advancing current position
-   */
-  private peek(n: number = 1): Token {
-    this.skipComment()
-
-    if (this.tokens.length < n) {
-      return this.eofToken
-    }
-
-    return this.tokens[n - 1]
-  }
-
-  private advance(): Token {
-    this.skipComment()
-
-    if (this.tokens.length < 1) {
-      return this.eofToken
-    }
-
-    /// this.tokens is guaranted to have minimun one element
-    return this.tokens.shift() as Token
-  }
-
-  public eof(): boolean {
-    let token = this.peek()
-    if (token.type === TokenType.EndOfFile) {
-      return true
-    }
-
-    return false
-  }
-
-  private parsePair(): cst.Pair {
-    let key = this.parseKey()
+    const key = this.parseKey()
     this.expect(TokenType.Equal)
-    let value = this.parseValue()
+    const value = this.parseValue()
 
-    let node = new cst.Pair(key, value)
+    const node = this.node(cst.Type.Pair, [key, value])
     return node
   }
 
-  private parsePairs(): cst.Pair[] {
-    let nodes: cst.Pair[] = []
+  private parsePairs(): cst.Node[] {
+    const nodes: cst.Node[] = []
 
-    while (this.eof() === false) {
-      let nextToken = this.peek()
-      if (nextToken.type === TokenType.LeftBracket) {
+    while (this.state.eof() === false) {
+      const current = this.state.current()
+      if (current.type === TokenType.LeftBracket) {
         break
       }
 
-      let pair = this.parsePair()
+      const pair = this.parsePair()
       nodes.push(pair)
     }
 
     return nodes
   }
 
-  private parseKey(): cst.Key {
-    const token = this.advance()
+  private parseKey(): cst.Node {
+    this.state.mark()
+
+    const token = this.state.advance()
     const allowedTokens = [
       TokenType.Identifier,
       TokenType.BasicString,
@@ -145,20 +116,20 @@ export class Parser {
       TokenType.Integer
     ]
     if (allowedTokens.includes(token.type) === false) {
-      // console.log(this.root.pairs)
-      // console.trace("HORE")
       throw new Error('parseKey(): unexpected token found, ' + token.image)
     }
 
-    const node = new cst.Key(token)
+    const node = this.node(cst.Type.Key, [token])
     return node
   }
 
   /**
    * parse value fragment
    */
-  private parseValue(): cst.AtomicValue | cst.ArrayValue | cst.InlineTableValue {
-    const token = this.peek()
+  private parseValue(): cst.Node {
+    this.state.mark()
+
+    const token = this.state.current()
     switch (token.type) {
       case TokenType.LeftBracket:
         return this.parseArray()
@@ -169,8 +140,10 @@ export class Parser {
     }
   }
 
-  parseAtomic(): cst.AtomicValue {
-    const token = this.advance()
+  parseAtomic(): cst.AtomicNode {
+    this.state.mark()
+
+    const token = this.state.advance()
     let kind = cst.AtomicValueKind.String
     switch (token.type) {
       case TokenType.Integer:
@@ -201,36 +174,36 @@ export class Parser {
       default:
         throw new Error("parseAtomic(): unexpected token found '" + token.image + "'")
     }
-    const node = new cst.AtomicValue(kind, token)
+    const node = this.atomic(cst.Type.Atomic, kind)
     return node
   }
 
-  private parseArray(): cst.ArrayValue {
+  private parseArray(): cst.Node {
+    this.state.mark()
+
     this.expect(TokenType.LeftBracket)
 
-    const items: cst.Value[] = []
+    const items: cst.Node[] = []
 
-    while (this.eof() === false) {
-      let nextToken = this.peek()
-      switch (nextToken.type) {
+    while (this.state.eof() === false) {
+      let current = this.state.current()
+      switch (current.type) {
         case TokenType.RightBracket:
-          this.advance()
-          const node = new cst.ArrayValue(items)
+          this.state.advance()
+          const node = this.node(cst.Type.Array, items)
           return node
         default:
           const value = this.parseValue()
           items.push(value)
-          nextToken = this.peek()
-          switch (nextToken.type) {
+          current = this.state.current()
+          switch (current.type) {
             case TokenType.Comma:
-              this.advance()
+              this.state.advance()
               continue
             case TokenType.RightBracket:
               continue
             default:
-              throw new Error(
-                'parseArray(): expected , or ] but got ' + nextToken.image + ' instead'
-              )
+              throw new Error('parseArray(): expected , or ] but got ' + current.image + ' instead')
           }
       }
     }
@@ -238,21 +211,27 @@ export class Parser {
     throw new Error('EOF reached before token ] found')
   }
 
-  private parseTable(): cst.Table {
+  private parseTable(): cst.Node {
+    this.state.mark()
+
     this.expect(TokenType.LeftBracket)
     const name = this.parseName()
     this.expect(TokenType.RightBracket)
     const pairs = this.parsePairs()
 
-    const node = new cst.Table(name, pairs)
+    pairs.unshift(name)
+
+    const node = this.node(cst.Type.Table, pairs)
     return node
   }
 
-  private parseName(): cst.Name {
+  private parseName(): cst.Node {
+    this.state.mark()
+
     const segments: Token[] = []
 
     do {
-      let token = this.advance()
+      let token = this.state.advance()
       switch (token.type) {
         case TokenType.Identifier:
         case TokenType.BasicString:
@@ -273,11 +252,13 @@ export class Parser {
       }
     } while (this.advanceIf(TokenType.Dot))
 
-    const node = new cst.Name(segments)
+    const node = this.node(cst.Type.Name, segments)
     return node
   }
 
-  private parseArrayOfTable(): cst.ArrayOfTable {
+  private parseArrayOfTable(): cst.Node {
+    this.state.mark()
+
     this.expect(TokenType.LeftBracket)
     this.expect(TokenType.LeftBracket)
 
@@ -287,8 +268,10 @@ export class Parser {
     this.expect(TokenType.RightBracket)
 
     const pairs = this.parsePairs()
-    const node = new cst.ArrayOfTable(name, pairs)
 
+    pairs.unshift(name)
+
+    const node = this.node(cst.Type.ArrayOfTable, pairs)
     return node
   }
 
@@ -302,7 +285,7 @@ export class Parser {
     this.expect(begin)
 
     let result: T[] = []
-    while (this.peek().type !== end && this.eof() === false) {
+    while (this.state.current().type !== end && this.state.eof() === false) {
       let item = callback()
       result.push(item)
 
@@ -316,10 +299,18 @@ export class Parser {
     return result
   }
 
-  private parseInlineTable(): cst.InlineTableValue {
-    let parsePair: () => cst.Pair = this.parsePair.bind(this)
-    let pairs = this.surround(TokenType.LeftCurly, TokenType.RightCurly, TokenType.Comma, parsePair)
-    let node = new cst.InlineTableValue(pairs)
+  private parseInlineTable(): cst.Node {
+    this.state.mark()
+
+    const parsePair: () => cst.Node = this.parsePair.bind(this)
+    const pairs = this.surround(
+      TokenType.LeftCurly,
+      TokenType.RightCurly,
+      TokenType.Comma,
+      parsePair
+    )
+
+    const node = this.node(cst.Type.InlineTable, pairs)
     return node
   }
 }

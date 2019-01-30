@@ -21,6 +21,17 @@ test('lexerState: eof', () => {
   expect(state.advance().type).toBe(TokenType.EndOfFile)
 })
 
+test('lexerState: comment is ignored', () => {
+  const input = `# empty`
+  const state = tokenize(input)
+
+  expect(state.eof()).toBe(true)
+  expect(state.peek(1).type).toBe(TokenType.EndOfFile)
+  expect(state.peek(2).type).toBe(TokenType.EndOfFile)
+  expect(state.peek(3).type).toBe(TokenType.EndOfFile)
+  expect(state.advance().type).toBe(TokenType.EndOfFile)
+})
+
 test('lexerState: simple navigation', () => {
   const input = `1 a [`
   const state = tokenize(input)

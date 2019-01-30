@@ -1,5 +1,6 @@
 import { Parser } from '../src/lib/parser'
 import { Lexer } from '../src/lib/lexer'
+import * as cst from '../src/lib/cst'
 
 function setupParser(input: string) {
   const lexer = new Lexer(input)
@@ -166,9 +167,10 @@ test('parser: valid table name', () => {
 
 test('parser: arrayOfTable', () => {
   const testTable = (input: string, aotLength: number) => {
-    const [parser, cst] = setupParserAndCst(input)
+    const [parser, node] = setupParserAndCst(input)
     expect(parser.errors).toEqual([])
-    expect(cst.arrayOfTables.length).toEqual(aotLength)
+
+    expect(node.children.get(cst.Type.ArrayOfTable).length).toEqual(aotLength)
   }
 
   testTable(`[[empty]]`, 1)
