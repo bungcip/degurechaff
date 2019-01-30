@@ -142,7 +142,7 @@ export class Token {
       case TokenType.DateTime:
         return this.extractDateTime(this.image)
       default:
-        throw 'jsValue(): not yet implemented'
+        throw new Error('jsValue(): not yet implemented')
     }
   }
 
@@ -246,7 +246,7 @@ export class Token {
           // console.log("exprs:", exprs)
           // console.log('part')
           if (exprs === null) {
-            throw 'extractTime(): unexpected null'
+            throw new Error('extractTime(): unexpected null')
           }
 
           const sign = exprs[1] as dt.TimeOffsetSign

@@ -69,7 +69,7 @@ export class Lexer {
    */
   private peekN(n: number): string | null {
     let result = this.input.slice(this.offset, this.offset + n)
-    if (result.length != n) {
+    if (result.length !== n) {
       return null
     }
     return result
@@ -143,8 +143,8 @@ export class Lexer {
   /// consume current character
   private expect(expectedCh: Char) {
     let ch = this.advance()
-    if (ch != expectedCh) {
-      throw "Expect character '" + expectedCh + "' but got '" + ch + "' instead"
+    if (ch !== expectedCh) {
+      throw new Error("Expect character '" + expectedCh + "' but got '" + ch + "' instead")
     }
   }
 
@@ -307,7 +307,7 @@ export class Lexer {
       /// identifier cannot contain '.'  or '+'
       /// so we must mark this token as invalid
       if (isFraction || isExponentPositive) {
-        throw "consumeNumberOrIdentifier(): identifier cannot contain '.' or '+'"
+        throw new Error("consumeNumberOrIdentifier(): identifier cannot contain '.' or '+'")
       }
     }
 
@@ -364,8 +364,8 @@ export class Lexer {
     this.advanceExact(this.isDigit, 2, 'consumeTime(): seconds must be 2')
     if (this.advanceIf('.')) {
       const fracDigit = this.advanceWhile(this.isDigit)
-      if (fracDigit == 0) {
-        throw 'consumeTime(): fractions digit need minimum 1 digit'
+      if (fracDigit === 0) {
+        throw new Error('consumeTime(): fractions digit need minimum 1 digit')
       }
     }
 
@@ -481,8 +481,8 @@ export class Lexer {
       case 'r':
         return
       case '\n':
-        if (allowedNewLine == false) {
-          throw 'consumeEscape(): newline is not allowed'
+        if (allowedNewLine === false) {
+          throw new Error('consumeEscape(): newline is not allowed')
         }
         return
       case 'u':
@@ -503,19 +503,18 @@ export class Lexer {
         code.push(this.advance())
         break
       default:
-        throw 'not yet implemented'
+        throw new Error('not yet implemented')
     }
 
-    let number = parseInt(code.join(''), 16)
-    if (isNaN(number)) {
-      throw 'consumeEscape(): invalid unicode number'
+    const n = parseInt(code.join(''), 16)
+    if (isNaN(n)) {
+      throw new Error('consumeEscape(): invalid unicode number')
     }
 
     // valid unicode scalar value
-    let validRange =
-      (number >= 0 && number <= 0xd7ff16) || (number >= 0xe00016 && number <= 0x10ffff16)
+    let validRange = (n >= 0 && n <= 0xd7ff16) || (n >= 0xe00016 && n <= 0x10ffff16)
     if (validRange === false) {
-      throw 'consumeEscape():not valid scalar unicode value'
+      throw new Error('consumeEscape():not valid scalar unicode value')
     }
   }
 
@@ -606,7 +605,7 @@ export class Lexer {
       default:
         console.log('input:', this.input)
         console.log('offset:', this.offset)
-        throw 'expected single char token but got ' + ch + ' instead'
+        throw new Error('expected single char token but got ' + ch + ' instead')
     }
     return this.token(tt)
   }

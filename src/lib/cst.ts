@@ -5,14 +5,24 @@ import { Token } from './token'
 export const enum Type {
   Root,
   Table,
+  ArrayOfTable,
   Pair,
   Key,
-  Value,
+  Value, /// ~~ NOTE: tidak terpakai?
+
+  /// Value
+  Atomic,
+  Array,
+  InlineTable,
+
+  /// Table Name
+  Name,
 
   Error /// Error Node
 }
 
 export type TokenIndex = number
+export type NodeChildren = (Node | TokenIndex | Token)[] | Map<Type, Node[]>
 
 /// CST Node
 export class Node {
@@ -24,8 +34,17 @@ export class Node {
     public type: Type,
     public begin: TokenIndex,
     public end: TokenIndex,
-    public children: Node[]
+    public children: NodeChildren
   ) {}
+}
+
+export class AtomicNode extends Node {
+  public kind: AtomicValueKind
+
+  constructor(type: Type, begin: TokenIndex, end: TokenIndex, kind: AtomicValueKind) {
+    super(type, begin, end, [end])
+    this.kind = kind
+  }
 }
 
 export class Root {
